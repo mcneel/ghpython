@@ -48,6 +48,13 @@ namespace GhPython.Component
                 SetScriptTransientGlobals();
         }
 
+        public Control CreateEditorControl()
+        {
+            if (_py != null)
+                return _py.CreateTextEditorControl("", null);
+            return null;
+        }
+
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.Register_StringParam("Code", "code", "This is the python code");

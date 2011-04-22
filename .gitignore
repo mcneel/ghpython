@@ -1,0 +1,10 @@
+GhPython.csproj.user
+GhPython.suo
+/bin
+/obj
+/references/RhinoCommon.xml
+/references/GH_IO.dll
+/references/GH_IO.xml
+/references/Grasshopper.dll
+/references/Grasshopper.xml
+/references/RhinoCommon.dll

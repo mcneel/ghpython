@@ -25,13 +25,10 @@ namespace GhPython.Component
             {
                 m_form = new PythonScriptForm();
                 m_form.LinkedComponent = (PythonComponent)this.Owner;
-                m_form.TopLevel = true;
             }
 
             if (!m_form.Visible)
-                m_form.Show(Rhino.RhinoApp.MainWindow());
-
-            m_form.TopMost = true;
+                m_form.Show(Grasshopper.GH_InstanceServer.DocumentEditor);
 
             return base.RespondToMouseDoubleClick(sender, e);
         }
