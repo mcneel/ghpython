@@ -17,6 +17,37 @@ namespace GhPython.Forms
         public PythonScriptForm()
         {
             InitializeComponent();
+            this.KeyDown += new KeyEventHandler(ScriptForm_KeyDown);
+        }
+
+        Control m_texteditor;
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            if (_component != null)
+            {
+                m_texteditor = _component.CreateEditorControl();
+                if (m_texteditor != null)
+                {
+                    this.textEditor.Visible = false;
+                    this.splitContainer1.Panel1.Controls.Add(m_texteditor);
+                    m_texteditor.Dock = DockStyle.Fill;
+                    m_texteditor.Text = textEditor.Text;
+                }
+            }
+        }
+
+        void ScriptForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (m_texteditor == null)
+                return;
+            // 22 April 2011 - S. Baer
+            // I realize this is very "hacky", but it will keep
+            // things working until I move this logic into the
+            // control itself
+            var mi = m_texteditor.GetType().GetMethod("ProcessKeyDown");
+            if (mi != null)
+                mi.Invoke(m_texteditor, new object[] { e });
         }
 
         bool _showClosePrompt = true;
@@ -117,7 +148,7 @@ namespace GhPython.Forms
                             }
                         }
 
-                        string newCode = textEditor.Text;
+                        string newCode = (m_texteditor!=null)? m_texteditor.Text : textEditor.Text;
 
 
                         codeInput.ClearPersistentData();
