@@ -13,7 +13,7 @@ namespace GhPython.Component
     /// This is an abstract class which automatically calls its own destructor when the user deletes it or
     /// closes the document. It handles most cases well, and relies on the GC for any other case. Please use the standard constructor 
     /// if you need to execute something also when the assembly loads, and the Initialize() method to setup any single component 
-    /// when it first lands & executes on the canvas. Remember to call base.Dispose(disposing) if you override Dispose(bool).
+    /// when it first lands and executes on the canvas. Remember to call base.Dispose(disposing) if you override Dispose(bool).
     /// </summary>
     public abstract class SafeComponent : GH_Component, IGH_DocumentObject, IDisposable
     {
