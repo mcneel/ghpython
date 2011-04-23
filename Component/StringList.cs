@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GhPython.Component
 {
-    internal class StringList
+    class StringList
     {
         List<string> _txts;
 

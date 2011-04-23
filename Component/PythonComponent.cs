@@ -98,7 +98,7 @@ namespace GhPython.Component
 
                 if (!DA.GetData(0, ref s))
                     throw new ApplicationException("Impossible to retrive code to execute");
-
+              
                 if (_py.ExecuteScript(s))
                 {
                     RetrieveOutput(DA, sl, outputName);
