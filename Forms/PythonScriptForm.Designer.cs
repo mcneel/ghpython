@@ -40,11 +40,9 @@
             this.okButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.textEditor = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
@@ -62,8 +60,8 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.saveToolStripMenuItem});
+                  this.openToolStripMenuItem,
+                  this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -140,10 +138,6 @@
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.textEditor);
             this.splitContainer1.Panel1MinSize = 200;
             // 
             // splitContainer1.Panel2
@@ -163,16 +157,6 @@
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = "";
             // 
-            // textEditor
-            // 
-            this.textEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textEditor.Location = new System.Drawing.Point(0, 0);
-            this.textEditor.Multiline = true;
-            this.textEditor.Name = "textEditor";
-            this.textEditor.Size = new System.Drawing.Size(501, 237);
-            this.textEditor.TabIndex = 0;
-            this.textEditor.Text = "Here goes the text editor...";
-            // 
             // PythonScriptForm
             // 
             this.AcceptButton = this.okButton;
@@ -188,13 +172,10 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(300, 400);
             this.Name = "PythonScriptForm";
-            this.Text = "PythonScriptForm";
-            this.Load += new System.EventHandler(this.PythonScriptForm_Load);
+            this.Text = "Python Script";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -216,6 +197,5 @@
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Button applyButton;
-        private System.Windows.Forms.TextBox textEditor;
     }
 }

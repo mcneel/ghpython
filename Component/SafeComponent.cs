@@ -23,10 +23,6 @@ namespace GhPython.Component
         bool _disposed;
         bool _locked;
 
-        static SafeComponent()
-        {
-        }
-
         /// <summary>
         /// Do not use this constructor for initialization, but always use the Initialize() method, which will run only once.
         /// This constructor is called more times at startup for indexing the picture and some other external reasons.

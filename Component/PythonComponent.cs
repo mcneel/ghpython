@@ -26,7 +26,7 @@ namespace GhPython.Component
         const string INPUTS_NAME = "inputs", OUTPUTS_NAME = "outputs", DOCUMENT_NAME = "doc";
 
         public PythonComponent()
-            : base("Python Interpreter", "Python", "A small pythonic interpreter", "Math", "Script")
+            : base("Python Script", "Python", "A python scriptable component", "Math", "Script")
         {
         }
 
@@ -375,13 +375,11 @@ namespace GhPython.Component
         {
             base.Menu_AppendDerivedItems(iMenu);
 
-            ToolStripMenuItem ti = new ToolStripMenuItem("RhinoScript target", null,
-                new ToolStripItem[]
+            var ti = new ToolStripMenuItem("rhinoscriptsyntax target", null, new ToolStripItem[]
             {
                 new ToolStripMenuItem("In " + DOCUMENT_NAME + " variable", GetCheckedImage(_storage == DocStorage.InGrasshopperMemory), SetPythonDocAsGhMem)
                 {
-                     ToolTipText = 
-                     string.Format("Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs")
+                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs"
                 },
                 new ToolStripMenuItem("In standard Rhino document", GetCheckedImage(_storage == DocStorage.InRhinoDoc), SetPythonDocAsDoc)
                 {
@@ -389,11 +387,11 @@ namespace GhPython.Component
                 },
                 new ToolStripMenuItem("No document", GetCheckedImage(_storage == DocStorage.None), SetPythonDocAsNone)
                 {
-                     ToolTipText = "Use this option if you do not wish to use RhinoScript methods, but only RhinoCommon"
+                     ToolTipText = "Use this option if you do not wish to use rhinoscriptsyntax functions, but only RhinoCommon"
                 },
             })
             {
-                ToolTipText = "Choose where RhinoScript functions have their effects"
+                ToolTipText = "Choose where rhinoscriptsyntax functions have their effects"
             };
 
             iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), ti);
@@ -403,7 +401,6 @@ namespace GhPython.Component
         {
             _storage = DocStorage.InRhinoDoc;
             SetScriptTransientGlobals();
-
             this.ExpireSolution(true);
         }
 
@@ -481,7 +478,7 @@ namespace GhPython.Component
                 PythonComponentAttributes attr = Attributes as PythonComponentAttributes;
                 if (attr != null)
                 {
-                    attr.CloseLinkedForm();
+                    attr.ClearLinkedForm(true);
                 }
             }
         }

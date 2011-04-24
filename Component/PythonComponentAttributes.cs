@@ -8,51 +8,43 @@ namespace GhPython.Component
 {
     class PythonComponentAttributes : GH_ComponentAttributes
     {
-        public PythonComponentAttributes(SafeComponent r) : base(r)
+        PythonScriptForm _form;
+
+        public PythonComponentAttributes(SafeComponent r)
+        : base(r)
         {
-            _attachedComp = r;
         }
-
-        PythonScriptForm m_form;
-
-        SafeComponent _attachedComp;
 
         public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
-            _attachedComp.CheckAndSetupActions();
-
-            if (m_form == null || m_form.IsDisposed)
+            var attachedComp = this.Owner as PythonComponent;
+            if (attachedComp != null)
             {
-                m_form = new PythonScriptForm();
-                m_form.LinkedComponent = (PythonComponent)this.Owner;
+                attachedComp.CheckAndSetupActions();
+
+                if (_form == null || _form.IsDisposed)
+                {
+                    _form = new PythonScriptForm(attachedComp);
+                }
+                if (!_form.Visible)
+                    _form.Show(Grasshopper.GH_InstanceServer.DocumentEditor);
             }
-
-            if (!m_form.Visible)
-                m_form.Show(Grasshopper.GH_InstanceServer.DocumentEditor);
-
             return base.RespondToMouseDoubleClick(sender, e);
         }
 
-        public void ClearLinkedForm()
+        public void ClearLinkedForm(bool close)
         {
-            m_form = null;
-        }
+            if (close && _form != null && !_form.IsDisposed)
+                _form.CloseWithoutUserCancel();
 
-        public void CloseLinkedForm()
-        {
-            if (m_form != null && !m_form.IsDisposed)
-            {
-                m_form.TopMost = false;
-                m_form.CloseWithoutUserCancel();
-                ClearLinkedForm();
-            }
+            _form = null;
         }
 
         public bool TrySetLinkedFormHelpText(string text)
         {
-            if (m_form != null && !m_form.IsDisposed)
+            if (_form != null && !_form.IsDisposed)
             {
-                m_form.HelpText(text);
+                _form.HelpText(text);
                 return true;
             }
             return false;
