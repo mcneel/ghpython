@@ -223,9 +223,13 @@ namespace GhPython.Component
             {
                 DA.SetData(loc, o);
             }
-            else if (o is IEnumerable)
+            else if (o is IEnumerable )
             {
                 DA.SetDataList(loc, o as IEnumerable);
+            }
+            else if (o is IGH_DataTree)
+            {
+                DA.SetDataTree(loc, o as IGH_DataTree);
             }
             else
             {
