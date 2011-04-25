@@ -22,8 +22,9 @@ namespace GhPython.Component
         DocStorage _storage;
         GrasshopperDocument _document;
         PythonScript _py;
+        PythonCompiledCode _compiled_py;
 
-        const string INPUTS_NAME = "inputs", OUTPUTS_NAME = "outputs", DOCUMENT_NAME = "doc";
+        const string DOCUMENT_NAME = "doc";
 
         public PythonComponent()
             : base("Python Script", "Python", "A python scriptable component", "Math", "Script")
@@ -32,7 +33,6 @@ namespace GhPython.Component
 
         public override void CreateAttributes()
         {
-            //base.CreateAttributes();
             this.Attributes = new PythonComponentAttributes(this);
         }
 
@@ -48,27 +48,35 @@ namespace GhPython.Component
                 SetScriptTransientGlobals();
         }
 
-        public Control CreateEditorControl()
+        public Control CreateEditorControl(Action<string> helpCallback)
         {
-            if (_py != null)
-                return _py.CreateTextEditorControl("", null);
-            return null;
+            return (_py==null)? null : _py.CreateTextEditorControl("", helpCallback);
         }
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.Register_StringParam("Code", "code", "This is the python code");
+            var codeparam = new Param_String();
+            codeparam.Name = "Code";
+            codeparam.NickName = "code";
+            codeparam.Description = "Python script to execute";
+            codeparam.ObjectChanged += new IGH_DocumentObject.ObjectChangedEventHandler(OnCodeChanged);
+            pManager.RegisterParam(codeparam);
 
-            var t = new Param_ScriptVariable();
-            t.NickName = "i";
-            FixGhInput(t);
-            pManager.RegisterParam(t);
+            pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
+            pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "y"));
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.Register_StringParam("Output", "out", "The execution information, as error and info streams");
-            pManager.Register_GenericParam("Result", "a", "The result(s)");
+            pManager.Register_StringParam("Output", "out", "The execution information, as output and error streams");
+
+            pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Output, "a"));
+        }
+        
+        void OnCodeChanged(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
+        {
+            // Throw away the compiled script. We will just recompile on the next solve
+            _compiled_py = null;
         }
 
         protected override void SafeSolveInstance(IGH_DataAccess DA)
@@ -81,28 +89,47 @@ namespace GhPython.Component
 
             DA.DisableGapLogic(0);
 
-            string s = null;
             StringList sl = new StringList();
             _py.Output = sl.Write;
 
-            string inputName, outputName;
-            SetScriptOutputGlobals(DA, out outputName);
-
-            var prevEnambled = Rhino.RhinoDoc.ActiveDoc.Views.RedrawEnabled;
-            RhinoDoc.ActiveDoc.Views.RedrawEnabled = false;
+            var rhdoc = RhinoDoc.ActiveDoc;
+            var prevEnabled = (rhdoc == null) ? false : rhdoc.Views.RedrawEnabled;
 
             try
             {
-                object input = FillInputVariables(DA);
-                SetScriptInputGlobals(input, out inputName);
-
-                if (!DA.GetData(0, ref s))
-                    throw new ApplicationException("Impossible to retrive code to execute");
-              
-                if (_py.ExecuteScript(s))
+                // Set all of the input variables. Even null variables may be used
+                // in the script, so do not attempt to skip these for optimization
+                // purposes.
+                // First input parameter is the code itself, so we should skip that
+                for (int i = 1; i < Params.Input.Count; i++)
                 {
-                    RetrieveOutput(DA, sl, outputName);
+                    string varname = Params.Input[i].NickName;
+                    object o = GetItemFromParameter(DA, i);
+                    _py.SetVariable(varname, o);
+                }
 
+                if (_compiled_py == null)
+                {
+                    string script = null;
+                    if (!DA.GetData(0, ref script))
+                        throw new ApplicationException("Impossible to retrive code to execute");
+                    _compiled_py = _py.Compile(script);
+                }
+              
+                if (_compiled_py!=null )
+                {
+                    _compiled_py.Execute(_py);
+                    // Python script completed, attempt to set all of the
+                    // output paramerers
+                    for (int i=1; i<Params.Output.Count; i++ )
+                    {
+                        string varname = Params.Output[i].NickName;
+                        if (_py.ContainsVariable(varname))
+                        {
+                            object o = _py.GetVariable(varname);
+                            ReadOneOutput(DA, o, i);
+                        }
+                    }
                 }
                 else
                 {
@@ -117,8 +144,8 @@ namespace GhPython.Component
             }
             finally
             {
-                if (prevEnambled != RhinoDoc.ActiveDoc.Views.RedrawEnabled)
-                    RhinoDoc.ActiveDoc.Views.RedrawEnabled = true;
+                if ( rhdoc!=null && prevEnabled != rhdoc.Views.RedrawEnabled)
+                    rhdoc.Views.RedrawEnabled = true;
             }
             SetErrorOrClearIt(DA, sl);
         }
@@ -141,34 +168,6 @@ namespace GhPython.Component
             }
         }
 
-        private object FillInputVariables(IGH_DataAccess DA)
-        {
-            var input = new DynamicTextList(Params.Input.Count - 1);
-
-            for (int i = 1; i < Params.Input.Count; i++)
-            {
-                switch (Params.Input[i].Access)
-                {
-                    case GH_ParamAccess.item:
-                        input.Add(Params.Input[i].NickName, GetItemFromParameter(DA, i));
-                        break;
-
-                    case GH_ParamAccess.list:
-                        input.Add(Params.Input[i].NickName, GetListFromParameter(DA, i));
-                        break;
-
-                    case GH_ParamAccess.tree:
-                        input.Add(Params.Input[i].NickName, GetTreeFromParameter(DA, i));
-                        break;
-
-                    default:
-                        throw new ApplicationException("Wrong parameter in variable access type");
-                }
-            }
-            input.Close();
-            return input;
-        }
-
         private void AddErrorNicely(StringList sw, Exception ex)
         {
             sw.Write(string.Format("Runtime error ({0}): {1}", ex.GetType().Name, ex.Message));
@@ -186,42 +185,6 @@ namespace GhPython.Component
             IGH_Goo destination = null;
             DA.GetData<IGH_Goo>(index, ref destination);
             return this.TypeCast(destination, index);
-        }
-
-        private object GetListFromParameter(IGH_DataAccess DA, int index)
-        {
-            List<IGH_Goo> list2 = new List<IGH_Goo>();
-            DA.GetDataList<IGH_Goo>(index, list2);
-            IGH_TypeHint typeHint = ((Param_ScriptVariable)this.Params.Input[index]).TypeHint;
-            List<object> list = new List<object>();
-
-            for (int i = 0; i < list2.Count; i++)
-            {
-                list.Add(this.TypeCast(list2[i], typeHint));
-            }
-            return list;
-        }
-
-        private object GetTreeFromParameter(IGH_DataAccess DA, int index)
-        {
-            GH_Structure<IGH_Goo> structure = new GH_Structure<IGH_Goo>();
-            DA.GetDataTree<IGH_Goo>(index, out structure);
-            IGH_TypeHint typeHint = ((Param_ScriptVariable)this.Params.Input[index]).TypeHint;
-            DataTree<object> tree = new DataTree<object>();
-
-            for (int i = 0; i < structure.PathCount; i++)
-            {
-                GH_Path path = structure.get_Path(i);
-                List<IGH_Goo> list = structure.Branches[i];
-                List<object> data = new List<object>();
-
-                for (int j = 0; j < list.Count; j++)
-                {
-                    data.Add(this.TypeCast(list[j], typeHint));
-                }
-                tree.AddRange(data, path);
-            }
-            return tree;
         }
 
         private object TypeCast(IGH_Goo data, int index)
@@ -246,43 +209,12 @@ namespace GhPython.Component
             return target;
         }
 
-        private void RetrieveOutput(IGH_DataAccess DA, StringList sw, string outputName)
-        {
-            object o = _py.GetVariable(outputName);
-
-            if (o is DynamicTextList)
-            {
-                var lo = (DynamicTextList)o;
-                for (int i = 0; i < lo.Count; i++)
-                {
-                    ReadOneOutput(DA, sw, outputName, lo[i], i + 1);
-                }
-            }
-            else //the user overrode the whole variable. We can still rescue it...
-            {
-                if (Params.Output.Count > 1)
-                {
-                    if (Params.Output.Count > 2) //Warn
-                        sw.Write(
-                            string.Format("The \"{0}\" variable was overridden with a single result, but it accepted many. You can set the first input with \"{0}.{1} = expr\", the second with \"{0}.{2} = expr\"",
-                            OUTPUTS_NAME, Params.Output[1].NickName, Params.Output[2].NickName));
-                    ReadOneOutput(DA, sw, outputName, o, 1);
-                }
-                else
-                {
-                    //Maybe not. Error
-                    throw new ArgumentException("There is no output to set the results... Right click to add one.");
-                }
-            }
-        }
-
-        private void ReadOneOutput(IGH_DataAccess DA, StringList sw, string outputName, object o, int loc)
+        private void ReadOneOutput(IGH_DataAccess DA, object o, int loc)
         {
             if (o == null)
-            {
-                sw.Write(string.Format("There are no results in {2}: \"{0}\" is NoneType.\r\n\r\nPlease use\r\n{1}[\"{2}\"] = something\r\nto return geometry.", outputName, OUTPUTS_NAME, Params.Output.Count > 1 ? Params.Output[loc].NickName : "Name"));
-            }
-            else if (o is GrasshopperDocument)
+                return;
+
+            if (o is GrasshopperDocument)
             {
                 DA.SetDataList(loc, (o as GrasshopperDocument).Objects.Geometries);
                 (o as GrasshopperDocument).Objects.Clear();
@@ -299,25 +231,6 @@ namespace GhPython.Component
             {
                 DA.SetData(loc, o);
             }
-        }
-
-        private void SetScriptOutputGlobals(IGH_DataAccess DA, out string outputName)
-        {
-            outputName = OUTPUTS_NAME;
-
-            var list = new DynamicTextList(this.Params.Output.Count - 1);
-            for (int i = 1; i < Params.Output.Count; i++)
-            {
-                list.Add(Params.Output[i].NickName, null);
-            }
-
-            _py.SetVariable(outputName, list);
-        }
-
-        private void SetScriptInputGlobals(object val, out string inputName)
-        {
-            inputName = INPUTS_NAME;
-            _py.SetVariable(inputName, val);
         }
 
         private void SetScriptTransientGlobals()
@@ -349,26 +262,17 @@ namespace GhPython.Component
 
         public override Guid ComponentGuid
         {
-            get
-            {
-                return new Guid("{CEAB6E56-CEEC-A646-84D5-363C57440969}");
-            }
+            get { return new Guid("{CEAB6E56-CEEC-A646-84D5-363C57440969}"); }
         }
 
         protected override Bitmap Icon
         {
-            get
-            {
-                return Resources.python;
-            }
+            get { return Resources.python; }
         }
 
         public override GH_Exposure Exposure
         {
-            get
-            {
-                return GH_Exposure.secondary;
-            }
+            get { return GH_Exposure.secondary; }
         }
 
         public override void Menu_AppendDerivedItems(ToolStripDropDown iMenu)
@@ -442,10 +346,7 @@ namespace GhPython.Component
 
         private static Bitmap GetCheckedImage(bool check)
         {
-            if (check)
-                return Resources._checked;
-            else
-                return Resources._unchecked;
+            return check? Resources._checked: Resources._unchecked;
         }
 
         protected override void OnLockedChanged(bool nowIsLocked)
@@ -487,38 +388,45 @@ namespace GhPython.Component
         //------------------------------------------------------------------------------------------
         #region Members of IGH_VarParamComponent
 
-        public IGH_Param ConstructVariable(GH_VarParamEventArgs e)
+        IGH_Param ConstructVariable(GH_VarParamSide side, string nickname)
         {
-            if (e.Side == GH_VarParamSide.Input)
+            if (side == GH_VarParamSide.Input)
             {
-                Param_ScriptVariable p = new Param_ScriptVariable();
-                FixGhInput(p);
-                return p;
+                var param = new Param_ScriptVariable();
+                if (!string.IsNullOrWhiteSpace(nickname))
+                    param.NickName = nickname;
+                FixGhInput(param);
+                return param;
             }
-            if (e.Side == GH_VarParamSide.Output)
+            if (side == GH_VarParamSide.Output)
             {
-                Param_GenericObject p = new Param_GenericObject();
-                p.Name = p.NickName;
-                p.Description = string.Format("Variable {0}", p.NickName);
-                return p;
+                var param = new Param_GenericObject();
+                if (string.IsNullOrWhiteSpace(nickname))
+                    param.Name = param.NickName;
+                else
+                {
+                    param.NickName = nickname;
+                    param.Name = String.Format("Result {0}", nickname);
+                }
+                param.Description = String.Format("Output parameter {0}", param.NickName);
+                return param;
             }
             return null;
+        }
+      
+        public IGH_Param ConstructVariable(GH_VarParamEventArgs e)
+        {
+            return ConstructVariable(e.Side, null);
         }
 
         public bool IsInputVariable
         {
-            get
-            {
-                return true;
-            }
+            get { return true; }
         }
 
         public bool IsOutputVariable
         {
-            get
-            {
-                return true;
-            }
+            get { return true; }
         }
 
         public bool IsVariableParam(GH_VarParamEventArgs e)
@@ -528,25 +436,8 @@ namespace GhPython.Component
 
         public void ManagerConstructed(GH_VarParamSide side, Grasshopper.GUI.GH_VariableParameterManager manager)
         {
-            switch (side)
-            {
-                case GH_VarParamSide.Input:
-                    {
-                        ExtendedRomanNumeralsConstructor constructor = new ExtendedRomanNumeralsConstructor();
-                        manager.NameConstructor = constructor;
-                        break;
-                    }
-                case GH_VarParamSide.Output:
-                    {
-                        GH_CharPatternParamNameConstructor constructor2 = new GH_CharPatternParamNameConstructor
-                        {
-                            StackDepth = 4
-                        };
-                        constructor2.SetCharPool("abcdefghijklmnopqrstuvwxyz");
-                        manager.NameConstructor = constructor2;
-                        break;
-                    }
-            }
+            string pool = (side == GH_VarParamSide.Input)?"xyzuvw":"abcdef";
+            manager.NameConstructor = new GH_CharPatternParamNameConstructor(pool, 4);
         }
 
         public void ParametersModified(GH_VarParamSide side)
@@ -575,7 +466,7 @@ namespace GhPython.Component
 
         }
 
-        private static void FixGhInput(Param_ScriptVariable i)
+        static void FixGhInput(Param_ScriptVariable i)
         {
             i.Name = string.Format("Variable {0}", i.NickName);
             i.Description = string.Format("Script Variable {0}", i.NickName);

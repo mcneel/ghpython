@@ -71,10 +71,9 @@ namespace GhPython.Component
         protected sealed override void SolveInstance(IGH_DataAccess DA)
         {
             if (_disposed)
-                throw new ObjectDisposedException("This object is already disposed, either by the user deletion or becasue the document was closed.");
+                throw new ObjectDisposedException("This object is already disposed, either by the user deletion or because the document was closed.");
 
             CheckAndSetupActions();
-
             SafeSolveInstance(DA);
         }
 

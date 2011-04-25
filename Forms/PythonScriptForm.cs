@@ -28,7 +28,7 @@ namespace GhPython.Forms
             this.KeyDown += new KeyEventHandler(ScriptForm_KeyDown);
 
             _component = linkedComponent;
-            _texteditor = _component.CreateEditorControl();
+            _texteditor = _component.CreateEditorControl(OnPythonHelp);
             this.splitContainer1.Panel1.Controls.Add(_texteditor);
             _texteditor.Dock = DockStyle.Fill;
 
@@ -43,6 +43,11 @@ namespace GhPython.Forms
                         _texteditor.Text = code;
                 }
             }
+        }
+
+        void OnPythonHelp(string str)
+        {
+          richTextBox1.Text = str;
         }
 
         void ScriptForm_KeyDown(object sender, KeyEventArgs e)
