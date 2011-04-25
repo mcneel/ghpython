@@ -97,6 +97,12 @@ namespace GhPython.Component
 
             try
             {
+                // clear all of the output variables
+                for (int i = 1; i < Params.Output.Count; i++)
+                {
+                    string varname = Params.Output[i].NickName;
+                    _py.SetVariable(varname, null);
+                }
                 // Set all of the input variables. Even null variables may be used
                 // in the script, so do not attempt to skip these for optimization
                 // purposes.
