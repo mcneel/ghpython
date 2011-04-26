@@ -18,6 +18,11 @@ namespace GhPython.Component
             _txts.Add(s);
         }
 
+        public void Reset()
+        {
+            _txts.Clear();
+        }
+
         public List<string> Result
         {
             get

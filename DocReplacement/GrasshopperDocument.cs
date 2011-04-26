@@ -353,12 +353,19 @@ namespace GhPython.DocReplacement
                     throw new NotSupportedException("No undo is supported the Grasshopper-Python transparent document");
             }
         }
-        public ViewTable Views
+        GHViewTable _views = new GHViewTable();
+        public GHViewTable Views
         {
             get
             {
-                return _doc.Views;
+              return _views;// _doc.Views;
             }
         }
     }
+}
+
+
+public class GHViewTable
+{
+  public void Redraw() { }
 }

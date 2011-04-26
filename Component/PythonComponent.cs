@@ -23,8 +23,9 @@ namespace GhPython.Component
         GrasshopperDocument _document;
         PythonScript _py;
         PythonCompiledCode _compiled_py;
+        StringList _py_output = new StringList();
 
-        const string DOCUMENT_NAME = "doc";
+        const string DOCUMENT_NAME = "ghdoc";
 
         public PythonComponent()
             : base("Python Script", "Python", "A python scriptable component", "Math", "Script")
@@ -45,7 +46,10 @@ namespace GhPython.Component
 
             _py = PythonScript.Create();
             if (_py != null)
+            {
                 SetScriptTransientGlobals();
+                _py.Output = _py_output.Write;
+            }
         }
 
         public Control CreateEditorControl(Action<string> helpCallback)
@@ -89,8 +93,7 @@ namespace GhPython.Component
 
             DA.DisableGapLogic(0);
 
-            StringList sl = new StringList();
-            _py.Output = sl.Write;
+            _py_output.Reset();
 
             var rhdoc = RhinoDoc.ActiveDoc;
             var prevEnabled = (rhdoc == null) ? false : rhdoc.Views.RedrawEnabled;
@@ -130,22 +133,19 @@ namespace GhPython.Component
                     for (int i=1; i<Params.Output.Count; i++ )
                     {
                         string varname = Params.Output[i].NickName;
-                        if (_py.ContainsVariable(varname))
-                        {
-                            object o = _py.GetVariable(varname);
-                            ReadOneOutput(DA, o, i);
-                        }
+                        object o = _py.GetVariable(varname);
+                        ReadOneOutput(DA, o, i);
                     }
                 }
                 else
                 {
-                    sl.Write("There was a permanent error parsing this script. Please report to giulio@mcneel.com.");
+                    _py_output.Write("There was a permanent error parsing this script. Please report to giulio@mcneel.com.");
                 }
             }
             catch (Exception ex)
             {
-                AddErrorNicely(sl, ex);
-                SetErrorOrClearIt(DA, sl);
+                AddErrorNicely(_py_output, ex);
+                SetErrorOrClearIt(DA, _py_output);
                 throw;
             }
             finally
@@ -153,7 +153,7 @@ namespace GhPython.Component
                 if ( rhdoc!=null && prevEnabled != rhdoc.Views.RedrawEnabled)
                     rhdoc.Views.RedrawEnabled = true;
             }
-            SetErrorOrClearIt(DA, sl);
+            SetErrorOrClearIt(DA, _py_output);
         }
 
         private void SetErrorOrClearIt(IGH_DataAccess DA, StringList sl)
@@ -250,6 +250,7 @@ namespace GhPython.Component
                 _document = new GrasshopperDocument();
                 _py.ScriptContextDoc = _document;
                 _py.SetVariable(DOCUMENT_NAME, _document);
+                _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);              
             }
             else if (_storage == DocStorage.InRhinoDoc)
             {
@@ -258,6 +259,7 @@ namespace GhPython.Component
                 if (_py.ContainsVariable(DOCUMENT_NAME))
                 {
                     _py.RemoveVariable(DOCUMENT_NAME);
+                    _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
                 }
             }
             else if (_storage == DocStorage.None)
@@ -266,6 +268,7 @@ namespace GhPython.Component
                 if (_py.ContainsVariable(DOCUMENT_NAME))
                 {
                     _py.RemoveVariable(DOCUMENT_NAME);
+                    _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
                 }
             }
         }
