@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Rhino;
-using Rhino.DocObjects.Tables;
+using System.Collections;
 using Grasshopper;
-using Rhino.DocObjects;
-using Rhino.Geometry;
-using Rhino.Collections;
 using Grasshopper.Kernel;
+using Rhino;
+using Rhino.Collections;
+using Rhino.DocObjects.Tables;
+using Rhino.Display;
+using System.Collections.Generic;
+using Rhino.DocObjects;
 
 namespace GhPython.DocReplacement
 {
     public class GrasshopperDocument
     {
-        RhinoDoc _doc = RhinoDoc.ActiveDoc;
         ObjectTable _docTable = RhinoDoc.ActiveDoc.Objects;
         CustomTable _table = new CustomTable();
 
@@ -30,7 +29,7 @@ namespace GhPython.DocReplacement
 
                 if(geom is IGH_BakeAwareData)
                 {
-                    (geom as IGH_BakeAwareData).BakeGeometry(_doc, attr, out guid);
+                    (geom as IGH_BakeAwareData).BakeGeometry(RhinoDoc.ActiveDoc, attr, out guid);
                     if(!guid.Equals(Guid.Empty))
                         newGuids.Add(guid);
                 }else
@@ -40,11 +39,38 @@ namespace GhPython.DocReplacement
             return newGuids;
         }
 
-        public object this[Guid id]{
-        
+        public object this[Guid id]
+        {
             get
             {
                 return Objects.Contains(id) ? Objects.Find(id).Geometry : null;
+            }
+        }
+
+
+        public IEnumerable this[IEnumerable guids]
+        {
+
+            get
+            {
+                return SubSet(guids);
+            }
+        }
+
+        public IEnumerable SubSet(IEnumerable guids)
+        {
+            foreach (var obj in guids)
+            {
+                if (obj is Guid)
+                {
+                    var id = (Guid)obj;
+                    if (Objects.Contains(id))
+                        yield return Objects.Find(id).Geometry;
+                    else
+                        yield return null;
+                }
+                else
+                    yield return null;
             }
         }
 
@@ -68,7 +94,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.DistanceDisplayPrecision;
+                return RhinoDoc.ActiveDoc.DistanceDisplayPrecision;
             }
         }
 
@@ -124,7 +150,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.IsSendingMail;
+                return RhinoDoc.ActiveDoc.IsSendingMail;
             }
         }
 
@@ -148,7 +174,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.ModelAbsoluteTolerance;
+                return RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
             }
             set
             {
@@ -160,7 +186,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.ModelAngleToleranceDegrees;
+                return RhinoDoc.ActiveDoc.ModelAngleToleranceDegrees;
             }
             set
             {
@@ -172,7 +198,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.ModelAngleToleranceRadians;
+                return RhinoDoc.ActiveDoc.ModelAngleToleranceRadians;
             }
             set
             {
@@ -184,7 +210,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.ModelRelativeTolerance;
+                return RhinoDoc.ActiveDoc.ModelRelativeTolerance;
             }
             set
             {
@@ -195,7 +221,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.ModelUnitSystem;
+                return RhinoDoc.ActiveDoc.ModelUnitSystem;
             }
             set
             {
@@ -241,7 +267,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.Notes;
+                return RhinoDoc.ActiveDoc.Notes;
             }
             set
             {
@@ -253,7 +279,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.PageAbsoluteTolerance;
+                return RhinoDoc.ActiveDoc.PageAbsoluteTolerance;
             }
             set
             {
@@ -265,7 +291,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.PageAngleToleranceDegrees;
+                return RhinoDoc.ActiveDoc.PageAngleToleranceDegrees;
             }
             set
             {
@@ -277,7 +303,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.PageAngleToleranceRadians;
+                return RhinoDoc.ActiveDoc.PageAngleToleranceRadians;
             }
             set
             {
@@ -293,7 +319,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.PageRelativeTolerance;
+                return RhinoDoc.ActiveDoc.PageRelativeTolerance;
             }
             set
             {
@@ -304,7 +330,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.PageUnitSystem;
+                return RhinoDoc.ActiveDoc.PageUnitSystem;
             }
             set
             {
@@ -338,7 +364,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                return _doc.TemplateFileUsed;
+                return RhinoDoc.ActiveDoc.TemplateFileUsed;
             }
         }
         public bool UndoRecordingEnabled
@@ -353,19 +379,130 @@ namespace GhPython.DocReplacement
                     throw new NotSupportedException("No undo is supported the Grasshopper-Python transparent document");
             }
         }
-        GHViewTable _views = new GHViewTable();
-        public GHViewTable Views
+        GhViewTable _views = new GhViewTable(() => RhinoDoc.ActiveDoc.Views, false);
+        public GhViewTable Views
         {
             get
             {
-              return _views;// _doc.Views;
+              return _views;
             }
+        }
+    }
+
+    public class GhViewTable : IEnumerable<RhinoView>
+    {
+        Func<ViewTable> _tableFunc;
+        bool _redraws;
+
+        public GhViewTable(Func<ViewTable> tableFunc, bool redraws)
+        {
+            _tableFunc = tableFunc;
+            _redraws = redraws;
+        }
+
+        public RhinoView ActiveView
+        {
+            get
+            {
+                return _tableFunc().ActiveView;
+            }
+            set
+            {
+                _tableFunc().ActiveView = value;
+            }
+        }
+
+        public RhinoDoc Document
+        {
+            get
+            {
+                return _tableFunc().Document;
+            }
+        }
+
+        public bool RedrawEnabled
+        {
+            get
+            {
+                return _tableFunc().RedrawEnabled;
+            }
+            set
+            {
+                _tableFunc().RedrawEnabled = value;
+            }
+        }
+
+        public RhinoPageView AddPageView(string title)
+        {
+            return _tableFunc().AddPageView(title);
+        }
+
+        public RhinoPageView AddPageView(string title, double pageWidth, double pageHeight)
+        {
+            return _tableFunc().AddPageView(title, pageWidth, pageHeight);
+        }
+
+        public void DefaultViewLayout()
+        {
+            _tableFunc().DefaultViewLayout();
+        }
+
+        public RhinoView Find(Guid mainViewportId)
+        {
+            return Find(mainViewportId);
+        }
+
+        public RhinoView Find(string mainViewportName, bool compareCase)
+        {
+            return _tableFunc().Find(mainViewportName, compareCase);
+        }
+
+        public void FlashObjects(IEnumerable<RhinoObject> list, bool useSelectionColor)
+        {
+            _tableFunc().FlashObjects(list, useSelectionColor);
+        }
+
+        public void FourViewLayout(bool useMatchingViews)
+        {
+            _tableFunc().FourViewLayout(useMatchingViews);
+        }
+
+        public IEnumerator<RhinoView> GetEnumerator()
+        {
+            return _tableFunc().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public RhinoPageView[] GetPageViews()
+        {
+            return _tableFunc().GetPageViews();
+        }
+
+        public RhinoView[] GetStandardRhinoViews()
+        {
+            return _tableFunc().GetStandardRhinoViews();
+        }
+
+        public RhinoView[] GetViewList(bool includeStandardViews, bool includePageViews)
+        {
+            return _tableFunc().GetViewList(includeStandardViews, includePageViews);
+        }
+
+        public void Redraw()
+        {
+            if (_redraws)
+                _tableFunc().Redraw();
+        }
+
+        public void ThreeViewLayout(bool useMatchingViews)
+        {
+            _tableFunc().ThreeViewLayout(useMatchingViews);
         }
     }
 }
 
 
-public class GHViewTable
-{
-  public void Redraw() { }
-}

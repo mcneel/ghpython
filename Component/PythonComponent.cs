@@ -23,6 +23,7 @@ namespace GhPython.Component
         GrasshopperDocument _document;
         PythonScript _py;
         PythonCompiledCode _compiled_py;
+        string _previousRunCode;
         StringList _py_output = new StringList();
 
         const string DOCUMENT_NAME = "ghdoc";
@@ -110,19 +111,40 @@ namespace GhPython.Component
                 // in the script, so do not attempt to skip these for optimization
                 // purposes.
                 // First input parameter is the code itself, so we should skip that
+                // Please pay attention to the input data structure type
                 for (int i = 1; i < Params.Input.Count; i++)
                 {
                     string varname = Params.Input[i].NickName;
-                    object o = GetItemFromParameter(DA, i);
+                    object o;
+                    switch (Params.Input[i].Access)
+                    {
+                        case GH_ParamAccess.item:
+                            o = GetItemFromParameter(DA, i);
+                            break;
+
+                        case GH_ParamAccess.list:
+                            o = GetListFromParameter(DA, i);
+                            break;
+
+                        case GH_ParamAccess.tree:
+                            o = GetTreeFromParameter(DA, i);
+                            break;
+
+                        default:
+                            throw new ApplicationException("Wrong parameter in variable access type");
+                    }
                     _py.SetVariable(varname, o);
                 }
 
-                if (_compiled_py == null)
+                string script = null;
+                if (!DA.GetData(0, ref script))
+                    throw new ApplicationException("Impossible to retrive code to execute");
+
+                if (_compiled_py == null ||
+                    string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
                 {
-                    string script = null;
-                    if (!DA.GetData(0, ref script))
-                        throw new ApplicationException("Impossible to retrive code to execute");
                     _compiled_py = _py.Compile(script);
+                    _previousRunCode = script;
                 }
               
                 if (_compiled_py!=null )
@@ -193,6 +215,42 @@ namespace GhPython.Component
             return this.TypeCast(destination, index);
         }
 
+        private object GetListFromParameter(IGH_DataAccess DA, int index)
+        {
+            List<IGH_Goo> list2 = new List<IGH_Goo>();
+            DA.GetDataList<IGH_Goo>(index, list2);
+            IGH_TypeHint typeHint = ((Param_ScriptVariable)this.Params.Input[index]).TypeHint;
+            List<object> list = new List<object>();
+
+            for (int i = 0; i < list2.Count; i++)
+            {
+                list.Add(this.TypeCast(list2[i], typeHint));
+            }
+            return list;
+        }
+
+        private object GetTreeFromParameter(IGH_DataAccess DA, int index)
+        {
+            GH_Structure<IGH_Goo> structure = new GH_Structure<IGH_Goo>();
+            DA.GetDataTree<IGH_Goo>(index, out structure);
+            IGH_TypeHint typeHint = ((Param_ScriptVariable)this.Params.Input[index]).TypeHint;
+            DataTree<object> tree = new DataTree<object>();
+
+            for (int i = 0; i < structure.PathCount; i++)
+            {
+                GH_Path path = structure.get_Path(i);
+                List<IGH_Goo> list = structure.Branches[i];
+                List<object> data = new List<object>();
+
+                for (int j = 0; j < list.Count; j++)
+                {
+                    data.Add(this.TypeCast(list[j], typeHint));
+                }
+                tree.AddRange(data, path);
+            }
+            return tree;
+        }
+
         private object TypeCast(IGH_Goo data, int index)
         {
             Param_ScriptVariable variable = (Param_ScriptVariable)this.Params.Input[index];
@@ -222,14 +280,15 @@ namespace GhPython.Component
 
             if (o is GrasshopperDocument)
             {
-                DA.SetDataList(loc, (o as GrasshopperDocument).Objects.Geometries);
-                (o as GrasshopperDocument).Objects.Clear();
+                var ogh = o as GrasshopperDocument;
+                DA.SetDataList(loc, ogh.Objects.Geometries);
+                ogh.Objects.Clear();
             }
             else if (o is string) //string is IEnumerable, so we need to check first
             {
                 DA.SetData(loc, o);
             }
-            else if (o is IEnumerable )
+            else if (o is IEnumerable)
             {
                 DA.SetDataList(loc, o as IEnumerable);
             }

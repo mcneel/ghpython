@@ -1,5 +1,9 @@
 ﻿import math
+import rhinoscriptsyntax as rs
 
-a = inputs.i
-a = 12
-outputs.a = [math.cos((a + i)/10.0) for i in xrange(20)]
+result = []
+for i in range(x):
+    cId = rs.AddCircle([i, math.cos(i), 0], 0.3)
+    result.append(cId)
+
+a = doc[result]
