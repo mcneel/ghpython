@@ -6,4 +6,4 @@ for i in range(x):
     cId = rs.AddCircle([i, math.cos(i), 0], 0.3)
     result.append(cId)
 
-a = doc[result]
+a = ghdoc[result]

@@ -40,6 +40,9 @@
             this.okButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rhinoPythonWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.grasshopperForumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -50,7 +53,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                  this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(542, 24);
@@ -60,8 +64,8 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                  this.openToolStripMenuItem,
-                  this.saveToolStripMenuItem});
+            this.openToolStripMenuItem,
+            this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -69,14 +73,14 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openToolStripMenuItem.Text = "Open From...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveToolStripMenuItem.Text = "Export As....";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -159,6 +163,29 @@
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = "";
             // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.rhinoPythonWebsiteToolStripMenuItem,
+            this.grasshopperForumToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // rhinoPythonWebsiteToolStripMenuItem
+            // 
+            this.rhinoPythonWebsiteToolStripMenuItem.Name = "rhinoPythonWebsiteToolStripMenuItem";
+            this.rhinoPythonWebsiteToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.rhinoPythonWebsiteToolStripMenuItem.Text = "Rhino.Python website";
+            this.rhinoPythonWebsiteToolStripMenuItem.Click += new System.EventHandler(this.rhinoPythonWebsiteToolStripMenuItem_Click);
+            // 
+            // grasshopperForumToolStripMenuItem
+            // 
+            this.grasshopperForumToolStripMenuItem.Name = "grasshopperForumToolStripMenuItem";
+            this.grasshopperForumToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.grasshopperForumToolStripMenuItem.Text = "Grasshopper Forum";
+            this.grasshopperForumToolStripMenuItem.Click += new System.EventHandler(this.grasshopperForumToolStripMenuItem_Click);
+            // 
             // PythonScriptForm
             // 
             this.AcceptButton = this.okButton;
@@ -199,5 +226,8 @@
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Button applyButton;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rhinoPythonWebsiteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem grasshopperForumToolStripMenuItem;
     }
 }

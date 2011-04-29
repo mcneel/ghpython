@@ -8,6 +8,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using GhPython.Component;
 using System.IO;
+using System.Diagnostics;
 
 namespace GhPython.Forms
 {
@@ -200,6 +201,9 @@ namespace GhPython.Forms
             {
                 using (var fd = new OpenFileDialog())
                 {
+                    fd.Filter = "Python files (*.py)|*.py|All files (*.*)|*.*";
+                    fd.FilterIndex = 0;
+
                     if (fd.ShowDialog() == DialogResult.OK)
                     {
                         string text = File.ReadAllText(fd.FileName);
@@ -219,11 +223,38 @@ namespace GhPython.Forms
             {
                 using (var fd = new SaveFileDialog())
                 {
+                    fd.Filter = "Python files (*.py)|*.py|All files (*.*)|*.*";
+                    fd.FilterIndex = 0;
+
                     if (fd.ShowDialog() == DialogResult.OK)
                     {
                         File.WriteAllText(fd.FileName, _texteditor.Text, Encoding.UTF8);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
+
+        private void rhinoPythonWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("http://python.rhino3d.com/");
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
+
+        private void grasshopperForumToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("http://www.grasshopper3d.com/forum/");
             }
             catch (Exception ex)
             {
