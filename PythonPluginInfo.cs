@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using GhPython.Properties;
 using Grasshopper.Kernel;
+using System.Reflection;
 
 namespace GhPython
 {
@@ -10,7 +11,7 @@ namespace GhPython
         {
             get
             {
-                return "The Python interpreter component";
+                return "The Grasshopper Python interpreter component";
             }
         }
 
@@ -34,7 +35,7 @@ namespace GhPython
         {
             get
             {
-                return "0.1.4.0";
+                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
             }
         }
 
@@ -51,6 +52,14 @@ namespace GhPython
             get
             {
                 return "giulio@mcneel.com";
+            }
+        }
+
+        public override GH_LibraryLicense AssemblyLicense
+        {
+            get
+            {
+                return GH_LibraryLicense.opensource;
             }
         }
     }
