@@ -350,27 +350,41 @@ namespace GhPython.Component
         public override void Menu_AppendDerivedItems(ToolStripDropDown iMenu)
         {
             base.Menu_AppendDerivedItems(iMenu);
+            var ti = GetTargetVariableMenuItem();
+            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), ti);
+        }
 
-            var ti = new ToolStripMenuItem("rhinoscriptsyntax target", null, new ToolStripItem[]
+        public ToolStripMenuItem GetTargetVariableMenuItem()
+        {
+            var result = new ToolStripMenuItem("&Target for rhinoscriptsyntax", null, new ToolStripItem[]
             {
-                new ToolStripMenuItem("In " + DOCUMENT_NAME + " variable", GetCheckedImage(_storage == DocStorage.InGrasshopperMemory), SetPythonDocAsGhMem)
+                new ToolStripMenuItem("In &" + DOCUMENT_NAME + " variable", null, SetPythonDocAsGhMem)
                 {
-                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs"
+                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs",
                 },
-                new ToolStripMenuItem("In standard Rhino document", GetCheckedImage(_storage == DocStorage.InRhinoDoc), SetPythonDocAsDoc)
+                new ToolStripMenuItem("In &standard Rhino document", null, SetPythonDocAsDoc)
                 {
-                     ToolTipText = "Use this option to choose to use the traditional Rhino document as output"
+                     ToolTipText = "Use this option to choose to use the traditional Rhino document as output",
                 },
-                new ToolStripMenuItem("No document", GetCheckedImage(_storage == DocStorage.None), SetPythonDocAsNone)
+                new ToolStripMenuItem("&No document", null, SetPythonDocAsNone)
                 {
-                     ToolTipText = "Use this option if you do not wish to use rhinoscriptsyntax functions, but only RhinoCommon"
+                     ToolTipText = "Use this option if you do not wish to use rhinoscriptsyntax functions, but only RhinoCommon",
                 },
             })
             {
-                ToolTipText = "Choose where rhinoscriptsyntax functions have their effects"
+                ToolTipText = "Choose where rhinoscriptsyntax functions have their effects",
             };
 
-            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), ti);
+            EventHandler update = (sender, args) =>
+            {
+                result.DropDownItems[0].Image = GetCheckedImage(_storage == DocStorage.InGrasshopperMemory);
+                result.DropDownItems[1].Image = GetCheckedImage(_storage == DocStorage.InRhinoDoc);
+                result.DropDownItems[2].Image = GetCheckedImage(_storage == DocStorage.None);
+            };
+            update(null, EventArgs.Empty);
+            result.DropDownOpening += update;
+
+            return result;
         }
 
         private void SetPythonDocAsDoc(object sender, EventArgs e)
@@ -451,7 +465,7 @@ namespace GhPython.Component
                 PythonComponentAttributes attr = Attributes as PythonComponentAttributes;
                 if (attr != null)
                 {
-                    attr.ClearLinkedForm(true);
+                    attr.DisableLinkedForm(true);
                 }
             }
         }

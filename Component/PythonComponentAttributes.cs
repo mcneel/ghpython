@@ -32,10 +32,10 @@ namespace GhPython.Component
             return base.RespondToMouseDoubleClick(sender, e);
         }
 
-        public void ClearLinkedForm(bool close)
+        public void DisableLinkedForm(bool close)
         {
             if (close && _form != null && !_form.IsDisposed)
-                _form.CloseWithoutUserCancel();
+                _form.Disable();
 
             _form = null;
         }
