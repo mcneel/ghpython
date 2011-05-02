@@ -19,7 +19,7 @@ namespace GhPython.Component
 {
     public class PythonComponent : SafeComponent, IGH_VarParamComponent
     {
-        DocStorage _storage;
+        DocStorage _storage = DocStorage.InGrasshopperMemory;
         GrasshopperDocument _document;
         PythonScript _py;
         PythonCompiledCode _compiled_py;
@@ -64,7 +64,8 @@ namespace GhPython.Component
             codeparam.Name = "Code";
             codeparam.NickName = "code";
             codeparam.Description = "Python script to execute";
-            codeparam.ObjectChanged += new IGH_DocumentObject.ObjectChangedEventHandler(OnCodeChanged);
+            // Throw away the compiled script when code changes. We will just recompile on the next solve
+            codeparam.ObjectChanged += delegate(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e) { _compiled_py = null; };
             pManager.RegisterParam(codeparam);
 
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
@@ -78,12 +79,6 @@ namespace GhPython.Component
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Output, "a"));
         }
         
-        void OnCodeChanged(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
-        {
-            // Throw away the compiled script. We will just recompile on the next solve
-            _compiled_py = null;
-        }
-
         protected override void SafeSolveInstance(IGH_DataAccess DA)
         {
             if (_py == null)
@@ -312,6 +307,9 @@ namespace GhPython.Component
 
         private void SetScriptTransientGlobals()
         {
+            if (_storage == DocStorage.None)
+                _storage = DocStorage.InGrasshopperMemory;
+
             if (_storage == DocStorage.InGrasshopperMemory)
             {
                 _document = new GrasshopperDocument();
@@ -323,15 +321,6 @@ namespace GhPython.Component
             {
                 _py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
                 Rhino.RhinoDoc.ActiveDoc.UndoRecordingEnabled = true;
-                if (_py.ContainsVariable(DOCUMENT_NAME))
-                {
-                    _py.RemoveVariable(DOCUMENT_NAME);
-                    _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
-                }
-            }
-            else if (_storage == DocStorage.None)
-            {
-                _py.ScriptContextDoc = new object();
                 if (_py.ContainsVariable(DOCUMENT_NAME))
                 {
                     _py.RemoveVariable(DOCUMENT_NAME);
@@ -370,14 +359,10 @@ namespace GhPython.Component
                 {
                      ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs",
                 },
-                new ToolStripMenuItem("In &standard Rhino document", null, SetPythonDocAsDoc)
+                new ToolStripMenuItem("&Rhino document", null, SetPythonDocAsDoc)
                 {
                      ToolTipText = "Use this option to choose to use the traditional Rhino document as output",
-                },
-                new ToolStripMenuItem("&No document", null, SetPythonDocAsNone)
-                {
-                     ToolTipText = "Use this option if you do not wish to use rhinoscriptsyntax functions, but only RhinoCommon",
-                },
+                }
             })
             {
                 ToolTipText = "Choose where rhinoscriptsyntax functions have their effects",
@@ -387,7 +372,6 @@ namespace GhPython.Component
             {
                 result.DropDownItems[0].Image = GetCheckedImage(_storage == DocStorage.InGrasshopperMemory);
                 result.DropDownItems[1].Image = GetCheckedImage(_storage == DocStorage.InRhinoDoc);
-                result.DropDownItems[2].Image = GetCheckedImage(_storage == DocStorage.None);
             };
             update(null, EventArgs.Empty);
             result.DropDownOpening += update;
@@ -409,16 +393,12 @@ namespace GhPython.Component
             this.ExpireSolution(true);
         }
 
-        private void SetPythonDocAsNone(object sender, EventArgs e)
-        {
-            _storage = DocStorage.None;
-            SetScriptTransientGlobals();
-            this.ExpireSolution(true);
-        }
-
         public override bool Write(GH_IO.Serialization.GH_IWriter writer)
         {
             var toReturn = base.Write(writer);
+
+            if (_storage == DocStorage.None)
+                _storage = DocStorage.InGrasshopperMemory;
 
             writer.SetInt32("GhMemory", (int)_storage);
 
@@ -433,6 +413,9 @@ namespace GhPython.Component
             if (reader.TryGetInt32("GhMemory", ref val))
                 _storage = (DocStorage)val;
             else
+                _storage = DocStorage.InGrasshopperMemory;
+
+            if (_storage == DocStorage.None)
                 _storage = DocStorage.InGrasshopperMemory;
 
             return toReturn;
