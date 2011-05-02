@@ -136,15 +136,23 @@ namespace GhPython.Component
                     _py.SetVariable(varname, o);
                 }
 
-                string script = null;
-                if (!DA.GetData(0, ref script))
-                    throw new ApplicationException("Impossible to retrive code to execute");
-
-                if (_compiled_py == null ||
-                    string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
+                // the "code" string could either be embedded in the component
+                // itself or a dynamic string that is input from some other component
+                bool codeIsEmbedded = Params.Input[0].SourceCount == 0;
+                if (!codeIsEmbedded || _compiled_py == null)
                 {
-                    _compiled_py = _py.Compile(script);
-                    _previousRunCode = script;
+                    string script = null;
+                    if (!DA.GetData(0, ref script))
+                        throw new ApplicationException("Impossible to retrive code to execute");
+                    if (string.IsNullOrWhiteSpace(script))
+                        throw new ApplicationException("Empty code");
+
+                    if (_compiled_py == null ||
+                        string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
+                    {
+                        _compiled_py = _py.Compile(script);
+                        _previousRunCode = script;
+                    }
                 }
               
                 if (_compiled_py!=null )
