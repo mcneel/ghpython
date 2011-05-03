@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using GhPython.DocReplacement;
-using GhPython.Infrastructure;
 using GhPython.Properties;
 using Grasshopper;
 using Grasshopper.Kernel;
@@ -65,7 +64,7 @@ namespace GhPython.Component
             codeparam.NickName = "code";
             codeparam.Description = "Python script to execute";
             // Throw away the compiled script when code changes. We will just recompile on the next solve
-            codeparam.ObjectChanged += delegate(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e) { _compiled_py = null; };
+            codeparam.ObjectChanged += (sender, e) => { _compiled_py = null; };
             pManager.RegisterParam(codeparam);
 
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
@@ -75,7 +74,6 @@ namespace GhPython.Component
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.Register_StringParam("Output", "out", "The execution information, as output and error streams");
-
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Output, "a"));
         }
         
@@ -344,8 +342,20 @@ namespace GhPython.Component
         public override void Menu_AppendDerivedItems(ToolStripDropDown iMenu)
         {
             base.Menu_AppendDerivedItems(iMenu);
-            var ti = GetTargetVariableMenuItem();
-            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), ti);
+            var tsi1 = GetTargetVariableMenuItem();
+
+            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi1);
+
+            var tsi2 = new ToolStripMenuItem("Open editor...", null, (sender, e) =>
+            {
+                var attr = Attributes as PythonComponentAttributes;
+                if (attr != null)
+                    attr.OpenEditor();
+            });
+            tsi2.Font = new Font(tsi2.Font, FontStyle.Bold);
+
+            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi2);
+            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 3), new ToolStripSeparator());
         }
 
         public ToolStripMenuItem GetTargetVariableMenuItem()
@@ -444,18 +454,13 @@ namespace GhPython.Component
             if (disposing)
             {
                 if (Doc != null)
-                {
                     Doc.SolutionEnd -= OnDocSolutionEnd;
-                }
 
-                PythonComponentAttributes attr = Attributes as PythonComponentAttributes;
+                var attr = Attributes as PythonComponentAttributes;
                 if (attr != null)
-                {
                     attr.DisableLinkedForm(true);
-                }
             }
         }
-
 
         //------------------------------------------------------------------------------------------
         #region Members of IGH_VarParamComponent

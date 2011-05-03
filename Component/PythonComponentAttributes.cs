@@ -1,8 +1,7 @@
-﻿using Grasshopper.GUI;
+﻿using GhPython.Forms;
+using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
-using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
-using GhPython.Forms;
 
 namespace GhPython.Component
 {
@@ -17,6 +16,12 @@ namespace GhPython.Component
 
         public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
+            OpenEditor();
+            return base.RespondToMouseDoubleClick(sender, e);
+        }
+
+        public void OpenEditor()
+        {
             var attachedComp = this.Owner as PythonComponent;
             if (attachedComp != null)
             {
@@ -29,7 +34,6 @@ namespace GhPython.Component
                 if (!_form.Visible)
                     _form.Show(Grasshopper.GH_InstanceServer.DocumentEditor);
             }
-            return base.RespondToMouseDoubleClick(sender, e);
         }
 
         public void DisableLinkedForm(bool close)
