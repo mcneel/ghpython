@@ -87,7 +87,6 @@
       <DependentUpon>PythonScriptForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Component\PythonComponentAttributes.cs" />
-    <Compile Include="LanguageSupport\DynamicTextList.cs" />
     <Compile Include="Component\DynamicHint.cs" />
     <Compile Include="DocReplacement\AttributedGeometry.cs" />
     <Compile Include="DocReplacement\CustomTable.cs" />
