@@ -1,6 +1,7 @@
-Copy reference DLL and XML files to this directory. I'm still trying
-to figure out a better technique for references in a csproj that may
-be located anywhere on your computer.
+Copy reference DLL and XML files to this directory.
+You need to use the RhinoCommon version (not Grasshopper)
+that comes with Rhino5, and is to find inside the
+Rhinoceros 5.0\System folder
 
 - GH_IO.dll
 - GH_IO.xml
