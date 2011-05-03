@@ -11,6 +11,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using Grasshopper.Kernel.Undo;
+using GhPython.Properties;
 
 namespace GhPython.Forms
 {
@@ -54,6 +55,8 @@ namespace GhPython.Forms
                     }
                 }
 
+                if (string.IsNullOrEmpty(_texteditor.Text))
+                    _texteditor.Text = Resources.sampleScript;
 
                 _targetVariableMenuIndex = 
                     fileToolStripMenuItem.DropDownItems.Add(_component.GetTargetVariableMenuItem());

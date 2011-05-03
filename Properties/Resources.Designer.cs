@@ -80,5 +80,38 @@ namespace GhPython.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to import math
+        ///import rhinoscriptsyntax as rs
+        ///
+        ///if x is None:
+        ///    x = 100
+        ///
+        ///circles = []
+        ///radii = []
+        ///for i in range(x):
+        ///    pt = (i, math.cos(i), 0)
+        ///    
+        ///    cId = rs.AddCircle(pt, 0.3)
+        ///    circles.append(cId)
+        ///    
+        ///    rId = rs.AddLine(pt, rs.PointAdd(pt, (0, 0.3, 0)))
+        ///    radii.append(rId)
+        ///
+        ///# Check if we are in Grasshopper
+        ///# with Grasshopper document override
+        ///if &quot;ghdoc&quot; in globals():
+        ///    #a = ghdoc
+        ///    
+        ///    # If we need to separate different results,
+        ///    # this will do:
+        ///    a = ghdoc[circ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string sampleScript {
+            get {
+                return ResourceManager.GetString("sampleScript", resourceCulture);
+            }
+        }
     }
 }
