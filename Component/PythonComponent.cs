@@ -307,9 +307,6 @@ namespace GhPython.Component
 
         private void SetScriptTransientGlobals()
         {
-            if (_storage == DocStorage.None)
-                _storage = DocStorage.InGrasshopperMemory;
-
             if (_storage == DocStorage.InGrasshopperMemory)
             {
                 _document = new GrasshopperDocument();
@@ -397,10 +394,10 @@ namespace GhPython.Component
         {
             var toReturn = base.Write(writer);
 
-            if (_storage == DocStorage.None)
-                _storage = DocStorage.InGrasshopperMemory;
-
             writer.SetInt32("GhMemory", (int)_storage);
+
+            if (!Enum.IsDefined(typeof(DocStorage), _storage))
+                _storage = DocStorage.InGrasshopperMemory;
 
             return toReturn;
         }
@@ -412,10 +409,8 @@ namespace GhPython.Component
             int val = -1;
             if (reader.TryGetInt32("GhMemory", ref val))
                 _storage = (DocStorage)val;
-            else
-                _storage = DocStorage.InGrasshopperMemory;
 
-            if (_storage == DocStorage.None)
+            if (!Enum.IsDefined(typeof(DocStorage), _storage))
                 _storage = DocStorage.InGrasshopperMemory;
 
             return toReturn;
