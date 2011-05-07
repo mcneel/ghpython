@@ -1,18 +1,19 @@
 Python interpreter addon for Grasshopper
 ========================================
 
+We are having fun building this Grasshopper-Python component, you are welcome to join us.
 Discussions for help on using or configuring this addon can be found at:
 
-* http://www.grasshopper3d.com
+* http://www.grasshopper3d.com/forum/categories/vb-c-and-python-coding/listForCategory
 * http://python.rhino3d.com/
 
 ![Screenshot](http://api.ning.com/files/RHCoSpQhwe5lBPPJoOrqxzO2qHwzRZ8l7WIIXCo*CKez7e92Bkbs4rw83hAt*YNukQKytSKXwKAHsATYZ9MXZaLtdoFweG-e/pythoncomp.png)
 
 Installation / Configuration
 ----------------------------
-If you just want to use a pre-built version of this addon, visit http://www.food4rhino.com/project/ghpython
+You can get a version of this addon ready for installation from http://www.food4rhino.com/project/ghpython
 
-If you are building this addon from source, use the GrasshopperDeveloperSettings command to add the output directory for your gha to the list of directories Grasshopper pays attention to.
+If you are building this addon from source, use the _GrasshopperDeveloperSettings command to add the output directory for your .gha to the list of directories Grasshopper pays attention to.
 
 
 Contributing to GhPython
@@ -42,7 +43,7 @@ Authors
 -------
 Steve Baer - https://github.com/sbaer steve@mcneel.com
 
-Giulio Piacentino - https://github.com/piac
+Giulio Piacentino - https://github.com/piac giulio@mcneel.com
 
 Legal Stuff
 -----------
