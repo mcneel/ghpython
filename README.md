@@ -33,6 +33,7 @@ You are going to need:
 * Visual C# 2010
 
 Steps:
+
 * Get the source code by downloading everything as a zip or using git
 * Copy the appropriate DLLs to the references directory (read the readme.txt in the references directory for a list of DLLs)
 * Start GhPython.sln and build!!!
