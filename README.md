@@ -1,11 +1,10 @@
-GhPython
-========
+Python interpreter addon for Grasshopper
+========================================
 
-The Python interpreter addon for Grasshopper (www.grasshopper3d.com)
+Discussions for help on using or configuring this addon can be found at:
 
-Discussions for help on using or configuring this addon can be found at
-http://www.grasshopper3d.com
-http://python.rhino3d.com/
+* http://www.grasshopper3d.com
+* http://python.rhino3d.com/
 
 Installation / Configuration
 ----------------------------
