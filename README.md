@@ -26,6 +26,7 @@ There are many ways to contribute to this project.
 Authors
 -------
 Steve Baer - https://github.com/sbaer steve@mcneel.com
+
 Giulio Piacentino - https://github.com/piac
 
 Legal Stuff
