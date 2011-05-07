@@ -25,7 +25,7 @@ namespace GhPython.Component
         string _previousRunCode;
         StringList _py_output = new StringList();
 
-        const string DOCUMENT_NAME = "ghdoc";
+        internal const string DOCUMENT_NAME = "ghdoc";
 
         public PythonComponent()
             : base("Python Script", "Python", "A python scriptable component", "Math", "Script")

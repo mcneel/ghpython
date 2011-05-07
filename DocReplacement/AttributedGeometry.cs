@@ -1,6 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel.Types;
 using Rhino.DocObjects;
+using Rhino.Geometry;
 
 namespace GhPython.DocReplacement
 {
@@ -15,7 +16,7 @@ namespace GhPython.DocReplacement
             _attributes = attr;
         }
 
-        public IGH_GeometricGoo Geometry
+        public IGH_GeometricGoo GhGeometry
         {
             get
             {
@@ -24,6 +25,17 @@ namespace GhPython.DocReplacement
             set
             {
                 _geometry = value;
+            }
+        }
+
+        public object Geometry
+        {
+            get
+            {
+                if (object.ReferenceEquals(_geometry, null))
+                    return null;
+                    
+                return _geometry.ScriptVariable();
             }
         }
 

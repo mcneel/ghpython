@@ -405,7 +405,7 @@ namespace GhPython.DocReplacement
             if (attributedGeometry.Attributes != null)
                 attrDup = attributedGeometry.Attributes.Duplicate();
 
-            return GenericAdd((IGH_GeometricGoo)attributedGeometry.Geometry.Duplicate(), attrDup);
+            return GenericAdd((IGH_GeometricGoo)attributedGeometry.GhGeometry.Duplicate(), attrDup);
         }
 
         public Guid Duplicate(ObjRef objref)
@@ -598,17 +598,39 @@ namespace GhPython.DocReplacement
 
         public Guid Transform(Guid objectId, Transform xform, bool deleteOriginal)
         {
-            throw new NotImplementedException();
+            if (!_storage.ContainsKey(objectId))
+                return Guid.Empty;
+
+            var obj = _storage[objectId];
+            if (obj == null)
+                return Guid.Empty;
+
+            var newObj = obj.GhGeometry.Transform(xform);
+            if (newObj == null)
+                return Guid.Empty;
+
+            if (deleteOriginal)
+            {
+                obj.GhGeometry = newObj;
+                return objectId;
+            }
+            else
+            {
+                var newId = Guid.NewGuid();
+                var attrClone = object.ReferenceEquals(obj.Attributes, null) ? null : obj.Attributes.Duplicate();
+                _storage.Add(newId, new AttributedGeometry(newObj, attrClone));
+                return newId;
+            }
         }
 
         public Guid Transform(ObjRef objref, Transform xform, bool deleteOriginal)
         {
-            throw new NotImplementedException();
+            throw NotSupportedExceptionHelp();
         }
 
         public Guid Transform(AttributedGeometry obj, Transform xform, bool deleteOriginal)
         {
-            throw new NotImplementedException();
+            throw NotSupportedExceptionHelp();
         }
 
         public bool Unlock(Guid objectId, bool ignoreLayerMode)
@@ -736,7 +758,18 @@ namespace GhPython.DocReplacement
             return inferredLength;
         }
 
-        public IEnumerable<IGH_GeometricGoo> Geometries
+        public IEnumerable<IGH_GeometricGoo> GhGeometries
+        {
+            get
+            {
+                foreach (var v in _storage.Values)
+                {
+                    yield return v.GhGeometry;
+                }
+            }
+        }
+
+        public IEnumerable Geometries
         {
             get
             {
