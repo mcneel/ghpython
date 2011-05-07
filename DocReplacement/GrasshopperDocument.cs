@@ -53,12 +53,20 @@ namespace GhPython.DocReplacement
 
             get
             {
+                if (guids == null)
+                    throw new ArgumentNullException("guids",
+                        "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent.DOCUMENT_NAME);
+
                 return SubSet(guids);
             }
         }
 
         public IEnumerable SubSet(IEnumerable guids)
         {
+            if (guids == null)
+                throw new ArgumentNullException("guids",
+                    "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent.DOCUMENT_NAME);
+
             foreach (var obj in guids)
             {
                 if (obj is Guid)

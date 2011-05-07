@@ -26,5 +26,5 @@ if "ghdoc" in globals():
     a = ghdoc
     
     # otherwise, to separate results
-    # a = ghdoc[circles]
-    # b = ghdoc[radii]
+    # a = ghdoc.SubSet(circles)
+    # b = ghdoc.SubSet(radii)
