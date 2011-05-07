@@ -16,7 +16,8 @@ If you are building this addon from source, use the GrasshopperDeveloperSettings
 
 Contributing to GhPython
 ------------------------
-There are many ways to contribute to this project.
+There are many ways to contribute to this project:
+
 * Test the addon and report bugs/wishes to the issue list at https://github.com/mcneel/ghpython/issues
 * Create sample python scripts that we can embed in the addon to help others learn
 * Create sample ghx files for using this addon to help others learn
