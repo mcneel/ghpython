@@ -6,9 +6,9 @@ Discussions for help on using or configuring this addon can be found at:
 * http://www.grasshopper3d.com
 * http://python.rhino3d.com/
 
-http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png
+![Python](http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png)
 
-http://wiki.mcneel.com/lib/exe/fetch.php?hash=adbce6&media=http%3A%2F%2Fen.wiki.mcneel.com%2Fcontent%2Fupload%2Fimages%2FGH_SquareBanner.jpg
+![Grasshopper](http://wiki.mcneel.com/lib/exe/fetch.php?hash=adbce6&media=http%3A%2F%2Fen.wiki.mcneel.com%2Fcontent%2Fupload%2Fimages%2FGH_SquareBanner.jpg)
 
 Installation / Configuration
 ----------------------------
