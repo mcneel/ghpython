@@ -6,7 +6,7 @@ Discussions for help on using or configuring this addon can be found at:
 * http://www.grasshopper3d.com
 * http://python.rhino3d.com/
 
-![Python](http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png)
+![Screenshot](http://api.ning.com/files/RHCoSpQhwe5lBPPJoOrqxzO2qHwzRZ8l7WIIXCo*CKez7e92Bkbs4rw83hAt*YNukQKytSKXwKAHsATYZ9MXZaLtdoFweG-e/pythoncomp.png)
 
 Installation / Configuration
 ----------------------------
@@ -47,4 +47,4 @@ DISCLAIMED.
 
 Rhinoceros is a registered trademark of Robert McNeel & Associates.
 
-![Screenshot](http://api.ning.com/files/RHCoSpQhwe5lBPPJoOrqxzO2qHwzRZ8l7WIIXCo*CKez7e92Bkbs4rw83hAt*YNukQKytSKXwKAHsATYZ9MXZaLtdoFweG-e/pythoncomp.png)
+![Python](http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png)
