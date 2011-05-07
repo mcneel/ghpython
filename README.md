@@ -8,8 +8,6 @@ Discussions for help on using or configuring this addon can be found at:
 
 ![Python](http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png)
 
-![Grasshopper](http://wiki.mcneel.com/lib/exe/fetch.php?hash=adbce6&media=http%3A%2F%2Fen.wiki.mcneel.com%2Fcontent%2Fupload%2Fimages%2FGH_SquareBanner.jpg)
-
 Installation / Configuration
 ----------------------------
 If you just want to use a pre-built version of this addon, visit http://www.food4rhino.com/project/ghpython
@@ -48,3 +46,5 @@ WARRANTIES OF FITNESS FOR ANY PARTICULAR PURPOSE AND OF MERCHANTABILITY ARE HERE
 DISCLAIMED.
 
 Rhinoceros is a registered trademark of Robert McNeel & Associates.
+
+![Screenshot](http://api.ning.com/files/RHCoSpQhwe5lBPPJoOrqxzO2qHwzRZ8l7WIIXCo*CKez7e92Bkbs4rw83hAt*YNukQKytSKXwKAHsATYZ9MXZaLtdoFweG-e/pythoncomp.png)
