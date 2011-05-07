@@ -1,4 +1,5 @@
-# GhPtyhon
+GhPython
+========
 
 The Python interpreter addon for Grasshopper (www.grasshopper3d.com)
 
