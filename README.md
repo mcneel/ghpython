@@ -47,4 +47,4 @@ DISCLAIMED.
 
 Rhinoceros is a registered trademark of Robert McNeel & Associates.
 
-![Rhino](http://www.rhino3d.com/images/rhino.gif)  ![Python](http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png)
+![Rhino](https://lh6.googleusercontent.com/-pQtuyrwmcmg/TYtWECHGYNI/AAAAAAAAA7Y/rphjSmq1cuo/s200/Rhino_logo_wire.jpg)  ![Python](http://www.food4rhino.com/sites/default/files/imagecache/Thumbnail-project-node/pythonlogo.png.pagespeed.ce.eP1CQxaAba.png)
