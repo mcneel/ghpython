@@ -2,6 +2,7 @@ Python interpreter addon for Grasshopper
 ========================================
 
 We are having fun building this Grasshopper-Python component, you are welcome to join us.
+
 Discussions for help on using or configuring this addon can be found at:
 
 * http://www.grasshopper3d.com/forum/categories/vb-c-and-python-coding/listForCategory
