@@ -24,6 +24,18 @@ There are many ways to contribute to this project:
 * Create sample ghx files for using this addon to help others learn
 * Directly edit the source code using git. If you need help with this, please let us know.
 
+Compiling the Source
+--------------------
+You are going to need:
+
+* The latest Rhino5 WIP (http://www.rhino3d.com/nr.htm)
+* Grasshopper (http://www.grasshopper3d.com)
+* Visual C# 2010
+
+Steps:
+* Get the source code by downloading everything as a zip or using git
+* Copy the appropriate DLLs to the references directory (read the readme.txt in the references directory for a list of DLLs)
+* Start GhPython.sln and build!!!
 
 Authors
 -------
