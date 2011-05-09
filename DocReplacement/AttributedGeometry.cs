@@ -16,7 +16,7 @@ namespace GhPython.DocReplacement
             _attributes = attr;
         }
 
-        public IGH_GeometricGoo GhGeometry
+        internal IGH_GeometricGoo GhGeometry
         {
             get
             {
@@ -59,10 +59,12 @@ namespace GhPython.DocReplacement
         public override int GetHashCode()
         {
             int val;
-            if (Geometry == null || Attributes == null)
+            if (Geometry == null)
                 val = 0;
+            else if (Attributes == null)
+                val = Geometry.GetHashCode();
             else
-                val = Geometry.GetHashCode() ^ Attributes.GetHashCode();
+                val = Geometry.GetHashCode() ^ (Attributes.GetHashCode() << 5);
             return val;
         }
 
