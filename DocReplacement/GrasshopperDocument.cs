@@ -13,7 +13,6 @@ namespace GhPython.DocReplacement
 {
     public class GrasshopperDocument
     {
-        ObjectTable _docTable = RhinoDoc.ActiveDoc.Objects;
         CustomTable _table = new CustomTable();
 
         public RhinoList<Guid> CommitIntoRhinoDocument()
