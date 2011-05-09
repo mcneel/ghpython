@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino;
 using Rhino.Collections;
-using Rhino.DocObjects.Tables;
 using Rhino.Display;
-using System.Collections.Generic;
 using Rhino.DocObjects;
+using Rhino.DocObjects.Tables;
 
 namespace GhPython.DocReplacement
 {

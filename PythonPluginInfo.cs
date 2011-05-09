@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
+using System.Reflection;
 using GhPython.Properties;
 using Grasshopper.Kernel;
-using System.Reflection;
 
 namespace GhPython
 {

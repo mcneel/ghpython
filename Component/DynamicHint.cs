@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Grasshopper.Kernel.Parameters.Hints;
 using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Parameters.Hints;
 
 namespace GhPython.Component
 {
