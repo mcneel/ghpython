@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Rhino.DocObjects;
-using Rhino.Geometry;
 using System.Collections;
+using System.Collections.Generic;
+using Grasshopper.Kernel.Types;
 using Rhino.Collections;
 using Rhino.Display;
-using Grasshopper.Kernel.Types;
+using Rhino.DocObjects;
+using Rhino.Geometry;
 
 namespace GhPython.DocReplacement
 {
@@ -612,6 +611,7 @@ namespace GhPython.DocReplacement
             if (deleteOriginal)
             {
                 obj.GhGeometry = newObj;
+                _storage[objectId] = obj; // AttributedGeometry is a ValueType
                 return objectId;
             }
             else
