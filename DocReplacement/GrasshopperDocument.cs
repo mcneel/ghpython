@@ -85,7 +85,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -93,7 +93,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -109,7 +109,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -117,7 +117,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -125,7 +125,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -165,7 +165,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -173,7 +173,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -185,7 +185,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -197,7 +197,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -209,7 +209,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -221,7 +221,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
         public UnitSystem ModelUnitSystem
@@ -232,7 +232,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -244,7 +244,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -259,7 +259,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
         
@@ -267,7 +267,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
         public string Notes
@@ -278,7 +278,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -290,7 +290,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -302,7 +302,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -314,7 +314,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
         
@@ -330,7 +330,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
         public UnitSystem PageUnitSystem
@@ -341,7 +341,7 @@ namespace GhPython.DocReplacement
             }
             set
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -359,7 +359,7 @@ namespace GhPython.DocReplacement
         {
             get
             {
-                throw new NotImplementedException();
+                throw CustomTable.NotSupportedExceptionHelp();
             }
         }
 
@@ -383,7 +383,7 @@ namespace GhPython.DocReplacement
             set
             {
                 if(value)
-                    throw new NotSupportedException("No undo is supported the Grasshopper-Python transparent document");
+                    throw CustomTable.NotSupportedExceptionHelp();
             }
         }
         GhViewTable _views = new GhViewTable(() => RhinoDoc.ActiveDoc.Views, false);

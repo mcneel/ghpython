@@ -228,7 +228,7 @@ namespace GhPython.Forms
             ResumeLayout(true);
         }
 
-        private void LastHandleException(Exception ex)
+        public static void LastHandleException(Exception ex)
         {
             if (ex != null)
             {

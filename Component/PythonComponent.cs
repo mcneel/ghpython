@@ -202,8 +202,8 @@ namespace GhPython.Component
             sw.Write(string.Format("Runtime error ({0}): {1}", ex.GetType().Name, ex.Message));
 
             string error = _py.GetStackTraceFromException(ex);
-            if (error.Contains("File \"\", line"))
-                error = error.Replace("File \"\", line", "line");
+            
+            error = error.Replace(", in <module>, \"<string>\"", ", in script");
             error = error.Trim();
 
             sw.Write(error);
@@ -342,20 +342,30 @@ namespace GhPython.Component
         public override void Menu_AppendDerivedItems(ToolStripDropDown iMenu)
         {
             base.Menu_AppendDerivedItems(iMenu);
-            var tsi1 = GetTargetVariableMenuItem();
 
-            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi1);
-
-            var tsi2 = new ToolStripMenuItem("Open editor...", null, (sender, e) =>
+            try
             {
-                var attr = Attributes as PythonComponentAttributes;
-                if (attr != null)
-                    attr.OpenEditor();
-            });
-            tsi2.Font = new Font(tsi2.Font, FontStyle.Bold);
 
-            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi2);
-            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 3), new ToolStripSeparator());
+                var tsi1 = GetTargetVariableMenuItem();
+
+                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi1);
+
+                var tsi2 = new ToolStripMenuItem("Open editor...", null, (sender, e) =>
+                {
+                    var attr = Attributes as PythonComponentAttributes;
+                    if (attr != null)
+                        attr.OpenEditor();
+                });
+                tsi2.Font = new Font(tsi2.Font, FontStyle.Bold);
+
+                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi2);
+                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 3), new ToolStripSeparator());
+
+            }
+            catch (Exception ex)
+            {
+                GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+            }
         }
 
         public ToolStripMenuItem GetTargetVariableMenuItem()
@@ -388,16 +398,32 @@ namespace GhPython.Component
 
         private void SetPythonDocAsDoc(object sender, EventArgs e)
         {
-            _storage = DocStorage.InRhinoDoc;
-            SetScriptTransientGlobals();
-            this.ExpireSolution(true);
+            try
+            {
+                CheckAndSetupActions();
+
+                _storage = DocStorage.InRhinoDoc;
+                SetScriptTransientGlobals();
+                this.ExpireSolution(true);
+            }
+            catch (Exception ex)
+            {
+                GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+            }
         }
 
         private void SetPythonDocAsGhMem(object sender, EventArgs e)
         {
-            _storage = DocStorage.InGrasshopperMemory;
-            SetScriptTransientGlobals();
-            this.ExpireSolution(true);
+            try
+            {
+                _storage = DocStorage.InGrasshopperMemory;
+                SetScriptTransientGlobals();
+                this.ExpireSolution(true);
+            }
+            catch (Exception ex)
+            {
+                GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+            }
         }
 
         public override bool Write(GH_IO.Serialization.GH_IWriter writer)

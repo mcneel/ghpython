@@ -34,7 +34,7 @@ namespace GhPython.Component
         {
             var sb = new StringBuilder();
             for (int i = 0; i < _txts.Count; i++)
-                sb.Append(_txts[i]);
+                sb.AppendLine(_txts[i]);
             return sb.ToString();
         }
     }

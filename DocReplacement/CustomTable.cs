@@ -734,7 +734,7 @@ namespace GhPython.DocReplacement
             return guid;
         }
 
-        private static NotSupportedException NotSupportedExceptionHelp()
+        public static NotSupportedException NotSupportedExceptionHelp()
         {
             return new NotSupportedException(
                 "This call is not supported from within a Grasshopper component");
