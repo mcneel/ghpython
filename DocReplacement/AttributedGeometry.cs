@@ -47,13 +47,28 @@ namespace GhPython.DocReplacement
             }
             set
             {
+                if (_attributes == null)
+                    throw new ArgumentNullException();
+
                 _attributes = value;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return object.ReferenceEquals(_attributes, null) ? null : _attributes.Name;
+            }
+            set
+            {
+                _attributes.Name = value;
             }
         }
 
         public override string ToString()
         {
-            return string.Format("{0}, {1}", Geometry, (object)Attributes??"[null]");
+            return string.Format("{0}, {1}", Geometry, (object)Attributes??"(default)");
         }
 
         public override int GetHashCode()

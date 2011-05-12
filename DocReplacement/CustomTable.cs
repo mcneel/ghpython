@@ -30,6 +30,9 @@ namespace GhPython.DocReplacement
             if (!arc.IsValid)
                 return Guid.Empty;
 
+            if (object.ReferenceEquals(attributes, null))
+                attributes = new ObjectAttributes();
+
             Guid guid = Guid.NewGuid();
             _storage.Add(guid, new AttributedGeometry(new GH_Arc(arc), attributes));
             return guid;
@@ -54,6 +57,9 @@ namespace GhPython.DocReplacement
         {
             if (!circle.IsValid)
                 return Guid.Empty;
+
+            if (object.ReferenceEquals(attributes, null))
+                attributes = new ObjectAttributes();
 
             Guid guid = Guid.NewGuid();
             _storage.Add(guid, new AttributedGeometry(new GH_Circle(circle), attributes));
@@ -94,6 +100,9 @@ namespace GhPython.DocReplacement
         {
             if (!ellipse.Plane.IsValid || ellipse.Radius1 == 0 || ellipse.Radius2 == 0)
                 return Guid.Empty;
+
+            if (object.ReferenceEquals(attributes, null))
+                attributes = new ObjectAttributes();
 
             Guid guid = Guid.NewGuid();
             _storage.Add(guid, new AttributedGeometry(new GH_Curve(ellipse.ToNurbsCurve()), attributes));
@@ -160,6 +169,9 @@ namespace GhPython.DocReplacement
             if (!line.IsValid)
                 return Guid.Empty;
 
+            if (object.ReferenceEquals(attributes, null))
+                attributes = new ObjectAttributes();
+
             Guid guid = Guid.NewGuid();
             _storage.Add(guid, new AttributedGeometry(new GH_Line(line), attributes));
             return guid;
@@ -211,6 +223,9 @@ namespace GhPython.DocReplacement
                 return Guid.Empty;
 
             Guid guid = Guid.NewGuid();
+            if (object.ReferenceEquals(attributes, null))
+                attributes = new ObjectAttributes();
+
             _storage.Add(guid, new AttributedGeometry(new GH_Point(point), attributes));
             return guid;
         }
@@ -363,7 +378,7 @@ namespace GhPython.DocReplacement
             bool success = _storage.Remove(objectId);
 
             if (!success && !quiet)
-                throw new KeyNotFoundException("The Guid provided is not in the dictionary");
+                throw new KeyNotFoundException("The Guid provided is not in the document");
 
             return success;
         }
@@ -678,6 +693,9 @@ namespace GhPython.DocReplacement
 
         void ICollection<AttributedGeometry>.Add(AttributedGeometry item)
         {
+            if (object.ReferenceEquals(item.Attributes, null))
+                item.Attributes = new ObjectAttributes();
+
             _storage.Add(Guid.NewGuid(), item);
         }
 
@@ -730,6 +748,9 @@ namespace GhPython.DocReplacement
                 return Guid.Empty;
 
             Guid guid = Guid.NewGuid();
+            if (object.ReferenceEquals(attributes, null))
+                attributes = new ObjectAttributes();
+
             _storage.Add(guid, new AttributedGeometry(obj, attributes));
             return guid;
         }
