@@ -65,6 +65,45 @@ namespace GhPython.Forms
             versionLabel.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
+        private static bool IsOnScreen(Point pt)
+        {
+            foreach (var screen in Screen.AllScreens)
+                if (screen.WorkingArea.Contains(pt))
+                    return true;
+
+            return false;
+        }
+
+        private void PythonScriptForm_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                if (IsOnScreen(Settings.Default.EditorLocation))
+                    Location = Settings.Default.EditorLocation;
+
+                if (Settings.Default.EditorSize != Size.Empty)
+                    Size = Settings.Default.EditorSize;
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
+
+        private void PythonScriptForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                Settings.Default.EditorLocation = Location;
+                Settings.Default.EditorSize = (WindowState == FormWindowState.Normal) ? Size : RestoreBounds.Size;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
+
         void OnPythonHelp(string str)
         {
           richTextBox1.Text = str;
