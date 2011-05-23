@@ -1,9 +1,4 @@
-﻿
-# Welcome to the GhPython editor
-# This is a sample script to show how to 
-# use this component and the rhinoscriptsyntax
-
-
+﻿# sample script to show how to use this component and rhinoscriptsyntax
 import math
 import rhinoscriptsyntax as rs
 
