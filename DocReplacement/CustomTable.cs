@@ -18,7 +18,7 @@ namespace GhPython.DocReplacement
             return _storage.ContainsKey(item);
         }
 
-        #region Members of IObjectTable
+        #region Members similar to Rhino.DocObjects.Tables.ObjectTable
 
         public Guid AddArc(Arc arc)
         {
@@ -34,7 +34,7 @@ namespace GhPython.DocReplacement
                 attributes = new ObjectAttributes();
 
             Guid guid = Guid.NewGuid();
-            _storage.Add(guid, new AttributedGeometry(new GH_Arc(arc), attributes));
+            _storage.Add(guid, new AttributedGeometry(new GH_Curve(new ArcCurve(arc)), attributes));
             return guid;
         }
 
@@ -62,7 +62,7 @@ namespace GhPython.DocReplacement
                 attributes = new ObjectAttributes();
 
             Guid guid = Guid.NewGuid();
-            _storage.Add(guid, new AttributedGeometry(new GH_Circle(circle), attributes));
+            _storage.Add(guid, new AttributedGeometry(new GH_Curve(new ArcCurve(circle)), attributes));
             return guid;
         }
 
@@ -173,7 +173,7 @@ namespace GhPython.DocReplacement
                 attributes = new ObjectAttributes();
 
             Guid guid = Guid.NewGuid();
-            _storage.Add(guid, new AttributedGeometry(new GH_Line(line), attributes));
+            _storage.Add(guid, new AttributedGeometry(new GH_Curve(new LineCurve(line)), attributes));
             return guid;
         }
 
