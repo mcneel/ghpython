@@ -49,6 +49,15 @@ namespace GhPython.Component
             {
                 SetScriptTransientGlobals();
                 _py.Output = _py_output.Write;
+                _py.SetVariable("__name__", "__main__");
+                
+                // 22 May 2011 S. Baer
+                // Use reflection to set context Id for now. Change in a couple weeks once
+                // we feel confident people having updated to the latest WIP
+                Type t = _py.GetType();
+                var pi = t.GetProperty("ContextId");
+                if (pi != null)
+                  pi.SetValue(_py, 2, null);
             }
         }
 
