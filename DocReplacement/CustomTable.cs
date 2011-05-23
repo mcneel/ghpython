@@ -595,6 +595,97 @@ namespace GhPython.DocReplacement
             throw new NotImplementedException();
         }
 
+        public bool Replace(Guid guid, Arc arc)
+        {
+            if (!arc.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Curve(new ArcCurve(arc)), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Brep brep)
+        {
+            if (!brep.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Brep(brep), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Circle circle)
+        {
+            if (!circle.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Curve(new ArcCurve(circle)), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Curve curve)
+        {
+            if (!curve.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Curve(curve), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Line line)
+        {
+            if (!line.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Curve(new LineCurve(line)), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Mesh mesh)
+        {
+            if (!mesh.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Mesh(mesh), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Point3d point)
+        {
+            if (!point.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Point(point), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Polyline polyline)
+        {
+            if (!polyline.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Curve(new PolylineCurve(polyline)), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, Surface surface)
+        {
+            if (!surface.IsValid || !Contains(guid))
+                return false;
+
+            _storage[guid] = new AttributedGeometry(new GH_Surface(surface), _storage[guid].Attributes);
+            return true;
+        }
+
+        public bool Replace(Guid guid, TextDot dot)
+        {
+            throw NotSupportedExceptionHelp();
+        }
+
+        public bool Replace(Guid guid, TextEntity text)
+        {
+            throw NotSupportedExceptionHelp();
+        }
+
         public bool Show(Guid objectId, bool ignoreLayerMode)
         {
             throw new NotImplementedException();
