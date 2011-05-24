@@ -56,7 +56,7 @@ namespace GhPython.Component
         {
             get
             {
-                return "dynamic";
+                return "dynamic (RhinoScript)";
             }
         }
     }

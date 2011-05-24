@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Component\RhinoCommonHint.cs" />
     <Compile Include="DocReplacement\DocStorage.cs" />
     <Compile Include="Forms\PythonScriptForm.cs">
       <SubType>Form</SubType>

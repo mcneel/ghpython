@@ -600,15 +600,21 @@ namespace GhPython.Component
             i.ShowHints = true;
 
             i.Hints = new List<IGH_TypeHint> { 
-            new DynamicHint(), new GH_HintSeparator(), new GH_BooleanHint_CS(),
-            new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
-            new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(),
-            new GH_GuidHint(), new GH_HintSeparator(), new GH_Point3dHint(),
+            new DynamicHint(),
+            new GH_HintSeparator(),
+            new GH_BooleanHint_CS(),new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
+            new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(), new GH_GuidHint(),
+            new GH_HintSeparator(),
+            new GH_Point3dHint(),
             new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
-            new GH_UVIntervalHint(), new GH_BoxHint(), new GH_HintSeparator(),
-            new GH_LineHint(), new GH_CircleHint(), new GH_ArcHint(),
-            new GH_PolylineHint(), new GH_CurveHint(), new GH_SurfaceHint(),
-            new GH_BrepHint(), new GH_MeshHint(), new GH_GeometryBaseHint()
+            new GH_UVIntervalHint(), new GH_BoxHint(), 
+            new GH_HintSeparator(), 
+            new RhinoCommonHint(), 
+            new GH_HintSeparator(),
+            new GH_LineHint(), new GH_CircleHint(),
+            new GH_ArcHint(),new GH_PolylineHint(), new GH_CurveHint(),
+            new GH_SurfaceHint(), new GH_BrepHint(), new GH_MeshHint(),
+            new GH_GeometryBaseHint()
             };
 
             i.TypeHint = i.Hints[0];

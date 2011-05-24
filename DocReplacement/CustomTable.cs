@@ -9,7 +9,7 @@ using Rhino.Geometry;
 
 namespace GhPython.DocReplacement
 {
-    public class CustomTable : ICollection<AttributedGeometry>
+    public class CustomTable : IEnumerable<AttributedGeometry>
     {
         Dictionary<Guid, AttributedGeometry> _storage = new Dictionary<Guid, AttributedGeometry>();
 
@@ -734,11 +734,6 @@ namespace GhPython.DocReplacement
             throw NotSupportedExceptionHelp();
         }
 
-        public Guid Transform(AttributedGeometry obj, Transform xform, bool deleteOriginal)
-        {
-            throw NotSupportedExceptionHelp();
-        }
-
         public bool Unlock(Guid objectId, bool ignoreLayerMode)
         {
             throw new NotImplementedException();
@@ -780,9 +775,7 @@ namespace GhPython.DocReplacement
 
         #endregion
 
-        #region Membrers of ICollection<AttributedGeometry>
-
-        void ICollection<AttributedGeometry>.Add(AttributedGeometry item)
+        private void Add(AttributedGeometry item)
         {
             if (object.ReferenceEquals(item.Attributes, null))
                 item.Attributes = new ObjectAttributes();
@@ -796,7 +789,7 @@ namespace GhPython.DocReplacement
                 _storage.Clear();
         }
 
-        bool ICollection<AttributedGeometry>.Contains(AttributedGeometry item)
+        public bool Contains(AttributedGeometry item)
         {
             return _storage.ContainsValue(item);
         }
@@ -816,21 +809,6 @@ namespace GhPython.DocReplacement
                 return _storage.Count;
             }
         }
-
-        bool ICollection<AttributedGeometry>.IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        bool ICollection<AttributedGeometry>.Remove(AttributedGeometry item)
-        {
-            return Delete(item, false);
-        }
-
-        #endregion
 
         private Guid GenericAdd<T>(T obj, ObjectAttributes attributes)
             where T : IGH_GeometricGoo
