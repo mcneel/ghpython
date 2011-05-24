@@ -458,6 +458,19 @@ namespace GhPython.Component
             if (!Enum.IsDefined(typeof(DocStorage), _storage))
                 _storage = DocStorage.InGrasshopperMemory;
 
+            // Dynamic input fix for existing scripts
+            // Always assign DynamicHint or Grasshopper
+            // will set Line and not LineCurve, etc...
+            if (Params != null && Params.Input != null)
+                for (int i = 1; i < Params.Input.Count; i++)
+                {
+                    var p = Params.Input[i] as Param_ScriptVariable;
+                    if (p != null && p.TypeHint == null)
+                    {
+                        p.TypeHint = p.Hints[0];
+                    }
+                }
+
             return toReturn;
         }
 
@@ -597,6 +610,8 @@ namespace GhPython.Component
             new GH_PolylineHint(), new GH_CurveHint(), new GH_SurfaceHint(),
             new GH_BrepHint(), new GH_MeshHint(), new GH_GeometryBaseHint()
             };
+
+            i.TypeHint = i.Hints[0];
         }
 
         #endregion
