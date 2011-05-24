@@ -333,45 +333,45 @@ namespace GhPython.DocReplacement
             return GenericAdd(new GH_Surface(surface), attributes);
         }
 
-        public Guid AddText(Text3d text3d)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddText(Text3d text3d)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddText(Text3d text3d, ObjectAttributes attributes)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddText(Text3d text3d, ObjectAttributes attributes)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic, ObjectAttributes attributes)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic, ObjectAttributes attributes)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddTextDot(TextDot dot)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddTextDot(TextDot dot)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddTextDot(string text, Point3d location)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddTextDot(string text, Point3d location)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddTextDot(TextDot dot, ObjectAttributes attributes)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddTextDot(TextDot dot, ObjectAttributes attributes)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid AddTextDot(string text, Point3d location, ObjectAttributes attributes)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid AddTextDot(string text, Point3d location, ObjectAttributes attributes)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
         public bool Delete(Guid objectId, bool quiet)
         {
@@ -383,30 +383,15 @@ namespace GhPython.DocReplacement
             return success;
         }
 
-        public bool Delete(ObjRef objref, bool quiet)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public bool Delete(ObjRef objref, bool quiet)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public bool Delete(AttributedGeometry obj, bool quiet)
-        {
-            Guid position = Guid.Empty;
-            foreach (var attr in _storage)
-                if (attr.Value == obj)
-                    position = attr.Key;
-
-            if (position.Equals(Guid.Empty))
-            {
-                if (quiet)
-                    return false;
-                else
-                    throw new ArgumentException("The AttributedGeometry provided is not present");
-            }
-            else
-            {
-                return _storage.Remove(position);
-            }
-        }
+        //public bool Delete(AttributedGeometry obj, bool quiet)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
         public Guid Duplicate(Guid objectId)
         {
@@ -422,15 +407,15 @@ namespace GhPython.DocReplacement
             return GenericAdd((IGH_GeometricGoo)attributedGeometry.GhGeometry.Duplicate(), attrDup);
         }
 
-        public Guid Duplicate(ObjRef objref)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid Duplicate(ObjRef objref)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public Guid Duplicate(AttributedGeometry obj)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid Duplicate(AttributedGeometry obj)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
         public AttributedGeometry Find(Guid objectId)
         {
@@ -440,160 +425,166 @@ namespace GhPython.DocReplacement
             return _storage[objectId];
         }
 
-        public AttributedGeometry Find(uint runtimeSerialNumber)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public AttributedGeometry Find(uint runtimeSerialNumber)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
-        public AttributedGeometry[] FindByFilter(ObjectEnumeratorSettings filter)
-        {
-            throw new NotImplementedException();
-        }
+        //public AttributedGeometry[] FindByFilter(ObjectEnumeratorSettings filter)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public AttributedGeometry[] FindByGroup(int groupIndex)
-        {
-            throw new NotImplementedException();
-        }
+        //public AttributedGeometry[] FindByGroup(int groupIndex)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public AttributedGeometry[] FindByLayer(Layer layer)
-        {
-            throw new NotImplementedException();
-        }
+        //public AttributedGeometry[] FindByLayer(Layer layer)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public AttributedGeometry[] FindByLayer(string layerName)
-        {
-            throw new NotImplementedException();
-        }
+        //public AttributedGeometry[] FindByLayer(string layerName)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public AttributedGeometry[] FindByObjectType(ObjectType typeFilter)
-        {
-            throw new NotImplementedException();
-        }
+        //public AttributedGeometry[] FindByObjectType(ObjectType typeFilter)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public IEnumerable<AttributedGeometry> GetObjectList(ObjectEnumeratorSettings settings)
-        {
-            throw new NotImplementedException();
-        }
+        //public IEnumerable<AttributedGeometry> GetObjectList(ObjectEnumeratorSettings settings)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public IEnumerable<AttributedGeometry> GetObjectList(ObjectType typeFilter)
-        {
-            throw new NotImplementedException();
-        }
+        //public IEnumerable<AttributedGeometry> GetObjectList(ObjectType typeFilter)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public IEnumerable<AttributedGeometry> GetSelectedObjects(bool includeLights, bool includeGrips)
-        {
-            throw new NotImplementedException();
-        }
+        //public IEnumerable<AttributedGeometry> GetSelectedObjects(bool includeLights, bool includeGrips)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public AttributedGeometry GripUpdate(AttributedGeometry obj, bool deleteOriginal)
-        {
-            throw new NotImplementedException();
-        }
+        //public AttributedGeometry GripUpdate(AttributedGeometry obj, bool deleteOriginal)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Hide(Guid objectId, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Hide(Guid objectId, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Hide(ObjRef objref, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Hide(ObjRef objref, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Hide(AttributedGeometry obj, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Hide(AttributedGeometry obj, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Lock(Guid objectId, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Lock(Guid objectId, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Lock(ObjRef objref, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Lock(ObjRef objref, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Lock(AttributedGeometry obj, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Lock(AttributedGeometry obj, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public bool ModifyAttributes(Guid objectId, ObjectAttributes newAttributes, bool quiet)
         {
-            throw new NotImplementedException();
+            if (!_storage.ContainsKey(objectId))
+                return false;
+
+            if (newAttributes == null)
+                newAttributes = new ObjectAttributes();
+            _storage[objectId] = new AttributedGeometry(_storage[objectId].GhGeometry, newAttributes);
+            return true;
         }
 
-        public bool ModifyAttributes(ObjRef objref, ObjectAttributes newAttributes, bool quiet)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool ModifyAttributes(ObjRef objref, ObjectAttributes newAttributes, bool quiet)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool ModifyAttributes(AttributedGeometry obj, ObjectAttributes newAttributes, bool quiet)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool ModifyAttributes(AttributedGeometry obj, ObjectAttributes newAttributes, bool quiet)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public int ObjectCount(ObjectEnumeratorSettings filter)
         {
             throw new NotImplementedException();
         }
 
-        public bool Replace(ObjRef objref, Arc arc)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Arc arc)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Brep brep)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Brep brep)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Circle circle)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Circle circle)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Curve curve)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Curve curve)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Line line)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Line line)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Mesh mesh)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Mesh mesh)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Point3d point)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Point3d point)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Polyline polyline)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Polyline polyline)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, Surface surface)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, Surface surface)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, TextDot dot)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, TextDot dot)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Replace(ObjRef objref, TextEntity text)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Replace(ObjRef objref, TextEntity text)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public bool Replace(Guid guid, Arc arc)
         {
@@ -729,25 +720,25 @@ namespace GhPython.DocReplacement
             }
         }
 
-        public Guid Transform(ObjRef objref, Transform xform, bool deleteOriginal)
-        {
-            throw NotSupportedExceptionHelp();
-        }
+        //public Guid Transform(ObjRef objref, Transform xform, bool deleteOriginal)
+        //{
+        //    throw NotSupportedExceptionHelp();
+        //}
 
         public bool Unlock(Guid objectId, bool ignoreLayerMode)
         {
             throw new NotImplementedException();
         }
 
-        public bool Unlock(ObjRef objref, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Unlock(ObjRef objref, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public bool Unlock(AttributedGeometry obj, bool ignoreLayerMode)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool Unlock(AttributedGeometry obj, bool ignoreLayerMode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public int UnselectAll()
         {
