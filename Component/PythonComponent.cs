@@ -24,8 +24,10 @@ namespace GhPython.Component
         PythonCompiledCode _compiled_py;
         string _previousRunCode;
         StringList _py_output = new StringList();
+        PythonEnvironment _env;
 
         internal const string DOCUMENT_NAME = "ghdoc";
+        internal const string PARENT_ENVIRONMENT_NAME = "ghenv";
 
         public PythonComponent()
             : base("Python Script", "Python", "A python scriptable component", "Math", "Script")
@@ -50,6 +52,9 @@ namespace GhPython.Component
                 SetScriptTransientGlobals();
                 _py.Output = _py_output.Write;
                 _py.SetVariable("__name__", "__main__");
+                _env = new PythonEnvironment(this, _py);
+                _py.SetVariable(PARENT_ENVIRONMENT_NAME, _env);
+                _py.SetIntellisenseVariable(PARENT_ENVIRONMENT_NAME, _env);
 
                 // 22 May 2011 S. Baer
                 // Use reflection to set context Id for now. Change in a couple weeks once
