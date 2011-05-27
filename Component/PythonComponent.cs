@@ -50,7 +50,7 @@ namespace GhPython.Component
                 SetScriptTransientGlobals();
                 _py.Output = _py_output.Write;
                 _py.SetVariable("__name__", "__main__");
-                
+
                 // 22 May 2011 S. Baer
                 // Use reflection to set context Id for now. Change in a couple weeks once
                 // we feel confident people having updated to the latest WIP
@@ -136,6 +136,7 @@ namespace GhPython.Component
                             throw new ApplicationException("Wrong parameter in variable access type");
                     }
                     _py.SetVariable(varname, o);
+                    _py.SetIntellisenseVariable(varname, o);
                 }
 
                 // the "code" string could either be embedded in the component

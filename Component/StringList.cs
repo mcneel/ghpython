@@ -5,12 +5,7 @@ namespace GhPython.Component
 {
     class StringList
     {
-        List<string> _txts;
-
-        public StringList()
-        {
-            _txts = new List<string>();
-        }
+        List<string> _txts = new List<string>();
 
         public void Write(string s)
         {
@@ -22,11 +17,11 @@ namespace GhPython.Component
             _txts.Clear();
         }
 
-        public List<string> Result
+        public IList<string> Result
         {
             get
             {
-                return _txts;
+                return new System.Collections.ObjectModel.ReadOnlyCollection<string>(_txts);
             }
         }
 
