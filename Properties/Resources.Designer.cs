@@ -75,17 +75,17 @@ namespace GhPython.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;p&gt;This component allows to use both RhinoCommon and RhinoScript from withing
+        ///   Looks up a localized string similar to &lt;p&gt;This component allows to use both RhinoCommon and RhinoScript from within
         ///Grasshopper. Here some Q&amp;As.&lt;/p&gt;
         ///
         ///&lt;p&gt;&lt;b&gt;How can I use RhinoCommon?&lt;/b&gt;&lt;/p&gt;
         ///&lt;p&gt;By importing from the Rhino module, for example by writing:&lt;/p&gt;
-        ///&lt;pre&gt;from Rhino.Geometry import Point3d, Line&lt;/pre&gt;
+        ///&lt;pre style=&quot;font-size: smaller&quot;&gt;from Rhino.Geometry import Point3d, Line&lt;/pre&gt;
         ///&lt;p&gt;...and then assigning some new geometry to the results&lt;/p&gt;
-        ///&lt;pre&gt;a = Line(Point3d(1, 2, 3), Point3d(10, 11, 12))&lt;/pre&gt;
+        ///&lt;pre style=&quot;font-size: smaller&quot;&gt;a = Line(Point3d(1, 2, 3), Point3d(10, 11, 12))&lt;/pre&gt;
         ///
         ///&lt;p&gt;&lt;b&gt;How can I use RhinoScript?&lt;/b&gt;&lt;/p&gt;
-        ///&lt;p&gt;By importing the rhinoscriptsyntax, for example by writing:&lt;/p&gt;        /// [rest of string was truncated]&quot;;.
+        ///&lt;p&gt;By importin [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string helpText {
             get {
