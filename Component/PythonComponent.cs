@@ -516,6 +516,14 @@ namespace GhPython.Component
             }
         }
 
+        protected override string HelpDescription
+        {
+            get
+            {
+                return Resources.helpText;
+            }
+        }
+
         //------------------------------------------------------------------------------------------
         #region Members of IGH_VarParamComponent
 

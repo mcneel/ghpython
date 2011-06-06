@@ -144,6 +144,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Samples\helpText.txt" />
     <Content Include="Samples\sampleScript.py" />
   </ItemGroup>
   <ItemGroup>

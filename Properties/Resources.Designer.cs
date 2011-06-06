@@ -74,6 +74,25 @@ namespace GhPython.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;p&gt;This component allows to use both RhinoCommon and RhinoScript from withing
+        ///Grasshopper. Here some Q&amp;As.&lt;/p&gt;
+        ///
+        ///&lt;p&gt;&lt;b&gt;How can I use RhinoCommon?&lt;/b&gt;&lt;/p&gt;
+        ///&lt;p&gt;By importing from the Rhino module, for example by writing:&lt;/p&gt;
+        ///&lt;pre&gt;from Rhino.Geometry import Point3d, Line&lt;/pre&gt;
+        ///&lt;p&gt;...and then assigning some new geometry to the results&lt;/p&gt;
+        ///&lt;pre&gt;a = Line(Point3d(1, 2, 3), Point3d(10, 11, 12))&lt;/pre&gt;
+        ///
+        ///&lt;p&gt;&lt;b&gt;How can I use RhinoScript?&lt;/b&gt;&lt;/p&gt;
+        ///&lt;p&gt;By importing the rhinoscriptsyntax, for example by writing:&lt;/p&gt;        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string helpText {
+            get {
+                return ResourceManager.GetString("helpText", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap python {
             get {
                 object obj = ResourceManager.GetObject("python", resourceCulture);
@@ -82,31 +101,21 @@ namespace GhPython.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to import math
+        ///   Looks up a localized string similar to # sample script to show how to use this component and rhinoscriptsyntax
+        ///import math
         ///import rhinoscriptsyntax as rs
         ///
-        ///if x is None:
-        ///    x = 100
+        ///if x is None: x = 24    # if nothing is connected to x, set x to something
         ///
-        ///circles = []
-        ///radii = []
+        ///circles = []            # create a list. We will add IDs to it later on
+        ///radii = []              # ...and another one
+        ///
         ///for i in range(x):
-        ///    pt = (i, math.cos(i), 0)
+        ///    pt = (i, math.cos(i), 0)             # a tuple (here for a point)
         ///    
-        ///    cId = rs.AddCircle(pt, 0.3)
-        ///    circles.append(cId)
-        ///    
-        ///    rId = rs.AddLine(pt, rs.PointAdd(pt, (0, 0.3, 0)))
-        ///    radii.append(rId)
-        ///
-        ///# Check if we are in Grasshopper
-        ///# with Grasshopper document override
-        ///if &quot;ghdoc&quot; in globals():
-        ///    #a = ghdoc
-        ///    
-        ///    # If we need to separate different results,
-        ///    # this will do:
-        ///    a = ghdoc[circ [rest of string was truncated]&quot;;.
+        ///    id1 = rs.AddCircle(pt, 0.3)
+        ///    circles.append(id1)
+        ///    endPt = rs.PointAdd(pt, (0, 0.3, 0 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string sampleScript {
             get {

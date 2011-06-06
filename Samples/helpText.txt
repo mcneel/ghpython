@@ -1,0 +1,63 @@
+﻿<p>This component allows to use both RhinoCommon and RhinoScript from within
+Grasshopper. Here some Q&As.</p>
+
+<p><b>How can I use RhinoCommon?</b></p>
+<p>By importing from the Rhino module, for example by writing:</p>
+<pre style="font-size: smaller">from Rhino.Geometry import Point3d, Line</pre>
+<p>...and then assigning some new geometry to the results</p>
+<pre style="font-size: smaller">a = Line(Point3d(1, 2, 3), Point3d(10, 11, 12))</pre>
+
+<p><b>How can I use RhinoScript?</b></p>
+<p>By importing the rhinoscriptsyntax, for example by writing:</p>
+<pre style="font-size: smaller">import rhinoscriptsyntax as rs</pre>
+<p>...and then calling some rhinoscript functions...</p>
+<pre style="font-size: smaller">rs.AddLine((1, 2, 3), (10, 11, 12))
+a = ghdoc</pre>
+
+<p><b>What is "ghdoc" and how does it relate to the rhinoscriptsyntax?</b></p>
+<p>The ghdoc variable is provided by the component if you select it as
+"target". But why do we need it?<br>
+Its use comes from the design of the RhinoScript library.<br>
+This library is imperative, and it is build from a set of
+procedures or functions that act on geometrical types through one level of 
+indirection: most of the time, the user does not work with the geometry itself
+but with an identifier (Guid) of geometry that is present in a document.<br>
+This is exactly what ghdoc is: it is a reference to the document that the RhinoScript
+library always implicitly targets with all Add__() calls (for example, AddLine()).</p>
+
+<p><b>Is RhinoScript use within GhPython less ideal than RhinoCommon?</b></p>
+<p>While targeting the ghdoc variable, the standard Rhino document
+target of RhinoScript is replaced, therefore we can use Grasshopper while
+leaving the Rhino document unchanged. This saves uncountable Undo's, and
+makes it easy to structure ideas through the definition graph.<br>
+Either RhinoCommon or RhinoScript are both good in practice.</p>
+
+<p><b>Is the rhinoscriptsyntax target irrelevant if using solely RhinoCommon
+classes?</b></p>
+<p>Yes. If you create class instances (objects), you will need to create
+also your own collection objects to store them (mostly lists, trees). You
+can imagine the ghdoc as being an alternative to them, just that you do
+not access data by index (number), but by Guid. So you can use the
+RhinoScript or the RhinoCommon libraries independently or mix them.
+The RhinoScript implementation in Rhino is open-source and is all written
+in RhinoCommon. Also the ghdoc implementation is open-source, and is
+<a href="https://github.com/mcneel/ghpython/blob/master/DocReplacement/CustomTable.cs" target="_blank">here</a>.
+</p>
+
+<p><b>Are there RhinoScript and/or RhinoCommon objects which are not
+recognized as valid Grasshopper geometry?</b></p>
+<p>Yes, sure, Grasshopper handles only a portion of all available types.<br>
+Basically, unhandled types are all the types that do not exists in the
+'Params' tab.<br>
+For example, there is no textdot and no leader. When/if Grasshopper one day
+will support these types, these calls will be implemented.</p>
+
+<p><b>How do I use DataTree's?</b></p>
+<p><a href="http://www.grasshopper3d.com/forum/topics/datatreelistitem-access-from" target="_blank">Here</a>
+is a small sample.<br>
+However, 80% of the times it is not necessary to program for
+DataTrees, as the logic itself can be applied per-list and Grasshopper handles
+list-iteration.</p>
+
+<p><b>Can I ask more questions?</b></p>
+<a href="http://www.grasshopper3d.com/forum/categories/vb-c-and-python-coding/listForCategory" target="_blank" style="width: 100%; text-align: right;">Yes, on the forum...</a>
