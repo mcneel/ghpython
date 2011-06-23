@@ -373,6 +373,8 @@ namespace GhPython.Component
                 });
                 tsi2.Font = new Font(tsi2.Font, FontStyle.Bold);
 
+                if (Locked) tsi2.Enabled = false;
+
                 iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi2);
                 iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 3), new ToolStripSeparator());
 
