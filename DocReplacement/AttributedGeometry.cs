@@ -35,7 +35,12 @@ namespace GhPython.DocReplacement
                 if (object.ReferenceEquals(_geometry, null))
                     return null;
                     
-                return _geometry.ScriptVariable();
+                var toReturn = _geometry.ScriptVariable();
+
+                if (toReturn is Point3d)
+                    toReturn = new Point((Point3d)toReturn);
+
+                return toReturn;
             }
         }
 
