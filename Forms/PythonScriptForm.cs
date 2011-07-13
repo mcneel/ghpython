@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Grasshopper.Kernel.Undo;
 using GhPython.Properties;
+using Grasshopper.Kernel.Parameters;
 
 namespace GhPython.Forms
 {
@@ -43,7 +44,8 @@ namespace GhPython.Forms
                 this.splitContainer.Panel1.Controls.Add(_texteditor);
                 _texteditor.Dock = DockStyle.Fill;
 
-                var inputCode = _component.Params.Input[0];
+                var inputCode = (Param_String)_component.Params.Input[0];
+
                 if (inputCode.VolatileDataCount > 0 && inputCode.VolatileData.PathCount > 0)
                 {
                     var goo = inputCode.VolatileData.get_Branch(0)[0] as IGH_Goo;
@@ -52,6 +54,14 @@ namespace GhPython.Forms
                         string code;
                         if (goo.CastTo(out code) && !string.IsNullOrEmpty(code))
                             _texteditor.Text = code;
+                    }
+                }
+                else if (inputCode.PersistentDataCount > 0) // here to handle the lock and disabled components
+                {
+                    var stringData = inputCode.PersistentData[0];
+                    if (stringData != null && !string.IsNullOrEmpty(stringData.Value))
+                    {
+                        _texteditor.Text = stringData.Value;
                     }
                 }
 
