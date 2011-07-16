@@ -18,6 +18,7 @@ namespace GhPython.DocReplacement
             return _storage.ContainsKey(item);
         }
 
+
         #region Members similar to Rhino.DocObjects.Tables.ObjectTable
 
         public Guid AddArc(Arc arc)
@@ -765,6 +766,25 @@ namespace GhPython.DocReplacement
         }
 
         #endregion
+
+
+        // let python figure out the right overload to call. The double underscore
+        // syntax hides these functions from the autocomplete in the python editor
+        public Guid __InternalAdd(Arc arc) { return AddArc(arc); }
+        public Guid __InternalAdd(Brep brep) { return AddBrep(brep); }
+        public Guid __InternalAdd(Circle circle) { return AddCircle(circle); }
+        public Guid __InternalAdd(Curve curve) { return AddCurve(curve); }
+        public Guid __InternalAdd(Ellipse ellipse) { return AddEllipse(ellipse); }
+        public Guid __InternalAdd(Extrusion extrusion) { return AddExtrusion(extrusion); }
+        public Guid __InternalAdd(Line line) { return AddLine(line); }
+        public Guid __InternalAdd(LinearDimension dimension) { return AddLinearDimension(dimension); }
+        public Guid __InternalAdd(Mesh mesh) { return AddMesh(mesh); }
+        public Guid __InternalAdd(Point3d point) { return AddPoint(point); }
+        public Guid __InternalAdd(Point3f point) { return AddPoint(point); }
+        public Guid __InternalAdd(PointCloud cloud) { return AddPointCloud(cloud); }
+        public Guid __InternalAdd(Polyline polyline) { return AddPolyline(polyline); }
+        public Guid __InternalAdd(Sphere sphere) { return AddSphere(sphere); }
+        public Guid __InternalAdd(Surface surface) { return AddSurface(surface); }
 
         private void Add(AttributedGeometry item)
         {
