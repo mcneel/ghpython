@@ -26,6 +26,9 @@ namespace GhPython.Component
         StringList _py_output = new StringList();
         PythonEnvironment _env;
 
+        bool _hideCodeInput;
+        bool _hideOutOutput;
+
         internal const string DOCUMENT_NAME = "ghdoc";
         internal const string PARENT_ENVIRONMENT_NAME = "ghenv";
 
@@ -71,23 +74,40 @@ namespace GhPython.Component
             return (_py==null)? null : _py.CreateTextEditorControl("", helpCallback);
         }
 
+        Param_String _codeInputParam;
+
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            var codeparam = new Param_String();
-            codeparam.Name = "Code";
-            codeparam.NickName = "code";
-            codeparam.Description = "Python script to execute";
+            _codeInputParam = new Param_String()
+            {
+                Name = "Code",
+                NickName = "code",
+                Description = "Python script to execute",
+            };
             // Throw away the compiled script when code changes. We will just recompile on the next solve
-            codeparam.ObjectChanged += (sender, e) => { _compiled_py = null; };
-            pManager.RegisterParam(codeparam);
+            _codeInputParam.ObjectChanged += (sender, e) => { _compiled_py = null; };
+
+            if(!_hideCodeInput)
+                pManager.RegisterParam(_codeInputParam);
 
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "y"));
         }
 
+        Param_String _textOutParam;
+
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.Register_StringParam("Output", "out", "The execution information, as output and error streams");
+            _textOutParam = new Param_String()
+            {
+                Name = "Output",
+                NickName = "out",
+                Description = "The execution information, as output and error streams",
+            };
+
+            if(!_hideOutOutput)
+                pManager.RegisterParam(_textOutParam);
+
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Output, "a"));
         }
         
@@ -109,7 +129,7 @@ namespace GhPython.Component
             try
             {
                 // clear all of the output variables
-                for (int i = 1; i < Params.Output.Count; i++)
+                for (int i = _hideOutOutput ? 0 : 1; i < Params.Output.Count; i++)
                 {
                     string varname = Params.Output[i].NickName;
                     _py.SetVariable(varname, null);
@@ -360,23 +380,56 @@ namespace GhPython.Component
 
             try
             {
-
-                var tsi1 = GetTargetVariableMenuItem();
-
-                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi1);
-
-                var tsi2 = new ToolStripMenuItem("Open editor...", null, (sender, e) =>
                 {
-                    var attr = Attributes as PythonComponentAttributes;
-                    if (attr != null)
-                        attr.OpenEditor();
-                });
-                tsi2.Font = new Font(tsi2.Font, FontStyle.Bold);
+                    var tsi = GetTargetVariableMenuItem();
+                    iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi);
+                }
 
-                if (Locked) tsi2.Enabled = false;
+                {
+                    var tsi = new ToolStripMenuItem("Presentation settings", null, new ToolStripItem[]
+                    {
+                        new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!_hideCodeInput), new TargetGroupToggler()
+                            {
+                                Component = this,
+                                Param = _codeInputParam,
+                                Params = Params.Input,
+                                ValueAccessor = ()=>{return _hideCodeInput;},
+                                ValueSetter = (value)=>{_hideCodeInput = value;}
+                            }.Toggle)
+                        {
+                             ToolTipText = string.Format("Code input is {0}. Click to {1} it.", _hideCodeInput ? "hidden" : "shown", _hideCodeInput ? "show" : "hide"),
+                        },
+                        new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!_hideOutOutput), new TargetGroupToggler()
+                            {
+                                Component = this,
+                                Param = _textOutParam,
+                                Params = Params.Output,
+                                ValueAccessor = ()=>{return _hideOutOutput;},
+                                ValueSetter = (value)=>{_hideOutOutput = value;}
+                            }.Toggle)
+                        {
+                             ToolTipText = string.Format("Print output is {0}. Click to {1} it.", _hideCodeInput ? "hidden" : "shown", _hideCodeInput ? "show" : "hide"),
+                        }
+                    });
 
-                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi2);
-                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 3), new ToolStripSeparator());
+                    iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi);
+                }
+
+                {
+                    var tsi = new ToolStripMenuItem("Open editor...", null, (sender, e) =>
+                    {
+                        var attr = Attributes as PythonComponentAttributes;
+                        if (attr != null)
+                            attr.OpenEditor();
+                    });
+                    tsi.Font = new Font(tsi.Font, FontStyle.Bold);
+
+                    if (Locked) tsi.Enabled = false;
+
+                    iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 3), tsi);
+                }
+
+                iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 4), new ToolStripSeparator());
 
             }
             catch (Exception ex)
@@ -443,14 +496,50 @@ namespace GhPython.Component
             }
         }
 
+        class TargetGroupToggler
+        {
+            public PythonComponent Component { get; set; }
+            public IGH_Param Param { get; set; }
+            public List<IGH_Param> Params { get; set; }
+            public Func<bool> ValueAccessor { get; set; }
+            public Action<bool> ValueSetter { get; set; }
+
+            public void Toggle(object sender, EventArgs e)
+            {
+                try
+                {
+                    ValueSetter(!ValueAccessor());
+
+                    if (ValueAccessor())
+                    {
+                        Params.RemoveAt(0);
+                    }
+                    else
+                    {
+                        Params.Insert(0, Param);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+                }
+            }
+        }
+
+        const string TargetDocIdentifier = "GhMemory";
+        const string HideInputIdentifier = "HideInput";
+        const string HideOutputIdentifier = "HideOutput";
+
         public override bool Write(GH_IO.Serialization.GH_IWriter writer)
         {
             var toReturn = base.Write(writer);
 
-            writer.SetInt32("GhMemory", (int)_storage);
-
             if (!Enum.IsDefined(typeof(DocStorage), _storage))
                 _storage = DocStorage.InGrasshopperMemory;
+            writer.SetInt32(TargetDocIdentifier, (int)_storage);
+
+            writer.SetBoolean(HideInputIdentifier, _hideCodeInput);
+            writer.SetBoolean(HideOutputIdentifier, _hideOutOutput);
 
             return toReturn;
         }
@@ -460,7 +549,7 @@ namespace GhPython.Component
             var toReturn = base.Read(reader);
 
             int val = -1;
-            if (reader.TryGetInt32("GhMemory", ref val))
+            if (reader.TryGetInt32(TargetDocIdentifier, ref val))
                 _storage = (DocStorage)val;
 
             if (!Enum.IsDefined(typeof(DocStorage), _storage))
@@ -479,6 +568,17 @@ namespace GhPython.Component
                     }
                 }
 
+            {
+                var hideInput = false;
+                if (reader.TryGetBoolean(HideInputIdentifier, ref hideInput))
+                    _hideCodeInput = hideInput;
+            }
+
+            {
+                var hideOutput = false;
+                if (reader.TryGetBoolean(HideOutputIdentifier, ref hideOutput))
+                    _hideOutOutput = hideOutput;
+            }
             return toReturn;
         }
 

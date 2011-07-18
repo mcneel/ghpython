@@ -281,7 +281,7 @@ namespace GhPython.Forms
         {
             if (ex != null)
             {
-                MessageBox.Show("An error occurred in the Python script window.\nIt would be great if you could take a screenshot of this and send it to giulio@mcneel.com.\nThanks.\n\n" + ex.Message,
+                MessageBox.Show("An error occurred in the Python script window.\nIt would be great if you could take a screenshot of this and send it to giulio@mcneel.com.\nThanks.\n\n" + ex.ToString(),
                     "Error in Python script window (" + ex.GetType().Name + ")", MessageBoxButtons.OK);
             }
         }
