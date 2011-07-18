@@ -44,26 +44,9 @@ namespace GhPython.Forms
                 this.splitContainer.Panel1.Controls.Add(_texteditor);
                 _texteditor.Dock = DockStyle.Fill;
 
-                var inputCode = (Param_String)_component.Params.Input[0];
+                var inputCode = _component.CodeInput;
 
-                if (inputCode.VolatileDataCount > 0 && inputCode.VolatileData.PathCount > 0)
-                {
-                    var goo = inputCode.VolatileData.get_Branch(0)[0] as IGH_Goo;
-                    if (goo != null)
-                    {
-                        string code;
-                        if (goo.CastTo(out code) && !string.IsNullOrEmpty(code))
-                            _texteditor.Text = code;
-                    }
-                }
-                else if (inputCode.PersistentDataCount > 0) // here to handle the lock and disabled components
-                {
-                    var stringData = inputCode.PersistentData[0];
-                    if (stringData != null && !string.IsNullOrEmpty(stringData.Value))
-                    {
-                        _texteditor.Text = stringData.Value;
-                    }
-                }
+                _texteditor.Text = PythonComponent.ExtractCodeString(inputCode);
 
                 if (string.IsNullOrEmpty(_texteditor.Text))
                     _texteditor.Text = Resources.sampleScript;
@@ -171,44 +154,39 @@ namespace GhPython.Forms
         {
             if (_component != null)
             {
-                IList<IGH_Param> outs = _component.Params.Input;
+                var codeInput = _component.CodeInput;
 
-                if (outs.Count > 0)
+                if (codeInput != null)
                 {
-                    var codeInput = outs[0] as GH_PersistentParam<GH_String>;
-
-                    if (codeInput != null)
+                    if (codeInput.SourceCount != 0)
                     {
-                        if (codeInput.SourceCount != 0)
+                        if (MessageBox.Show("There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.",
+                            "Rhino.Python", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
                         {
-                            if (MessageBox.Show("There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.",
-                                "Rhino.Python", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                            {
-                                return;
-                            }
+                            return;
                         }
+                    }
 
-                        GH_Document ghd = _component.OnPingDocument();
-                        if(ghd != null)
+                    GH_Document ghd = _component.OnPingDocument();
+                    if (ghd != null)
                         ghd.UndoServer.PushUndoRecord("Python code changed",
                             new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(codeInput));
 
-                        codeInput.ClearPersistentData();
-                        string newCode = _texteditor.Text;
+                    codeInput.ClearPersistentData();
+                    string newCode = _texteditor.Text;
 
-                        if (!string.IsNullOrEmpty(newCode))
-                        {
-                            codeInput.AddPersistentData(new GH_String(newCode));
-                        }
+                    if (!string.IsNullOrEmpty(newCode))
+                    {
+                        codeInput.AddPersistentData(new GH_String(newCode));
+                    }
 
-                        if (expire)
-                            codeInput.ExpireSolution(true);
+                    if (expire)
+                        codeInput.ExpireSolution(true);
 
-                        if (close)
-                        {
-                            _showClosePrompt = false;
-                            Close();
-                        }
+                    if (close)
+                    {
+                        _showClosePrompt = false;
+                        Close();
                     }
                 }
             }

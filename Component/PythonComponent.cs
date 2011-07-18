@@ -18,8 +18,9 @@ namespace GhPython.Component
 {
     public class PythonComponent : SafeComponent, IGH_VarParamComponent
     {
-        DocStorage _storage = DocStorage.InGrasshopperMemory;
+        DocStorage _storage = DocStorage.AutomaticMarshal;
         GrasshopperDocument _document;
+        ComponentIOMarshal _marshal;
         PythonScript _py;
         PythonCompiledCode _compiled_py;
         string _previousRunCode;
@@ -75,6 +76,13 @@ namespace GhPython.Component
         }
 
         Param_String _codeInputParam;
+        public Param_String CodeInput
+        {
+            get
+            {
+                return _codeInputParam;
+            }
+        }
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
@@ -87,14 +95,20 @@ namespace GhPython.Component
             // Throw away the compiled script when code changes. We will just recompile on the next solve
             _codeInputParam.ObjectChanged += (sender, e) => { _compiled_py = null; };
 
-            if(!_hideCodeInput)
+            if (!_hideCodeInput)
                 pManager.RegisterParam(_codeInputParam);
-
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "y"));
         }
 
         Param_String _textOutParam;
+        public Param_String TextOutput
+        {
+            get
+            {
+                return _textOutParam;
+            }
+        }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
@@ -142,24 +156,7 @@ namespace GhPython.Component
                 for (int i = 1; i < Params.Input.Count; i++)
                 {
                     string varname = Params.Input[i].NickName;
-                    object o;
-                    switch (Params.Input[i].Access)
-                    {
-                        case GH_ParamAccess.item:
-                            o = GetItemFromParameter(DA, i);
-                            break;
-
-                        case GH_ParamAccess.list:
-                            o = GetListFromParameter(DA, i);
-                            break;
-
-                        case GH_ParamAccess.tree:
-                            o = GetTreeFromParameter(DA, i);
-                            break;
-
-                        default:
-                            throw new ApplicationException("Wrong parameter in variable access type");
-                    }
+                    object o = _marshal.GetInput(DA, i);
                     _py.SetVariable(varname, o);
                     _py.SetIntellisenseVariable(varname, o);
                 }
@@ -169,11 +166,10 @@ namespace GhPython.Component
                 bool codeIsEmbedded = Params.Input[0].SourceCount == 0;
                 if (!codeIsEmbedded || _compiled_py == null)
                 {
-                    string script = null;
-                    if (!DA.GetData(0, ref script))
-                        throw new ApplicationException("Impossible to retrive code to execute");
+                    string script = ExtractCodeString(_codeInputParam);
+
                     if (string.IsNullOrWhiteSpace(script))
-                        throw new ApplicationException("Empty code");
+                        throw new ApplicationException("Empty code parameter");
 
                     if (_compiled_py == null ||
                         string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
@@ -192,7 +188,7 @@ namespace GhPython.Component
                     {
                         string varname = Params.Output[i].NickName;
                         object o = _py.GetVariable(varname);
-                        ReadOneOutput(DA, o, i);
+                        _marshal.SetOutput(o, DA, i);
                     }
                 }
                 else
@@ -203,7 +199,7 @@ namespace GhPython.Component
             catch (Exception ex)
             {
                 AddErrorNicely(_py_output, ex);
-                SetErrorOrClearIt(DA, _py_output);
+                SetFormErrorOrClearIt(DA, _py_output);
                 throw;
             }
             finally
@@ -211,25 +207,7 @@ namespace GhPython.Component
                 if ( rhdoc!=null && prevEnabled != rhdoc.Views.RedrawEnabled)
                     rhdoc.Views.RedrawEnabled = true;
             }
-            SetErrorOrClearIt(DA, _py_output);
-        }
-
-        private void SetErrorOrClearIt(IGH_DataAccess DA, StringList sl)
-        {
-            var attr = Attributes as PythonComponentAttributes;
-
-            if (sl.Result.Count > 0)
-            {
-                DA.SetDataList(0, sl.Result);
-
-                if (attr != null)
-                    attr.TrySetLinkedFormHelpText(sl.GetResultAsOne());
-            }
-            else
-            {
-                if (attr != null)
-                    attr.TrySetLinkedFormHelpText("Execution completed successfully.");
-            }
+            SetFormErrorOrClearIt(DA, _py_output);
         }
 
         private void AddErrorNicely(StringList sw, Exception ex)
@@ -237,125 +215,83 @@ namespace GhPython.Component
             sw.Write(string.Format("Runtime error ({0}): {1}", ex.GetType().Name, ex.Message));
 
             string error = _py.GetStackTraceFromException(ex);
-            
+
             error = error.Replace(", in <module>, \"<string>\"", ", in script");
             error = error.Trim();
 
             sw.Write(error);
         }
 
-        private object GetItemFromParameter(IGH_DataAccess DA, int index)
+        private void SetFormErrorOrClearIt(IGH_DataAccess DA, StringList sl)
         {
-            IGH_Goo destination = null;
-            DA.GetData<IGH_Goo>(index, ref destination);
-            return this.TypeCast(destination, index);
-        }
+            var attr = (PythonComponentAttributes)Attributes;
 
-        private object GetListFromParameter(IGH_DataAccess DA, int index)
-        {
-            List<IGH_Goo> list2 = new List<IGH_Goo>();
-            DA.GetDataList<IGH_Goo>(index, list2);
-            IGH_TypeHint typeHint = ((Param_ScriptVariable)this.Params.Input[index]).TypeHint;
-            List<object> list = new List<object>();
-
-            for (int i = 0; i < list2.Count; i++)
+            if (sl.Result.Count > 0)
             {
-                list.Add(this.TypeCast(list2[i], typeHint));
-            }
-            return list;
-        }
-
-        private object GetTreeFromParameter(IGH_DataAccess DA, int index)
-        {
-            GH_Structure<IGH_Goo> structure = new GH_Structure<IGH_Goo>();
-            DA.GetDataTree<IGH_Goo>(index, out structure);
-            IGH_TypeHint typeHint = ((Param_ScriptVariable)this.Params.Input[index]).TypeHint;
-            DataTree<object> tree = new DataTree<object>();
-
-            for (int i = 0; i < structure.PathCount; i++)
-            {
-                GH_Path path = structure.get_Path(i);
-                List<IGH_Goo> list = structure.Branches[i];
-                List<object> data = new List<object>();
-
-                for (int j = 0; j < list.Count; j++)
-                {
-                    data.Add(this.TypeCast(list[j], typeHint));
-                }
-                tree.AddRange(data, path);
-            }
-            return tree;
-        }
-
-        private object TypeCast(IGH_Goo data, int index)
-        {
-            Param_ScriptVariable variable = (Param_ScriptVariable)this.Params.Input[index];
-            return this.TypeCast(data, variable.TypeHint);
-        }
-
-        private object TypeCast(IGH_Goo data, IGH_TypeHint hint)
-        {
-            if (data == null)
-            {
-                return null;
-            }
-            if (hint == null)
-            {
-                return data.ScriptVariable();
-            }
-            object objectValue = data.ScriptVariable();
-            object target = null;
-            hint.Cast(objectValue, out target);
-            return target;
-        }
-
-        private void ReadOneOutput(IGH_DataAccess DA, object o, int loc)
-        {
-            if (o == null)
-                return;
-
-            if (o is GrasshopperDocument)
-            {
-                var ogh = o as GrasshopperDocument;
-                DA.SetDataList(loc, ogh.Objects.Geometries);
-                ogh.Objects.Clear();
-            }
-            else if (o is string) //string is IEnumerable, so we need to check first
-            {
-                DA.SetData(loc, o);
-            }
-            else if (o is IEnumerable)
-            {
-                DA.SetDataList(loc, o as IEnumerable);
-            }
-            else if (o is IGH_DataTree)
-            {
-                DA.SetDataTree(loc, o as IGH_DataTree);
+                if(!_hideOutOutput)
+                    DA.SetDataList(0, sl.Result);
+                attr.TrySetLinkedFormHelpText(sl.GetResultAsOne());
             }
             else
             {
-                DA.SetData(loc, o);
+                 attr.TrySetLinkedFormHelpText("Execution completed successfully.");
             }
         }
 
+        public static string ExtractCodeString(Param_String inputCode)
+        {
+            if (inputCode.VolatileDataCount > 0 && inputCode.VolatileData.PathCount > 0)
+            {
+                var goo = inputCode.VolatileData.get_Branch(0)[0] as IGH_Goo;
+                if (goo != null)
+                {
+                    string code;
+                    if (goo.CastTo(out code) && !string.IsNullOrEmpty(code))
+                        return code;
+                }
+            }
+            else if (inputCode.PersistentDataCount > 0) // here to handle the lock and disabled components
+            {
+                var stringData = inputCode.PersistentData[0];
+                if (stringData != null && !string.IsNullOrEmpty(stringData.Value))
+                {
+                    return stringData.Value;
+                }
+            }
+            return string.Empty;
+        }
+
+
         private void SetScriptTransientGlobals()
         {
-            if (_storage == DocStorage.InGrasshopperMemory)
+            switch (_storage)
             {
-                _document = new GrasshopperDocument();
-                _py.ScriptContextDoc = _document;
-                _py.SetVariable(DOCUMENT_NAME, _document);
-                _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);              
-            }
-            else if (_storage == DocStorage.InRhinoDoc)
-            {
-                _py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
-                Rhino.RhinoDoc.ActiveDoc.UndoRecordingEnabled = true;
-                if (_py.ContainsVariable(DOCUMENT_NAME))
-                {
-                    _py.RemoveVariable(DOCUMENT_NAME);
-                    _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
-                }
+                case DocStorage.InGrasshopperMemory:
+                case DocStorage.AutomaticMarshal:
+                    {
+                        _document = new GrasshopperDocument();
+                        _py.ScriptContextDoc = _document;
+                        _marshal = new ComponentIOMarshal(_document, this);
+                        _py.SetVariable(DOCUMENT_NAME, _document);
+                        _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
+                        break;
+                    }
+                case DocStorage.InRhinoDoc:
+                    {
+                        _py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
+                        _marshal = new ComponentIOMarshal(Rhino.RhinoDoc.ActiveDoc, this);
+                        Rhino.RhinoDoc.ActiveDoc.UndoRecordingEnabled = true;
+                        if (_py.ContainsVariable(DOCUMENT_NAME))
+                        {
+                            _py.RemoveVariable(DOCUMENT_NAME);
+                            _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        throw new ApplicationException("Unexpected DocStorage type.");
+                    }
             }
         }
 
@@ -385,8 +321,10 @@ namespace GhPython.Component
                     iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi);
                 }
 
+                // This should be uncommented when the hide option is ready...
+                /*
                 {
-                    var tsi = new ToolStripMenuItem("Presentation settings", null, new ToolStripItem[]
+                    var tsi = new ToolStripMenuItem("&Presentation style", null, new ToolStripItem[]
                     {
                         new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!_hideCodeInput), new TargetGroupToggler()
                             {
@@ -414,9 +352,10 @@ namespace GhPython.Component
 
                     iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi);
                 }
+                */
 
                 {
-                    var tsi = new ToolStripMenuItem("Open editor...", null, (sender, e) =>
+                    var tsi = new ToolStripMenuItem("&Open editor...", null, (sender, e) =>
                     {
                         var attr = Attributes as PythonComponentAttributes;
                         if (attr != null)
@@ -440,15 +379,19 @@ namespace GhPython.Component
 
         public ToolStripMenuItem GetTargetVariableMenuItem()
         {
-            var result = new ToolStripMenuItem("&Target for rhinoscriptsyntax", null, new ToolStripItem[]
+            var result = new ToolStripMenuItem("&Rhinoscriptsyntax usage", null, new ToolStripItem[]
             {
-                new ToolStripMenuItem("In &" + DOCUMENT_NAME + " variable", null, SetPythonDocAsGhMem)
+                new ToolStripMenuItem("rhinoscriptsyntax / Automatically &marshal Guids", null, new DocSetter{Component = this, NewDocStorage = DocStorage.AutomaticMarshal}.SetDoc)
                 {
-                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs",
+                     ToolTipText = "Inputs and outputs accept Guids. The " + DOCUMENT_NAME + " variable is available for advanced use",
                 },
-                new ToolStripMenuItem("&Rhino document", null, SetPythonDocAsDoc)
+                new ToolStripMenuItem("RhinoCommon / Provide &" + DOCUMENT_NAME + " variable", null, new DocSetter{Component = this, NewDocStorage = DocStorage.InGrasshopperMemory}.SetDoc)
                 {
-                     ToolTipText = "Use this option to choose to use the traditional Rhino document as output",
+                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs manually",
+                },
+                new ToolStripMenuItem("Add to &Rhino document", null, new DocSetter{Component = this, NewDocStorage = DocStorage.InRhinoDoc}.SetDoc)
+                {
+                     ToolTipText = "Use this option to choose to use the traditional Rhino document as output. Not recommanded",
                 }
             })
             {
@@ -457,8 +400,9 @@ namespace GhPython.Component
 
             EventHandler update = (sender, args) =>
             {
-                result.DropDownItems[0].Image = GetCheckedImage(_storage == DocStorage.InGrasshopperMemory);
-                result.DropDownItems[1].Image = GetCheckedImage(_storage == DocStorage.InRhinoDoc);
+                result.DropDownItems[0].Image = GetCheckedImage(_storage == DocStorage.AutomaticMarshal);
+                result.DropDownItems[1].Image = GetCheckedImage(_storage == DocStorage.InGrasshopperMemory);
+                result.DropDownItems[2].Image = GetCheckedImage(_storage == DocStorage.InRhinoDoc);
             };
             update(null, EventArgs.Empty);
             result.DropDownOpening += update;
@@ -466,34 +410,35 @@ namespace GhPython.Component
             return result;
         }
 
-        private void SetPythonDocAsDoc(object sender, EventArgs e)
+        internal DocStorage DocStorageMode
         {
-            try
+            get
             {
-                CheckAndSetupActions();
-
-                _storage = DocStorage.InRhinoDoc;
-                SetScriptTransientGlobals();
-                this.ExpireSolution(true);
-            }
-            catch (Exception ex)
-            {
-                GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+                return _storage;
             }
         }
 
-        private void SetPythonDocAsGhMem(object sender, EventArgs e)
+        class DocSetter
         {
-            try
+            public DocStorage NewDocStorage;
+            public PythonComponent Component;
+
+            public void SetDoc(object sender, EventArgs e)
             {
-                _storage = DocStorage.InGrasshopperMemory;
-                SetScriptTransientGlobals();
-                this.ExpireSolution(true);
+                try
+                {
+                    Component.CheckAndSetupActions();
+
+                    Component._storage = NewDocStorage;
+                    Component.SetScriptTransientGlobals();
+                    Component.ExpireSolution(true);
+                }
+                catch (Exception ex)
+                {
+                    GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+                }
             }
-            catch (Exception ex)
-            {
-                GhPython.Forms.PythonScriptForm.LastHandleException(ex);
-            }
+
         }
 
         class TargetGroupToggler
@@ -546,7 +491,17 @@ namespace GhPython.Component
 
         public override bool Read(GH_IO.Serialization.GH_IReader reader)
         {
-            var toReturn = base.Read(reader);
+            {
+                var hideInput = false;
+                if (reader.TryGetBoolean(HideInputIdentifier, ref hideInput))
+                    _hideCodeInput = hideInput;
+            }
+
+            {
+                var hideOutput = false;
+                if (reader.TryGetBoolean(HideOutputIdentifier, ref hideOutput))
+                    _hideOutOutput = hideOutput;
+            }
 
             int val = -1;
             if (reader.TryGetInt32(TargetDocIdentifier, ref val))
@@ -554,6 +509,8 @@ namespace GhPython.Component
 
             if (!Enum.IsDefined(typeof(DocStorage), _storage))
                 _storage = DocStorage.InGrasshopperMemory;
+
+            var toReturn = base.Read(reader);
 
             // Dynamic input fix for existing scripts
             // Always assign DynamicHint or Grasshopper
@@ -568,17 +525,6 @@ namespace GhPython.Component
                     }
                 }
 
-            {
-                var hideInput = false;
-                if (reader.TryGetBoolean(HideInputIdentifier, ref hideInput))
-                    _hideCodeInput = hideInput;
-            }
-
-            {
-                var hideOutput = false;
-                if (reader.TryGetBoolean(HideOutputIdentifier, ref hideOutput))
-                    _hideOutOutput = hideOutput;
-            }
             return toReturn;
         }
 
@@ -704,18 +650,10 @@ namespace GhPython.Component
                     }
                     break;
             }
-
         }
 
-        static void FixGhInput(Param_ScriptVariable i)
-        {
-            i.Name = string.Format("Variable {0}", i.NickName);
-            i.Description = string.Format("Script Variable {0}", i.NickName);
-            i.AllowTreeAccess = true;
-            i.Optional = true;
-            i.ShowHints = true;
-
-            i.Hints = new List<IGH_TypeHint> { 
+        static IGH_TypeHint[] PossibleHints = new IGH_TypeHint[]
+        { 
             new DynamicHint(),
             new GH_HintSeparator(),
             new GH_BooleanHint_CS(),new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
@@ -731,8 +669,17 @@ namespace GhPython.Component
             new GH_ArcHint(),new GH_PolylineHint(), new GH_CurveHint(),
             new GH_SurfaceHint(), new GH_BrepHint(), new GH_MeshHint(),
             new GH_GeometryBaseHint()
-            };
+        };
 
+        static void FixGhInput(Param_ScriptVariable i)
+        {
+            i.Name = string.Format("Variable {0}", i.NickName);
+            i.Description = string.Format("Script Variable {0}", i.NickName);
+            i.AllowTreeAccess = true;
+            i.Optional = true;
+            i.ShowHints = true;
+
+            i.Hints = new List<IGH_TypeHint>(PossibleHints);
             i.TypeHint = i.Hints[0];
         }
 

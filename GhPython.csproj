@@ -68,6 +68,8 @@
       <HintPath>references\Grasshopper.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Synchronization, Version=1.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
     <Reference Include="RhinoCommon">
       <HintPath>references\RhinoCommon.dll</HintPath>
       <Private>False</Private>
@@ -79,6 +81,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Component\ComponentIOMarshal.cs" />
     <Compile Include="Component\PythonEnvironment.cs">
       <SubType>Code</SubType>
     </Compile>

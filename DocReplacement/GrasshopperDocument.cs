@@ -419,7 +419,7 @@ namespace GhPython.DocReplacement
             }
         }
 
-        public RhinoDoc Document
+        public object Document
         {
             get
             {
