@@ -7,12 +7,21 @@ namespace GhPython.Component
 {
     class DynamicHint : GH_NullHint, IGH_TypeHint
     {
+        PythonComponent _component;
+
+        public DynamicHint(PythonComponent component)
+        {
+            if (component == null)
+                throw new ArgumentNullException("component");
+
+            _component = component;
+        }
 
         bool IGH_TypeHint.Cast(object data, out object target)
         {
             bool toReturn = base.Cast(data, out target);
 
-            if (target != null)
+            if (_component.DocStorageMode == DocReplacement.DocStorage.AutomaticMarshal && target != null)
             {
                 Type t = target.GetType();
 
@@ -56,7 +65,7 @@ namespace GhPython.Component
         {
             get
             {
-                return "dynamic (RhinoScript)";
+                return "dynamic";
             }
         }
     }

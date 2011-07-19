@@ -85,7 +85,11 @@
     <Compile Include="Component\PythonEnvironment.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Component\RhinoCommonHint.cs" />
+    <Compile Include="Component\SpecialHints\SpecialBoxHint.cs" />
+    <Compile Include="Component\SpecialHints\SpecialPolylineHint.cs" />
+    <Compile Include="Component\SpecialHints\SpecialArcHint.cs" />
+    <Compile Include="Component\SpecialHints\SpecialCircleHint.cs" />
+    <Compile Include="Component\SpecialHints\SpecialLineHint.cs" />
     <Compile Include="DocReplacement\DocStorage.cs" />
     <Compile Include="Forms\PythonScriptForm.cs">
       <SubType>Form</SubType>
@@ -94,7 +98,7 @@
       <DependentUpon>PythonScriptForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Component\PythonComponentAttributes.cs" />
-    <Compile Include="Component\DynamicHint.cs" />
+    <Compile Include="Component\SpecialHints\DynamicHint.cs" />
     <Compile Include="DocReplacement\AttributedGeometry.cs" />
     <Compile Include="DocReplacement\CustomTable.cs" />
     <Compile Include="DocReplacement\GrasshopperDocument.cs" />

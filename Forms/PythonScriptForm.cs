@@ -44,9 +44,7 @@ namespace GhPython.Forms
                 this.splitContainer.Panel1.Controls.Add(_texteditor);
                 _texteditor.Dock = DockStyle.Fill;
 
-                var inputCode = _component.CodeInput;
-
-                _texteditor.Text = PythonComponent.ExtractCodeString(inputCode);
+                _texteditor.Text = _component.CodeInput;
 
                 if (string.IsNullOrEmpty(_texteditor.Text))
                     _texteditor.Text = Resources.sampleScript;
@@ -99,7 +97,7 @@ namespace GhPython.Forms
 
         void OnPythonHelp(string str)
         {
-          richTextBox1.Text = str;
+            richTextBox1.Text = str;
         }
 
         void ScriptForm_KeyDown(object sender, KeyEventArgs e)
@@ -154,8 +152,9 @@ namespace GhPython.Forms
         {
             if (_component != null)
             {
-                var codeInput = _component.CodeInput;
+                var codeInput = _component.CodeInputParam;
 
+                string newCode;
                 if (codeInput != null)
                 {
                     if (codeInput.SourceCount != 0)
@@ -173,21 +172,30 @@ namespace GhPython.Forms
                             new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(codeInput));
 
                     codeInput.ClearPersistentData();
-                    string newCode = _texteditor.Text;
+                    newCode = _texteditor.Text;
 
                     if (!string.IsNullOrEmpty(newCode))
                     {
                         codeInput.AddPersistentData(new GH_String(newCode));
                     }
+                }
+                else
+                {
+                    GH_Document ghd = _component.OnPingDocument();
+                    if (ghd != null)
+                        ghd.UndoServer.PushUndoRecord("Python code changed",
+                            new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(_component));
 
-                    if (expire)
-                        codeInput.ExpireSolution(true);
+                    _component.CodeInput = _texteditor.Text;
+                }
 
-                    if (close)
-                    {
-                        _showClosePrompt = false;
-                        Close();
-                    }
+                if (expire)
+                    _component.ExpireSolution(true);
+
+                if (close)
+                {
+                    _showClosePrompt = false;
+                    Close();
                 }
             }
         }
@@ -246,7 +254,7 @@ namespace GhPython.Forms
             testButton.Enabled = false;
 
             this.Text += " (disabled)";
-            mainStatusText.Text = "Window is disabled because linked component was cancelled.";
+            mainStatusText.Text = "Window is disabled because linked component was deleted.";
 
             if(_targetVariableMenuIndex >= 0 && _targetVariableMenuIndex < fileToolStripMenuItem.DropDownItems.Count)
                 fileToolStripMenuItem.DropDownItems.RemoveAt(_targetVariableMenuIndex);
