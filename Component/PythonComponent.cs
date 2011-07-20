@@ -369,6 +369,7 @@ namespace GhPython.Component
                             }.Toggle)
                         {
                              ToolTipText = string.Format("Print output is {0}. Click to {1} it.", _hideCodeInput ? "hidden" : "shown", _hideCodeInput ? "show" : "hide"),
+                             Height = 32,
                         }
                     });
 
