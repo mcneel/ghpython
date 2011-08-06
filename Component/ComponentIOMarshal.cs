@@ -10,6 +10,7 @@ using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Parameters;
 using Grasshopper;
+using IronPython.Runtime;
 
 namespace GhPython.Component
 {
@@ -73,21 +74,23 @@ namespace GhPython.Component
             List<IGH_Goo> list2 = new List<IGH_Goo>();
             DA.GetDataList<IGH_Goo>(index, list2);
             IGH_TypeHint typeHint = ((Param_ScriptVariable)_component.Params.Input[index]).TypeHint;
-            List<object> list = new List<object>(list2.Count);
+            List list = new List();
 
-            for (int i = 0; i < list2.Count; i++)
+            if (_component.DocStorageMode != DocStorage.AutomaticMarshal)
             {
-                list.Add(this.TypeCast(list2[i], typeHint));
+                for (int i = 0; i < list2.Count; i++)
+                {
+                    list.Add(this.TypeCast(list2[i], typeHint));
+                }
             }
-
-            if (_component.DocStorageMode == DocStorage.AutomaticMarshal)
+            else
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    object thisInput = list[i];
+                    object thisInput = this.TypeCast(list2[i], typeHint);
                     if (DocumentSingle(ref thisInput))
                     {
-                        list[i] = thisInput;
+                        list.Add(thisInput);
                     }
                 }
             }

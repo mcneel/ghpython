@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using GhPython.DocReplacement;
 using GhPython.Properties;
-using Grasshopper;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Parameters.Hints;
 using Grasshopper.Kernel.Types;
@@ -332,9 +329,9 @@ namespace GhPython.Component
             get { return GH_Exposure.secondary; }
         }
 
-        public override void Menu_AppendDerivedItems(ToolStripDropDown iMenu)
+        public override bool AppendMenuItems(ToolStripDropDown iMenu)
         {
-            base.Menu_AppendDerivedItems(iMenu);
+            var toReturn = base.AppendMenuItems(iMenu);
 
             try
             {
@@ -398,6 +395,8 @@ namespace GhPython.Component
             {
                 GhPython.Forms.PythonScriptForm.LastHandleException(ex);
             }
+
+            return toReturn;
         }
 
         public ToolStripMenuItem GetTargetVariableMenuItem()
