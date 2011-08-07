@@ -204,24 +204,23 @@ namespace GhPython.Component
             {
                 if (_component.DocStorageMode == DocStorage.AutomaticMarshal)
                 {
-                    GeometrySingle(o, out o);
+                    GeometrySingle(ref o);
                 }
                 DA.SetData(index, o);
             }
         }
 
-        bool GeometrySingle(object input, out object output)
+        bool GeometrySingle(ref object input)
         {
             if (input is Guid)
             {
                 dynamic o = _objectTable.Find((Guid)input);
                 if (o != null)
                 {
-                    output = o.Geometry;
-                    return output != null;
+                    input = o.Geometry;
+                    return input != null;
                 }
             }
-            output = null;
             return false;
         }
 
@@ -230,8 +229,8 @@ namespace GhPython.Component
             List<object> newOutput = new List<object>();
             foreach(var o in output)
             {
-                object toAdd;
-                GeometrySingle(o, out toAdd);
+                object toAdd = o;
+                GeometrySingle(ref toAdd);
                 newOutput.Add(toAdd);
             }
             return newOutput;
