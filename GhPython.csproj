@@ -68,11 +68,7 @@
       <HintPath>references\Grasshopper.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="IronPython, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Synchronization, Version=1.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
     <Reference Include="RhinoCommon">
       <HintPath>references\RhinoCommon.dll</HintPath>
       <Private>False</Private>

@@ -702,7 +702,12 @@ namespace GhPython.DocReplacement
             if (obj == null)
                 return Guid.Empty;
 
-            var newObj = obj.GhGeometry.Transform(xform);
+            IGH_GeometricGoo newObj;
+            if (deleteOriginal)
+                newObj = obj.GhGeometry.Transform(xform);
+            else
+                newObj = obj.GhGeometry.DuplicateGeometry().Transform(xform);
+
             if (newObj == null)
                 return Guid.Empty;
 

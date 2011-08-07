@@ -605,7 +605,7 @@ namespace GhPython.Component
 
         void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
         {
-            if (_storage == DocStorage.InGrasshopperMemory)
+            if (_storage != DocStorage.InRhinoDoc)
             {
                 GrasshopperDocument ghd = _document as GrasshopperDocument;
 

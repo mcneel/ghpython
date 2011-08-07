@@ -8,3 +8,5 @@ GhPython.suo
 /references/Grasshopper.dll
 /references/Grasshopper.xml
 /references/RhinoCommon.dll
+/references/GH_Util.dll
+/references/Grasshopper.pdb

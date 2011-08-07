@@ -10,7 +10,6 @@ using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Parameters;
 using Grasshopper;
-using IronPython.Runtime;
 
 namespace GhPython.Component
 {
@@ -74,7 +73,8 @@ namespace GhPython.Component
             List<IGH_Goo> list2 = new List<IGH_Goo>();
             DA.GetDataList<IGH_Goo>(index, list2);
             IGH_TypeHint typeHint = ((Param_ScriptVariable)_component.Params.Input[index]).TypeHint;
-            List list = new List();
+            var t = Type.GetType("IronPython.Runtime.List,IronPython");
+            IList list = Activator.CreateInstance(t) as IList;
 
             if (_component.DocStorageMode != DocStorage.AutomaticMarshal)
             {
@@ -85,7 +85,7 @@ namespace GhPython.Component
             }
             else
             {
-                for (int i = 0; i < list.Count; i++)
+                for (int i = 0; i < list2.Count; i++)
                 {
                     object thisInput = this.TypeCast(list2[i], typeHint);
                     if (DocumentSingle(ref thisInput))
@@ -204,27 +204,24 @@ namespace GhPython.Component
             {
                 if (_component.DocStorageMode == DocStorage.AutomaticMarshal)
                 {
-                    GeometrySingle(ref o);
+                    GeometrySingle(o, out o);
                 }
                 DA.SetData(index, o);
             }
         }
 
-        bool GeometrySingle(ref object output)
+        bool GeometrySingle(object input, out object output)
         {
-            if (output is Guid)
+            if (input is Guid)
             {
-                dynamic o = _objectTable.Find((Guid)output);
+                dynamic o = _objectTable.Find((Guid)input);
                 if (o != null)
                 {
-                    object res = o.Geometry;
-                    if (res != null)
-                    {
-                        output = res;
-                        return true;
-                    }
+                    output = o.Geometry;
+                    return output != null;
                 }
             }
+            output = null;
             return false;
         }
 
@@ -233,9 +230,9 @@ namespace GhPython.Component
             List<object> newOutput = new List<object>();
             foreach(var o in output)
             {
-                var thisInput = o;
-                GeometrySingle(ref thisInput);
-                newOutput.Add(thisInput);
+                object toAdd;
+                GeometrySingle(o, out toAdd);
+                newOutput.Add(toAdd);
             }
             return newOutput;
         }
