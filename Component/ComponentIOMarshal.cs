@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
-using Rhino.Geometry;
+using System.Collections.Generic;
 using GhPython.DocReplacement;
+using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
-using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Parameters;
-using Grasshopper;
+using Grasshopper.Kernel.Types;
+using Rhino.Geometry;
 
 namespace GhPython.Component
 {
