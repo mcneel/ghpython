@@ -88,10 +88,8 @@ namespace GhPython.Component
                 for (int i = 0; i < list2.Count; i++)
                 {
                     object thisInput = this.TypeCast(list2[i], typeHint);
-                    if (DocumentSingle(ref thisInput))
-                    {
-                        list.Add(thisInput);
-                    }
+                    DocumentSingle(ref thisInput);
+                    list.Add(thisInput);
                 }
             }
 
@@ -147,19 +145,16 @@ namespace GhPython.Component
             return target;
         }
 
-        public bool DocumentSingle(ref object input)
+        public void DocumentSingle(ref object input)
         {
             if (input is GeometryBase)
             {
                 input = _objectTable.__InternalAdd(input as dynamic);
-                return true;
             }
             else if (input is Point3d)
             {
                 input = _objectTable.__InternalAdd((Point3d)input);
-                return true;
             }
-            return false;
         }
 
         #endregion
@@ -210,7 +205,7 @@ namespace GhPython.Component
             }
         }
 
-        bool GeometrySingle(ref object input)
+        void GeometrySingle(ref object input)
         {
             if (input is Guid)
             {
@@ -218,10 +213,8 @@ namespace GhPython.Component
                 if (o != null)
                 {
                     input = o.Geometry;
-                    return input != null;
                 }
             }
-            return false;
         }
 
         List<object> GeometryList(IEnumerable output)
