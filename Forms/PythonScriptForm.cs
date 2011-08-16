@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using GhPython.Component;
+using GhPython.Properties;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
-using GhPython.Component;
-using System.IO;
-using System.Diagnostics;
-using System.Reflection;
-using Grasshopper.Kernel.Undo;
-using GhPython.Properties;
-using Grasshopper.Kernel.Parameters;
 
 namespace GhPython.Forms
 {
@@ -267,7 +264,7 @@ namespace GhPython.Forms
         {
             if (ex != null)
             {
-                MessageBox.Show("An error occurred in the Python script window.\nIt would be great if you could take a screenshot of this and send it to giulio@mcneel.com.\nThanks.\n\n" + ex.ToString(),
+                MessageBox.Show("An error occurred in the Python script window.\nPlease send a screenshot of this to giulio@mcneel.com.\nThanks.\n\n" + ex.ToString(),
                     "Error in Python script window (" + ex.GetType().Name + ")", MessageBoxButtons.OK);
             }
         }
@@ -356,6 +353,26 @@ namespace GhPython.Forms
             try
             {
                 Close();
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
+
+        private void rhinoscriptsyntaxHelpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var py = Rhino.Runtime.PythonScript.Create();
+                var a = py.GetType().Assembly;
+                string dir = Path.GetDirectoryName(a.Location);
+                string filename = Path.Combine(dir, "RhinoIronPython.chm");
+
+                if (System.IO.File.Exists(filename))
+                    System.Windows.Forms.Help.ShowHelp(this, filename);
+                else
+                    throw new FileNotFoundException(string.Format("The Python help file does not exist in {0}", filename));
             }
             catch (Exception ex)
             {

@@ -49,6 +49,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.rhinoscriptsyntaxHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -111,6 +113,8 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.rhinoscriptsyntaxHelpToolStripMenuItem,
+            this.toolStripSeparator3,
             this.rhinoPythonWebsiteToolStripMenuItem,
             this.grasshopperForumToolStripMenuItem,
             this.toolStripSeparator2,
@@ -245,6 +249,18 @@
             this.splitContainer.SplitterDistance = 330;
             this.splitContainer.TabIndex = 3;
             // 
+            // rhinoscriptsyntaxHelpToolStripMenuItem
+            // 
+            this.rhinoscriptsyntaxHelpToolStripMenuItem.Name = "rhinoscriptsyntaxHelpToolStripMenuItem";
+            this.rhinoscriptsyntaxHelpToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
+            this.rhinoscriptsyntaxHelpToolStripMenuItem.Text = "rhinoscriptsyntax Help";
+            this.rhinoscriptsyntaxHelpToolStripMenuItem.Click += new System.EventHandler(this.rhinoscriptsyntaxHelpToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(216, 6);
+            // 
             // PythonScriptForm
             // 
             this.AcceptButton = this.okButton;
@@ -298,5 +314,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rhinoscriptsyntaxHelpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }
