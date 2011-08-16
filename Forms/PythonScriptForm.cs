@@ -32,6 +32,7 @@ namespace GhPython.Forms
         {
             InitializeComponent();
             this.KeyDown += ScriptForm_KeyDown;
+            this.HelpRequested += rhinoscriptsyntaxHelp;
 
             _component = linkedComponent;
 
@@ -360,7 +361,7 @@ namespace GhPython.Forms
             }
         }
 
-        private void rhinoscriptsyntaxHelpToolStripMenuItem_Click(object sender, EventArgs e)
+        private void rhinoscriptsyntaxHelp(object sender, EventArgs e)
         {
             try
             {
@@ -370,7 +371,11 @@ namespace GhPython.Forms
                 string filename = Path.Combine(dir, "RhinoIronPython.chm");
 
                 if (System.IO.File.Exists(filename))
-                    System.Windows.Forms.Help.ShowHelp(this, filename);
+                {
+                    var topic = GetCurrentWord(); //"Functions/" + GetCurrentWord() + ".htm";
+                    var mode = HelpNavigator.KeywordIndex; //HelpNavigator.Topic;
+                    System.Windows.Forms.Help.ShowHelp(this, filename, mode, topic);
+                }
                 else
                     throw new FileNotFoundException(string.Format("The Python help file does not exist in {0}", filename));
             }
@@ -378,6 +383,33 @@ namespace GhPython.Forms
             {
                 LastHandleException(ex);
             }
+        }
+
+        private string GetCurrentWord()
+        {
+            try
+            {
+                var t = _texteditor as dynamic;
+                var actTxtCtrl = t.ActiveTextAreaControl;
+                var caret = actTxtCtrl.Caret;
+                var pos = caret.Position;
+                object doc = actTxtCtrl.Document;
+                int line = pos.Line;
+                var mi = doc.GetType().GetMethod("GetLineSegment", BindingFlags.Public | BindingFlags.Instance);
+                var seg = mi.Invoke(doc, new object[] { line }) as dynamic;
+                var word = seg.GetWord(pos.Column);
+
+                if (word != null)
+                {
+                    string text = word.Word;
+                    return text;
+                }
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+            return string.Empty;
         }
     }
 }
