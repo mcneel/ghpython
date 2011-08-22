@@ -372,8 +372,13 @@ namespace GhPython.Forms
 
                 if (System.IO.File.Exists(filename))
                 {
-                    var topic = GetCurrentWord(); //"Functions/" + GetCurrentWord() + ".htm";
-                    var mode = HelpNavigator.KeywordIndex; //HelpNavigator.Topic;
+                    var topic = GetCurrentWord();
+                    var mode = HelpNavigator.KeywordIndex;
+                    System.Windows.Forms.Help.ShowHelp(this, filename);
+
+                    // 2011 Aug 22 Giulio Piacentino
+                    // A second call is necessary as the first one opens with correct focus,
+                    // but passing arguments opens a window that disappears when it is not focused
                     System.Windows.Forms.Help.ShowHelp(this, filename, mode, topic);
                 }
                 else
