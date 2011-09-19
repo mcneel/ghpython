@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Component\ComponentIOMarshal.cs" />
+    <Compile Include="Component\GHComponentsLoader.cs" />
     <Compile Include="Component\PythonEnvironment.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -89,6 +90,7 @@
     <Compile Include="Component\SpecialHints\SpecialArcHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialCircleHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialLineHint.cs" />
+    <Compile Include="Component\TextHashMaintainer.cs" />
     <Compile Include="DocReplacement\DocStorage.cs" />
     <Compile Include="Forms\PythonScriptForm.cs">
       <SubType>Form</SubType>

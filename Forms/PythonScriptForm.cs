@@ -17,6 +17,7 @@ namespace GhPython.Forms
     {
         Control _texteditor;
         bool _showClosePrompt = true;
+        TextHashMaintainer _hash = new TextHashMaintainer();
 
         /// <summary>
         /// The linked component. This field might be null.
@@ -43,9 +44,12 @@ namespace GhPython.Forms
                 _texteditor.Dock = DockStyle.Fill;
 
                 _texteditor.Text = _component.CodeInput;
+                
+                // Sample script
+                //if (string.IsNullOrEmpty(_texteditor.Text))
+                //    _texteditor.Text = Resources.sampleScript;
 
-                if (string.IsNullOrEmpty(_texteditor.Text))
-                    _texteditor.Text = Resources.sampleScript;
+                _hash.HashText(_texteditor.Text);
 
                 _targetVariableMenuIndex = 
                     fileToolStripMenuItem.DropDownItems.Add(_component.GetTargetVariableMenuItem());
@@ -175,6 +179,7 @@ namespace GhPython.Forms
                     if (!string.IsNullOrEmpty(newCode))
                     {
                         codeInput.AddPersistentData(new GH_String(newCode));
+                        _hash.HashText(newCode);
                     }
                 }
                 else
@@ -185,6 +190,7 @@ namespace GhPython.Forms
                             new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(_component));
 
                     _component.CodeInput = _texteditor.Text;
+                    _hash.HashText(_texteditor.Text);
                 }
 
                 if (expire)
@@ -207,7 +213,8 @@ namespace GhPython.Forms
         {
             try
             {
-                if (_showClosePrompt)
+                var textHasChanged = !_hash.IsSameHashAsBefore(_texteditor.Text);
+                if (_showClosePrompt && textHasChanged)
                 {
                     var result = MessageBox.Show("Do you want to apply before closing?",
                         "Rhino.Python closing", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
