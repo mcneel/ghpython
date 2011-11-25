@@ -5,13 +5,13 @@ namespace GhPython.Component
 {
     public class PythonEnvironment
     {
-        PythonComponent _component;
+        Grasshopper.Kernel.GH_Component _component;
         PythonScript _script;
         object _localscope;
         object _engine;
         object _scriptscope;
 
-        internal PythonEnvironment(PythonComponent component, PythonScript script)
+        internal PythonEnvironment(Grasshopper.Kernel.GH_Component component, PythonScript script)
         {
             _component = component;
             _script = script;
@@ -46,7 +46,7 @@ namespace GhPython.Component
 
         }
 
-        public PythonComponent Component
+        public Grasshopper.Kernel.GH_Component Component
         {
             get { return _component; }
             internal set { _component = value; }

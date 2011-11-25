@@ -7,9 +7,9 @@ namespace GhPython.Component
 {
     class SpecialArcHint : GH_ArcHint, IGH_TypeHint
     {
-        PythonComponent _component;
+        ScriptingAncestorComponent _component;
 
-        public SpecialArcHint(PythonComponent component)
+        public SpecialArcHint(ScriptingAncestorComponent component)
         {
             if (component == null)
                 throw new ArgumentNullException("component");

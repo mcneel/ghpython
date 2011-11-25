@@ -30,7 +30,7 @@ namespace GhPython.Component
         {
             if (!_safeComponent.Locked)
             {
-                var attachedComp = this.Owner as PythonComponent;
+                var attachedComp = this.Owner as ScriptingAncestorComponent;
                 if (attachedComp != null)
                 {
                     attachedComp.CheckAndSetupActions();

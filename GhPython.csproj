@@ -85,12 +85,14 @@
     <Compile Include="Component\PythonEnvironment.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Component\ScriptingAncestorComponent.cs" />
     <Compile Include="Component\SpecialHints\SpecialBoxHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialPolylineHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialArcHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialCircleHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialLineHint.cs" />
     <Compile Include="Component\TextHashMaintainer.cs" />
+    <Compile Include="Component\ZUIPythonComponent.cs" />
     <Compile Include="DocReplacement\DocStorage.cs" />
     <Compile Include="Forms\PythonScriptForm.cs">
       <SubType>Form</SubType>

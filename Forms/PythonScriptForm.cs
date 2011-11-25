@@ -22,14 +22,14 @@ namespace GhPython.Forms
         /// <summary>
         /// The linked component. This field might be null.
         /// </summary>
-        PythonComponent _component;
+        ScriptingAncestorComponent _component;
         int _targetVariableMenuIndex = -1;
 
         // keep default constructor around to not "confuse" Visual Studio's designer
         public PythonScriptForm() : this(null)
         {
         }
-        public PythonScriptForm(PythonComponent linkedComponent)
+        public PythonScriptForm(ScriptingAncestorComponent linkedComponent)
         {
             InitializeComponent();
             this.KeyDown += ScriptForm_KeyDown;

@@ -15,10 +15,10 @@ namespace GhPython.Component
     {
         dynamic _document; //GrasshopperDocument-like object
         dynamic _objectTable; //CustomTable-like object
-        PythonComponent _component;
+        ScriptingAncestorComponent _component;
 
 
-        public ComponentIOMarshal(object document, PythonComponent component)
+        public ComponentIOMarshal(object document, ScriptingAncestorComponent component)
         {
             _document = document;
             _objectTable = _document.Objects;

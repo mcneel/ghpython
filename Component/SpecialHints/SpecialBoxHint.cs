@@ -7,9 +7,9 @@ namespace GhPython.Component
 {
     class SpecialBoxHint : GH_BoxHint, IGH_TypeHint
     {
-        PythonComponent _component;
+        ScriptingAncestorComponent _component;
 
-        public SpecialBoxHint(PythonComponent component)
+        public SpecialBoxHint(ScriptingAncestorComponent component)
         {
             if (component == null)
                 throw new ArgumentNullException("component");
