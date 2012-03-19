@@ -20,7 +20,7 @@ namespace GhPython.Component
         GH_Document _doc;
         
         bool _initializationDone;
-        bool _disposed;
+        bool _orphan;
         bool _locked;
 
         /// <summary>
@@ -50,6 +50,12 @@ namespace GhPython.Component
 
         public void CheckAndSetupActions()
         {
+            if (_orphan)
+            {
+                _orphan = false;
+                GC.ReRegisterForFinalize(this);
+            }
+
             if (!_initializationDone)
             {
                 if (_doc == null)
@@ -70,9 +76,6 @@ namespace GhPython.Component
 
         protected sealed override void SolveInstance(IGH_DataAccess DA)
         {
-            if (_disposed)
-                throw new ObjectDisposedException("This object is already disposed, either by the user deletion or because the document was closed.");
-
             CheckAndSetupActions();
             SafeSolveInstance(DA);
         }
@@ -149,10 +152,11 @@ namespace GhPython.Component
         {
             try
             {
-                if (!_disposed)
+                if (!_orphan)
                 {
                     DeregisterComponent();
-                    _disposed = true;
+                    _orphan = true;
+                    _initializationDone = false;
 
                     if (disposing)
                     {

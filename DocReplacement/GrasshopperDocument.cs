@@ -54,7 +54,7 @@ namespace GhPython.DocReplacement
             {
                 if (guids == null)
                     throw new ArgumentNullException("guids",
-                        "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent.DOCUMENT_NAME);
+                        "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent_OBSOLETE.DOCUMENT_NAME);
 
                 return SubSet(guids);
             }
@@ -64,7 +64,7 @@ namespace GhPython.DocReplacement
         {
             if (guids == null)
                 throw new ArgumentNullException("guids",
-                    "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent.DOCUMENT_NAME);
+                    "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent_OBSOLETE.DOCUMENT_NAME);
 
             foreach (var obj in guids)
             {

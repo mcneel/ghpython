@@ -23,23 +23,21 @@ namespace GhPython.Component
         StringList _py_output = new StringList();
         PythonEnvironment _env;
 
-        bool _hideCodeInput;
-        public bool HideCodeInput
-        { get { return _hideCodeInput; } }
+        public bool HideCodeInput { get; set; }
 
         string _codeInput;
         public string CodeInput
         {
             get
             {
-                if (_hideCodeInput)
+                if (HideCodeInput)
                     return _codeInput;
                 else
                     return ScriptingAncestorComponent.ExtractCodeString((Param_String)Params.Input[0]);
             }
             set
             {
-                if (!_hideCodeInput)
+                if (!HideCodeInput)
                     throw new InvalidOperationException("Cannot assign to CodeInput while parameter exists");
                 _codeInput = value;
                 _compiled_py = null;
@@ -49,15 +47,13 @@ namespace GhPython.Component
         {
             get
             {
-                if (!_hideCodeInput)
+                if (!HideCodeInput)
                     return (Param_String)Params.Input[0];
                 return null;
             }
         }
 
-        bool _hideOutOutput;
-        public bool HideCodeOutput
-        { get { return _hideOutOutput; } }
+        public bool HideCodeOutput { get; set; }
 
         internal DocStorage DocStorageMode
         {
@@ -112,7 +108,7 @@ namespace GhPython.Component
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            if (!_hideCodeInput)
+            if (!HideCodeInput)
             {
                 pManager.RegisterParam(ConstructCodeInputParameter());
             }
@@ -138,7 +134,7 @@ namespace GhPython.Component
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            if (!_hideOutOutput)
+            if (!HideCodeOutput)
             {
                 pManager.RegisterParam(ConstructOutOutputParam());
             }
@@ -178,7 +174,7 @@ namespace GhPython.Component
             try
             {
                 // clear all of the output variables
-                for (int i = _hideOutOutput ? 0 : 1; i < Params.Output.Count; i++)
+                for (int i = HideCodeOutput ? 0 : 1; i < Params.Output.Count; i++)
                 {
                     string varname = Params.Output[i].NickName;
                     _py.SetVariable(varname, null);
@@ -188,7 +184,7 @@ namespace GhPython.Component
                 // purposes.
                 // First input parameter is the code itself, so we should skip that
                 // Please pay attention to the input data structure type
-                for (int i = _hideCodeInput ? 0 : 1; i < Params.Input.Count; i++)
+                for (int i = HideCodeInput ? 0 : 1; i < Params.Input.Count; i++)
                 {
                     string varname = Params.Input[i].NickName;
                     object o = _marshal.GetInput(DA, i);
@@ -198,7 +194,7 @@ namespace GhPython.Component
 
                 // the "code" string could either be embedded in the component
                 // itself or a dynamic string that is input from some other component
-                bool codeIsEmbedded = _hideCodeInput || Params.Input[0].SourceCount == 0;
+                bool codeIsEmbedded = HideCodeInput || Params.Input[0].SourceCount == 0;
                 if (!codeIsEmbedded || _compiled_py == null)
                 {
                     string script = CodeInput;
@@ -219,7 +215,7 @@ namespace GhPython.Component
                     _compiled_py.Execute(_py);
                     // Python script completed, attempt to set all of the
                     // output paramerers
-                    for (int i = _hideOutOutput? 0 : 1; i < Params.Output.Count; i++)
+                    for (int i = HideCodeOutput? 0 : 1; i < Params.Output.Count; i++)
                     {
                         string varname = Params.Output[i].NickName;
                         object o = _py.GetVariable(varname);
@@ -263,7 +259,7 @@ namespace GhPython.Component
 
             if (sl.Result.Count > 0)
             {
-                if(!_hideOutOutput)
+                if(!HideCodeOutput)
                     DA.SetDataList(0, sl.Result);
                 attr.TrySetLinkedFormHelpText(sl.GetResultAsOne());
             }
@@ -330,11 +326,6 @@ namespace GhPython.Component
             }
         }
 
-        public override Guid ComponentGuid
-        {
-            get { return new Guid("{410755B1-224A-4C1E-A407-BF32FB45EA7E}"); }
-        }
-
         protected override Bitmap Icon
         {
             get { return Resources.python; }
@@ -361,27 +352,27 @@ namespace GhPython.Component
                 {
                     var tsi = new ToolStripMenuItem("&Presentation style", null, new ToolStripItem[]
                     {
-                        new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!_hideCodeInput), new TargetGroupToggler()
+                        new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!HideCodeInput), new TargetGroupToggler()
                             {
                                 Component = this,
                                 Params = Params.Input,
-                                GetIsShowing = ()=>{return _hideCodeInput;},
-                                SetIsShowing = (value)=>{_hideCodeInput = value;},
+                                GetIsShowing = ()=>{return HideCodeInput;},
+                                SetIsShowing = (value)=>{HideCodeInput = value;},
                                 Side = GH_ParameterSide.Input,
                             }.Toggle)
                         {
-                             ToolTipText = string.Format("Code input is {0}. Click to {1} it.", _hideCodeInput ? "hidden" : "shown", _hideCodeInput ? "show" : "hide"),
+                             ToolTipText = string.Format("Code input is {0}. Click to {1} it.", HideCodeInput ? "hidden" : "shown", HideCodeInput ? "show" : "hide"),
                         },
-                        new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!_hideOutOutput), new TargetGroupToggler()
+                        new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!HideCodeOutput), new TargetGroupToggler()
                             {
                                 Component = this,
                                 Params = Params.Output,
-                                GetIsShowing = ()=>{return _hideOutOutput;},
-                                SetIsShowing = (value)=>{_hideOutOutput = value;},
+                                GetIsShowing = ()=>{return HideCodeOutput;},
+                                SetIsShowing = (value)=>{HideCodeOutput = value;},
                                 Side = GH_ParameterSide.Output,
                             }.Toggle)
                         {
-                             ToolTipText = string.Format("Print output is {0}. Click to {1} it.", _hideCodeInput ? "hidden" : "shown", _hideCodeInput ? "show" : "hide"),
+                             ToolTipText = string.Format("Print output is {0}. Click to {1} it.", HideCodeOutput ? "hidden" : "shown", HideCodeOutput ? "show" : "hide"),
                              Height = 32,
                         }
                     });
@@ -540,11 +531,11 @@ namespace GhPython.Component
                 DocStorageMode = DocStorage.InGrasshopperMemory;
             writer.SetInt32(TargetDocIdentifier, (int)DocStorageMode);
 
-            writer.SetBoolean(HideInputIdentifier, _hideCodeInput);
-            if (_hideCodeInput)
+            writer.SetBoolean(HideInputIdentifier, HideCodeInput);
+            if (HideCodeInput)
                 writer.SetString(CodeInputIdentifier, CodeInput);
             
-            writer.SetBoolean(HideOutputIdentifier, _hideOutOutput);
+            writer.SetBoolean(HideOutputIdentifier, HideCodeOutput);
 
             return toReturn;
         }
@@ -554,10 +545,10 @@ namespace GhPython.Component
             {
                 var hideInput = false;
                 if (reader.TryGetBoolean(HideInputIdentifier, ref hideInput))
-                    _hideCodeInput = hideInput;
+                    HideCodeInput = hideInput;
             }
 
-            if (_hideCodeInput)
+            if (HideCodeInput)
             {
                 string code = null;
                 if (reader.TryGetString(CodeInputIdentifier, ref code))
@@ -567,7 +558,7 @@ namespace GhPython.Component
             {
                 var hideOutput = false;
                 if (reader.TryGetBoolean(HideOutputIdentifier, ref hideOutput))
-                    _hideOutOutput = hideOutput;
+                    HideCodeOutput = hideOutput;
             }
 
             int val = -1;
@@ -577,9 +568,9 @@ namespace GhPython.Component
             if (!Enum.IsDefined(typeof(DocStorage), DocStorageMode))
                 DocStorageMode = DocStorage.InGrasshopperMemory;
 
-            if (_hideCodeInput)
+            if (HideCodeInput)
                 Params.Input.RemoveAt(0);
-            if (_hideOutOutput)
+            if (HideCodeOutput)
                 Params.Output.RemoveAt(0);
 
             var toReturn = base.Read(reader);
@@ -588,7 +579,7 @@ namespace GhPython.Component
             // Always assign DynamicHint or Grasshopper
             // will set Line and not LineCurve, etc...
             if (Params != null && Params.Input != null)
-                for (int i = _hideCodeInput ? 0 : 1; i < Params.Input.Count; i++)
+                for (int i = HideCodeInput ? 0 : 1; i < Params.Input.Count; i++)
                 {
                     var p = Params.Input[i] as Param_ScriptVariable;
                     if (p != null)

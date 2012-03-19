@@ -7,7 +7,7 @@ using Grasshopper.Kernel.Parameters;
 
 namespace GhPython.Component
 {
-    public class PythonComponent : ScriptingAncestorComponent, IGH_VarParamComponent
+    public class PythonComponent_OBSOLETE : ScriptingAncestorComponent, IGH_VarParamComponent
     {
         protected override void AddDefaultInput(GH_Component.GH_InputParamManager pManager)
         {
@@ -19,10 +19,12 @@ namespace GhPython.Component
         {
             pManager.RegisterParam(ConstructVariable(GH_VarParamSide.Output, "a"));
         }
-        
+
+        internal const string Id = "{CEAB6E56-CEEC-A646-84D5-363C57440969}";
+
         public override Guid ComponentGuid
         {
-            get { return new Guid("{CEAB6E56-CEEC-A646-84D5-363C57440969}"); }
+            get { return new Guid(Id); }
         }
 
         public override GH_Exposure Exposure

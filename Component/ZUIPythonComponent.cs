@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Parameters.Hints;
+using System;
 
 namespace GhPython.Component
 {
@@ -83,6 +84,13 @@ namespace GhPython.Component
                     i.Description = i.NickName;
                 }
             }
+        }
+
+        internal const string Id = "{410755B1-224A-4C1E-A407-BF32FB45EA7E}";
+
+        public override Guid ComponentGuid
+        {
+          get { return new Guid(Id); }
         }
 
         static IGH_TypeHint[] PossibleHints = 
