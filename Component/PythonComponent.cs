@@ -1,6 +1,10 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
+using GhPython.DocReplacement;
+using System.Windows.Forms;
+using System.Collections.Generic;
+using Grasshopper.Kernel.Parameters.Hints;
 
 
 #pragma warning disable 0618
@@ -27,6 +31,46 @@ namespace GhPython.Component
             get { return new Guid(Id); }
         }
 
+        internal DocStorage DocStorageMode
+        {
+          get;
+          set;
+        }
+
+        protected override void SetScriptTransientGlobals()
+        {
+          base.SetScriptTransientGlobals();
+
+          switch (DocStorageMode)
+          {
+            case DocStorage.InGrasshopperMemory:
+            case DocStorage.AutomaticMarshal:
+              {
+                _py.ScriptContextDoc = _document;
+                _marshal = new OldComponentIOMarshal(_document, this);
+                _py.SetVariable(DOCUMENT_NAME, _document);
+                _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
+                break;
+              }
+            case DocStorage.InRhinoDoc:
+              {
+                _py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
+                _marshal = new OldComponentIOMarshal(Rhino.RhinoDoc.ActiveDoc, this);
+                Rhino.RhinoDoc.ActiveDoc.UndoRecordingEnabled = true;
+                if (_py.ContainsVariable(DOCUMENT_NAME))
+                {
+                  _py.RemoveVariable(DOCUMENT_NAME);
+                  _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
+                }
+                break;
+              }
+            default:
+              {
+                throw new ApplicationException("Unexpected DocStorage type.");
+              }
+          }
+        }
+
         public override GH_Exposure Exposure
         {
             get { return GH_Exposure.hidden; }
@@ -36,6 +80,64 @@ namespace GhPython.Component
         {
             ParametersModified(GH_VarParamSide.Input);
             ParametersModified(GH_VarParamSide.Output);
+        }
+
+        class DocSetter
+        {
+          public DocStorage NewDocStorage;
+          public PythonComponent_OBSOLETE Component;
+
+          public void SetDoc(object sender, EventArgs e)
+          {
+            try
+            {
+              Component.CheckAndSetupActions();
+
+              Component.DocStorageMode = NewDocStorage;
+              Component.SetScriptTransientGlobals();
+              Component.ExpireSolution(true);
+            }
+            catch (Exception ex)
+            {
+              GhPython.Forms.PythonScriptForm.LastHandleException(ex);
+            }
+          }
+
+        }
+
+        public ToolStripMenuItem GetTargetVariableMenuItem()
+        {
+          var result = new ToolStripMenuItem("&Rhinoscriptsyntax usage", null, new ToolStripItem[]
+            {
+                new ToolStripMenuItem("rhinoscriptsyntax / Automatically &marshal Guids", null, new DocSetter{
+                    Component = this, NewDocStorage = DocStorage.AutomaticMarshal}.SetDoc)
+                {
+                     ToolTipText = "Inputs and outputs accept Guids. The " + DOCUMENT_NAME + " variable is available for advanced use",
+                },
+                new ToolStripMenuItem("RhinoCommon / Provide &" + DOCUMENT_NAME + " variable", null, new DocSetter{
+                    Component = this, NewDocStorage = DocStorage.InGrasshopperMemory }.SetDoc)
+                {
+                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs manually",
+                },
+                new ToolStripMenuItem("Add to &Rhino document", null, new DocSetter{Component = this, NewDocStorage = DocStorage.InRhinoDoc}.SetDoc)
+                {
+                     ToolTipText = "Use this option to choose to use the traditional Rhino document as output. Not recommanded",
+                }
+            })
+          {
+            ToolTipText = "Choose where rhinoscriptsyntax functions have their effects",
+          };
+
+          EventHandler update = (sender, args) =>
+          {
+            result.DropDownItems[0].Image = GetCheckedImage(DocStorageMode == DocStorage.AutomaticMarshal);
+            result.DropDownItems[1].Image = GetCheckedImage(DocStorageMode == DocStorage.InGrasshopperMemory);
+            result.DropDownItems[2].Image = GetCheckedImage(DocStorageMode == DocStorage.InRhinoDoc);
+          };
+          update(null, EventArgs.Empty);
+          result.DropDownOpening += update;
+
+          return result;
         }
         
         #region Members of IGH_VarParamComponent
@@ -118,6 +220,76 @@ namespace GhPython.Component
         }
 
         #endregion
+
+
+        const string TargetDocIdentifier = "GhMemory";
+
+        public override bool Write(GH_IO.Serialization.GH_IWriter writer)
+        {
+          if (!Enum.IsDefined(typeof(DocStorage), DocStorageMode))
+            DocStorageMode = DocStorage.InGrasshopperMemory;
+          writer.SetInt32(TargetDocIdentifier, (int)DocStorageMode);
+
+          return base.Write(writer);
+        }
+
+        public override bool Read(GH_IO.Serialization.GH_IReader reader)
+        {
+          int val = -1;
+          if (reader.TryGetInt32(TargetDocIdentifier, ref val))
+            DocStorageMode = (DocStorage)val;
+
+          if (!Enum.IsDefined(typeof(DocStorage), DocStorageMode))
+            DocStorageMode = DocStorage.InGrasshopperMemory;
+
+          return base.Read(reader);
+        }
+
+        public override bool AppendMenuItems(ToolStripDropDown iMenu)
+        {
+          var toReturn = base.AppendMenuItems(iMenu);
+
+          {
+            var tsi = GetTargetVariableMenuItem();
+            iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi);
+          }
+
+          return toReturn;
+        }
+
+        internal override void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true)
+        {
+          i.Name = string.Format("Variable {0}", i.NickName);
+          i.Description = string.Format("Script Variable {0}", i.NickName);
+          i.AllowTreeAccess = true;
+          i.Optional = true;
+          i.ShowHints = true;
+
+          i.Hints = new List<IGH_TypeHint>();
+
+          i.Hints.Add(new DynamicHint(this));
+          i.Hints.AddRange(PossibleHints);
+          i.Hints.AddRange(new IGH_TypeHint[]
+            {
+                new SpecialBoxHint(this), 
+                new GH_HintSeparator(),
+                new SpecialLineHint(this),
+                new SpecialCircleHint(this),
+                new SpecialArcHint(this),
+                new SpecialPolylineHint(this),
+            });
+          i.Hints.AddRange(AlreadyGeometryBaseHints);
+
+          if (alsoSetIfNecessary && i.TypeHint == null)
+            i.TypeHint = i.Hints[0];
+        }
+
+        static IGH_TypeHint[] AlreadyGeometryBaseHints = 
+        { 
+            new GH_CurveHint(),
+            new GH_SurfaceHint(), new GH_BrepHint(), new GH_MeshHint(),
+            new GH_GeometryBaseHint()
+        };
     }
 }
 

@@ -18,7 +18,8 @@ namespace GhPython
       }
       ZuiPythonComponent component_new = new ZuiPythonComponent();
 
-      component_new.DocStorageMode = component_OBSOLETE.DocStorageMode;
+      if (component_OBSOLETE.DocStorageMode == DocReplacement.DocStorage.AutomaticMarshal)
+        throw new NotImplementedException();
 
       component_new.HideCodeInput = component_OBSOLETE.HideCodeInput;
       if (component_new.HideCodeInput) component_new.Params.Input.RemoveAt(0);

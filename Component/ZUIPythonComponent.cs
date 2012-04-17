@@ -2,6 +2,7 @@
 using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Parameters.Hints;
 using System;
+using System.Collections.Generic;
 
 namespace GhPython.Component
 {
@@ -17,6 +18,43 @@ namespace GhPython.Component
         protected override void AddDefaultOutput(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(CreateParameter(GH_ParameterSide.Output, pManager.ParamCount));
+        }
+
+        internal override void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true)
+        {
+          i.Name = string.Format("Variable {0}", i.NickName);
+          i.Description = string.Format("Script Variable {0}", i.NickName);
+          i.AllowTreeAccess = true;
+          i.Optional = true;
+          i.ShowHints = true;
+
+          i.Hints = new List<IGH_TypeHint>();
+
+          i.Hints.Add(PythonHints.NewMarshalling[NewDynamicAsGuidHint.ID]);
+          i.Hints.AddRange(PossibleHints);
+          i.Hints.Insert(i.Hints.Count - 4, PythonHints.NewMarshalling[NewSpecialPointAsGuidHint.ID]);
+
+          i.Hints.Add(new GH_BoxHint());
+          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialBoxAsGuidHint.ID]);
+          
+          i.Hints.Add(new GH_HintSeparator());
+
+          i.Hints.Add(new GH_LineHint());
+          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialLineHint.ID]);
+
+          i.Hints.Add(new GH_CircleHint());
+          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialCircleHint.ID]);
+          
+          i.Hints.Add(new GH_ArcHint());
+          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialArcAsGuidHint.ID]);
+
+          i.Hints.Add(new GH_ArcHint());
+          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialArcAsGuidHint.ID]);
+
+          i.Hints.AddRange(AlreadyGeometryBaseHints);
+
+          if (alsoSetIfNecessary && i.TypeHint == null)
+            i.TypeHint = i.Hints[0];
         }
 
         #region Members of IGH_VariableParameterComponent
@@ -86,23 +124,22 @@ namespace GhPython.Component
             }
         }
 
+        protected override void SetScriptTransientGlobals()
+        {
+          base.SetScriptTransientGlobals();
+
+          _py.ScriptContextDoc = _document;
+          _marshal = new NewComponentIOMarshal(_document, this);
+          _py.SetVariable(DOCUMENT_NAME, _document);
+          _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
+        }
+
         internal const string Id = "{410755B1-224A-4C1E-A407-BF32FB45EA7E}";
 
         public override Guid ComponentGuid
         {
           get { return new Guid(Id); }
         }
-
-        static IGH_TypeHint[] PossibleHints = 
-        { 
-            new GH_HintSeparator(),
-            new GH_BooleanHint_CS(),new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
-            new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(), new GH_GuidHint(),
-            new GH_HintSeparator(),
-            new GH_Point3dHint(),
-            new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
-            new GH_UVIntervalHint()
-        };
 
         static IGH_TypeHint[] AlreadyGeometryBaseHints = 
         { 

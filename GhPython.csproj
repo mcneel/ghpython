@@ -86,6 +86,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Component\ScriptingAncestorComponent.cs" />
+    <Compile Include="Component\SpecialHints\AllNewHints.cs" />
     <Compile Include="Component\SpecialHints\SpecialBoxHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialPolylineHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialArcHint.cs" />

@@ -7,9 +7,9 @@ namespace GhPython.Component
 {
     class SpecialPolylineHint : GH_PolylineHint, IGH_TypeHint
     {
-        ScriptingAncestorComponent _component;
+        PythonComponent_OBSOLETE _component;
 
-        public SpecialPolylineHint(ScriptingAncestorComponent component)
+        public SpecialPolylineHint(PythonComponent_OBSOLETE component)
         {
             if (component == null)
                 throw new ArgumentNullException("component");

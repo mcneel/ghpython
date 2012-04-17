@@ -7,9 +7,9 @@ namespace GhPython.Component
 {
     class DynamicHint : GH_NullHint, IGH_TypeHint
     {
-        ScriptingAncestorComponent _component;
+        PythonComponent_OBSOLETE _component;
 
-        public DynamicHint(ScriptingAncestorComponent component)
+        public DynamicHint(PythonComponent_OBSOLETE component)
         {
             if (component == null)
                 throw new ArgumentNullException("component");

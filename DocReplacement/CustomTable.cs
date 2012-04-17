@@ -784,6 +784,7 @@ namespace GhPython.DocReplacement
         public Guid __InternalAdd(Line line) { return AddLine(line); }
         public Guid __InternalAdd(LinearDimension dimension) { return AddLinearDimension(dimension); }
         public Guid __InternalAdd(Mesh mesh) { return AddMesh(mesh); }
+        public Guid __InternalAdd(Point point) { return AddPoint(point.Location); }
         public Guid __InternalAdd(Point3d point) { return AddPoint(point); }
         public Guid __InternalAdd(Point3f point) { return AddPoint(point); }
         public Guid __InternalAdd(PointCloud cloud) { return AddPointCloud(cloud); }

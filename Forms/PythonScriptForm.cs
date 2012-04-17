@@ -23,7 +23,6 @@ namespace GhPython.Forms
         /// The linked component. This field might be null.
         /// </summary>
         ScriptingAncestorComponent _component;
-        int _targetVariableMenuIndex = -1;
 
         // keep default constructor around to not "confuse" Visual Studio's designer
         public PythonScriptForm() : this(null)
@@ -50,9 +49,6 @@ namespace GhPython.Forms
                 //    _texteditor.Text = Resources.sampleScript;
 
                 _hash.HashText(_texteditor.Text);
-
-                _targetVariableMenuIndex = 
-                    fileToolStripMenuItem.DropDownItems.Add(_component.GetTargetVariableMenuItem());
             }
 
             versionLabel.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -260,9 +256,6 @@ namespace GhPython.Forms
 
             this.Text += " (disabled)";
             mainStatusText.Text = "Window is disabled because linked component was deleted.";
-
-            if(_targetVariableMenuIndex >= 0 && _targetVariableMenuIndex < fileToolStripMenuItem.DropDownItems.Count)
-                fileToolStripMenuItem.DropDownItems.RemoveAt(_targetVariableMenuIndex);
 
             _component = null;
             ResumeLayout(true);

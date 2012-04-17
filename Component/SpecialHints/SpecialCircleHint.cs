@@ -7,9 +7,9 @@ namespace GhPython.Component
 {
     class SpecialCircleHint : GH_CircleHint, IGH_TypeHint
     {
-        ScriptingAncestorComponent _component;
+        PythonComponent_OBSOLETE _component;
 
-        public SpecialCircleHint(ScriptingAncestorComponent component)
+        public SpecialCircleHint(PythonComponent_OBSOLETE component)
         {
             if (component == null)
                 throw new ArgumentNullException("component");

@@ -7,9 +7,9 @@ namespace GhPython.Component
 {
     class SpecialLineHint : GH_LineHint, IGH_TypeHint
     {
-        ScriptingAncestorComponent _component;
+        PythonComponent_OBSOLETE _component;
 
-        public SpecialLineHint(ScriptingAncestorComponent component)
+        public SpecialLineHint(PythonComponent_OBSOLETE component)
         {
             if (component == null)
                 throw new ArgumentNullException("component");

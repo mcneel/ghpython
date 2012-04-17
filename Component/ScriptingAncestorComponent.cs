@@ -15,13 +15,13 @@ namespace GhPython.Component
 {
     public abstract class ScriptingAncestorComponent : SafeComponent
     {
-        GrasshopperDocument _document;
-        ComponentIOMarshal _marshal;
-        PythonScript _py;
+        static protected GrasshopperDocument _document = new GrasshopperDocument();
+        internal ComponentIOMarshal _marshal;
+        protected PythonScript _py;
         PythonCompiledCode _compiled_py;
-        string _previousRunCode;
-        StringList _py_output = new StringList();
-        PythonEnvironment _env;
+        protected string _previousRunCode;
+        internal StringList _py_output = new StringList();
+        protected PythonEnvironment _env;
 
         public bool HideCodeInput { get; set; }
 
@@ -54,12 +54,6 @@ namespace GhPython.Component
         }
 
         public bool HideCodeOutput { get; set; }
-
-        internal DocStorage DocStorageMode
-        {
-          get;
-          set;
-        }
 
         internal const string DOCUMENT_NAME = "ghdoc";
         internal const string PARENT_ENVIRONMENT_NAME = "ghenv";
@@ -293,37 +287,8 @@ namespace GhPython.Component
         }
 
 
-        private void SetScriptTransientGlobals()
+        protected virtual void SetScriptTransientGlobals()
         {
-            switch (DocStorageMode)
-            {
-                case DocStorage.InGrasshopperMemory:
-                case DocStorage.AutomaticMarshal:
-                    {
-                        _document = new GrasshopperDocument();
-                        _py.ScriptContextDoc = _document;
-                        _marshal = new ComponentIOMarshal(_document, this);
-                        _py.SetVariable(DOCUMENT_NAME, _document);
-                        _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
-                        break;
-                    }
-                case DocStorage.InRhinoDoc:
-                    {
-                        _py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
-                        _marshal = new ComponentIOMarshal(Rhino.RhinoDoc.ActiveDoc, this);
-                        Rhino.RhinoDoc.ActiveDoc.UndoRecordingEnabled = true;
-                        if (_py.ContainsVariable(DOCUMENT_NAME))
-                        {
-                            _py.RemoveVariable(DOCUMENT_NAME);
-                            _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        throw new ApplicationException("Unexpected DocStorage type.");
-                    }
-            }
         }
 
         protected override Bitmap Icon
@@ -342,12 +307,6 @@ namespace GhPython.Component
 
             try
             {
-                {
-                    var tsi = GetTargetVariableMenuItem();
-                    iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), tsi);
-                }
-
-                // This should be uncommented when the hide option is ready...
                 
                 {
                     var tsi = new ToolStripMenuItem("&Presentation style", null, new ToolStripItem[]
@@ -406,64 +365,6 @@ namespace GhPython.Component
             return toReturn;
         }
 
-        public ToolStripMenuItem GetTargetVariableMenuItem()
-        {
-            var result = new ToolStripMenuItem("&Rhinoscriptsyntax usage", null, new ToolStripItem[]
-            {
-                new ToolStripMenuItem("rhinoscriptsyntax / Automatically &marshal Guids", null, new DocSetter{
-                    Component = this, NewDocStorage = DocStorage.AutomaticMarshal}.SetDoc)
-                {
-                     ToolTipText = "Inputs and outputs accept Guids. The " + DOCUMENT_NAME + " variable is available for advanced use",
-                },
-                new ToolStripMenuItem("RhinoCommon / Provide &" + DOCUMENT_NAME + " variable", null, new DocSetter{
-                    Component = this, NewDocStorage = DocStorage.InGrasshopperMemory }.SetDoc)
-                {
-                     ToolTipText = "Use this option to obtain the " + DOCUMENT_NAME + " variable in your script\nand be able to assign it to the outputs manually",
-                },
-                new ToolStripMenuItem("Add to &Rhino document", null, new DocSetter{Component = this, NewDocStorage = DocStorage.InRhinoDoc}.SetDoc)
-                {
-                     ToolTipText = "Use this option to choose to use the traditional Rhino document as output. Not recommanded",
-                }
-            })
-            {
-                ToolTipText = "Choose where rhinoscriptsyntax functions have their effects",
-            };
-
-            EventHandler update = (sender, args) =>
-            {
-                result.DropDownItems[0].Image = GetCheckedImage(DocStorageMode == DocStorage.AutomaticMarshal);
-                result.DropDownItems[1].Image = GetCheckedImage(DocStorageMode == DocStorage.InGrasshopperMemory);
-                result.DropDownItems[2].Image = GetCheckedImage(DocStorageMode == DocStorage.InRhinoDoc);
-            };
-            update(null, EventArgs.Empty);
-            result.DropDownOpening += update;
-
-            return result;
-        }
-
-        class DocSetter
-        {
-            public DocStorage NewDocStorage;
-            public ScriptingAncestorComponent Component;
-
-            public void SetDoc(object sender, EventArgs e)
-            {
-                try
-                {
-                    Component.CheckAndSetupActions();
-
-                    Component.DocStorageMode = NewDocStorage;
-                    Component.SetScriptTransientGlobals();
-                    Component.ExpireSolution(true);
-                }
-                catch (Exception ex)
-                {
-                    GhPython.Forms.PythonScriptForm.LastHandleException(ex);
-                }
-            }
-
-        }
-
         class TargetGroupToggler
         {
             public ScriptingAncestorComponent Component { get; set; }
@@ -518,7 +419,6 @@ namespace GhPython.Component
             }
         }
 
-        const string TargetDocIdentifier = "GhMemory";
         const string HideInputIdentifier = "HideInput";
         const string CodeInputIdentifier = "CodeInput";
         const string HideOutputIdentifier = "HideOutput";
@@ -526,10 +426,6 @@ namespace GhPython.Component
         public override bool Write(GH_IO.Serialization.GH_IWriter writer)
         {
             var toReturn = base.Write(writer);
-
-            if (!Enum.IsDefined(typeof(DocStorage), DocStorageMode))
-                DocStorageMode = DocStorage.InGrasshopperMemory;
-            writer.SetInt32(TargetDocIdentifier, (int)DocStorageMode);
 
             writer.SetBoolean(HideInputIdentifier, HideCodeInput);
             if (HideCodeInput)
@@ -561,13 +457,6 @@ namespace GhPython.Component
                     HideCodeOutput = hideOutput;
             }
 
-            int val = -1;
-            if (reader.TryGetInt32(TargetDocIdentifier, ref val))
-                DocStorageMode = (DocStorage)val;
-
-            if (!Enum.IsDefined(typeof(DocStorage), DocStorageMode))
-                DocStorageMode = DocStorage.InGrasshopperMemory;
-
             if (HideCodeInput)
                 Params.Input.RemoveAt(0);
             if (HideCodeOutput)
@@ -595,7 +484,7 @@ namespace GhPython.Component
             return toReturn || true;
         }
 
-        private static Bitmap GetCheckedImage(bool check)
+        protected static Bitmap GetCheckedImage(bool check)
         {
             return check? Resources._checked: Resources._unchecked;
         }
@@ -607,13 +496,8 @@ namespace GhPython.Component
 
         void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
         {
-            if (DocStorageMode != DocStorage.InRhinoDoc)
-            {
-                GrasshopperDocument ghd = _document as GrasshopperDocument;
-
-                if (ghd != null)
-                    ghd.Objects.Clear();
-            }
+          if (_document != null)
+                _document.Objects.Clear();
         }
 
         protected override void Dispose(bool disposing)
@@ -639,49 +523,17 @@ namespace GhPython.Component
             }
         }
 
-        static IGH_TypeHint[] PossibleHints = 
+        protected static IGH_TypeHint[] PossibleHints = 
         { 
             new GH_HintSeparator(),
             new GH_BooleanHint_CS(),new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
-            new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(), new GH_GuidHint(),
+            new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(),
             new GH_HintSeparator(),
             new GH_Point3dHint(),
             new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
             new GH_UVIntervalHint()
         };
 
-        static IGH_TypeHint[] AlreadyGeometryBaseHints = 
-        { 
-            new GH_CurveHint(),
-            new GH_SurfaceHint(), new GH_BrepHint(), new GH_MeshHint(),
-            new GH_GeometryBaseHint()
-        };
-
-        internal void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true)
-        {
-          i.Name = string.Format("Variable {0}", i.NickName);
-          i.Description = string.Format("Script Variable {0}", i.NickName);
-          i.AllowTreeAccess = true;
-          i.Optional = true;
-          i.ShowHints = true;
-
-          i.Hints = new List<IGH_TypeHint>();
-
-          i.Hints.Add(new DynamicHint(this));
-          i.Hints.AddRange(PossibleHints);
-          i.Hints.AddRange(new IGH_TypeHint[]
-            {
-                new SpecialBoxHint(this), 
-                new GH_HintSeparator(),
-                new SpecialLineHint(this),
-                new SpecialCircleHint(this),
-                new SpecialArcHint(this),
-                new SpecialPolylineHint(this),
-            });
-          i.Hints.AddRange(AlreadyGeometryBaseHints);
-
-          if (alsoSetIfNecessary && i.TypeHint == null)
-            i.TypeHint = i.Hints[0];
-        }
+        internal abstract void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true);
     }
 }
