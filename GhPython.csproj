@@ -121,7 +121,7 @@
     </Compile>
     <Compile Include="Component\SafeComponent.cs" />
     <Compile Include="Component\StringList.cs" />
-    <Compile Include="PyUpgrader.cs" />
+    <Compile Include="Component\PyUpgrader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\checked.png" />

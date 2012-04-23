@@ -35,7 +35,7 @@ namespace GhPython.Component
     public override object GetInput(IGH_DataAccess DA, int i)
     {
       var input = (Param_ScriptVariable)_component.Params.Input[i];
-      bool addIntoGhDoc = PythonHints.AddToGhDoc(input.TypeHint);
+      bool addIntoGhDoc = PythonHints.ShouldAddToGhDoc(input.TypeHint);
 
       object o;
       switch (input.Access)
