@@ -24,11 +24,13 @@ namespace GhPython.Component
 
       component_new.HideCodeOutput = component_OBSOLETE.HideCodeOutput;
 
-      if (component_new.HideCodeInput)
+      if (component_new.HideCodeOutput)
         component_new.Params.Output.RemoveAt(0);
 
       if (component_new.HideCodeInput)
         component_new.CodeInput = component_OBSOLETE.CodeInput;
+
+      component_OBSOLETE.Dispose();
 
       if (GH_UpgradeUtil.SwapComponents(component_OBSOLETE, component_new))
       {
@@ -54,6 +56,9 @@ namespace GhPython.Component
             }
           }
         }
+
+        component_new.CodeInputParam.ObjectChanged -= component_OBSOLETE.DestroyCompiledCode;
+        component_new.CodeInputParam.ObjectChanged += component_new.DestroyCompiledCode;
 
         return component_new;
       }

@@ -6,6 +6,48 @@ using System.Collections.Generic;
 
 namespace GhPython.Component
 {
+  class NewFloatHint : GH_DoubleHint_CS, IGH_TypeHint
+  {
+    internal readonly static Guid ID = new Guid("{39FBC626-7A01-46AB-A18E-EC1C0C41685B}");
+
+    Guid IGH_TypeHint.HintID
+    {
+      get
+      {
+        return ID;
+      }
+    }
+
+    string IGH_TypeHint.TypeName
+    {
+      get
+      {
+        return "float";
+      }
+    }
+  }
+
+  class NewStrHint : GH_StringHint_CS, IGH_TypeHint
+  {
+    internal readonly static Guid ID = new Guid("{37261734-EEC7-4F50-B6A8-B8D1F3C4396B}");
+
+    Guid IGH_TypeHint.HintID
+    {
+      get
+      {
+        return ID;
+      }
+    }
+
+    string IGH_TypeHint.TypeName
+    {
+      get
+      {
+        return "str";
+      }
+    }
+  }
+
   class NewDynamicAsGuidHint : GH_NullHint, IGH_TypeHint
   {
     bool IGH_TypeHint.Cast(object data, out object target)
@@ -409,7 +451,12 @@ namespace GhPython.Component
 
   static class PythonHints
   {
+
+
     static Dictionary<Guid, IGH_TypeHint> _new_marshallings = new Dictionary<Guid, IGH_TypeHint>() {
+      { NewFloatHint.ID, new NewFloatHint() },
+      { NewStrHint.ID, new NewStrHint() },
+
       { NewDynamicAsGuidHint.ID, new NewDynamicAsGuidHint() },
       { NewSpecialPointAsGuidHint.ID, new NewSpecialPointAsGuidHint() },
       { NewSpecialArcAsGuidHint.ID, new NewSpecialArcAsGuidHint() },
@@ -439,6 +486,8 @@ namespace GhPython.Component
     };
 
     static Dictionary<Type, Guid> _old_to_rs = new Dictionary<Type, Guid>() {
+      { typeof(GH_DoubleHint_CS), NewFloatHint.ID },
+
       { typeof(GH_NullHint), NewDynamicAsGuidHint.ID },
       { typeof(DynamicHint), NewDynamicAsGuidHint.ID },
 
@@ -467,6 +516,8 @@ namespace GhPython.Component
     };
 
     static Dictionary<Type, Type> _old_to_common = new Dictionary<Type, Type>() {
+      { typeof(GH_DoubleHint_CS), typeof(NewFloatHint) },
+
       { typeof(GH_NullHint), typeof(NewDynamicHint) },
       { typeof(DynamicHint), typeof(NewDynamicHint) },
 

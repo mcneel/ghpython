@@ -120,8 +120,13 @@ namespace GhPython.Component
                 Description = "Python script to execute",
             };
             // Throw away the compiled script when code changes. We will just recompile on the next solve
-            code.ObjectChanged += (sender, e) => { _compiled_py = null; };
+            code.ObjectChanged += DestroyCompiledCode;
             return code;
+        }
+
+        internal void DestroyCompiledCode(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
+        {
+          _compiled_py = null;
         }
 
         protected abstract void AddDefaultOutput(GH_Component.GH_OutputParamManager pManager);

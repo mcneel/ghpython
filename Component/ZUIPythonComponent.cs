@@ -32,6 +32,10 @@ namespace GhPython.Component
 
           i.Hints.Add(PythonHints.NewMarshalling[NewDynamicAsGuidHint.ID]);
           i.Hints.AddRange(PossibleHints);
+
+          i.Hints.RemoveAll((t) => { var y = t.GetType(); return (y == typeof(GH_DoubleHint_CS) || y == typeof(GH_StringHint_CS)); });
+          i.Hints.Insert(4, PythonHints.NewMarshalling[NewFloatHint.ID]);
+          i.Hints.Insert(6, PythonHints.NewMarshalling[NewStrHint.ID]);
           i.Hints.Insert(i.Hints.Count - 4, PythonHints.NewMarshalling[NewSpecialPointAsGuidHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_BoxHint)]);
