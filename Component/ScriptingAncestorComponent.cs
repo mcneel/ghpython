@@ -119,14 +119,7 @@ namespace GhPython.Component
                 NickName = "code",
                 Description = "Python script to execute",
             };
-            // Throw away the compiled script when code changes. We will just recompile on the next solve
-            code.ObjectChanged += DestroyCompiledCode;
             return code;
-        }
-
-        internal void DestroyCompiledCode(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
-        {
-          _compiled_py = null;
         }
 
         protected abstract void AddDefaultOutput(GH_Component.GH_OutputParamManager pManager);
@@ -191,10 +184,8 @@ namespace GhPython.Component
                     _py.SetIntellisenseVariable(varname, o);
                 }
 
-                // the "code" string could either be embedded in the component
-                // itself or a dynamic string that is input from some other component
-                bool codeIsEmbedded = HideCodeInput || Params.Input[0].SourceCount == 0;
-                if (!codeIsEmbedded || _compiled_py == null)
+                // the "code" string could be embedded in the component itself
+                if (!HideCodeInput || _compiled_py == null)
                 {
                     string script = CodeInput;
 
@@ -204,6 +195,7 @@ namespace GhPython.Component
                     if (_compiled_py == null ||
                         string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
                     {
+                        DocStringUtils.ApplyDocString(script, this);
                         _compiled_py = _py.Compile(script);
                         _previousRunCode = script;
                     }

@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Component\ComponentIOMarshal.cs" />
+    <Compile Include="Component\DocStringUtils.cs" />
     <Compile Include="Component\GHComponentsLoader.cs" />
     <Compile Include="Component\PythonEnvironment.cs">
       <SubType>Code</SubType>

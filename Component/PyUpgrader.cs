@@ -57,9 +57,6 @@ namespace GhPython.Component
           }
         }
 
-        component_new.CodeInputParam.ObjectChanged -= component_OBSOLETE.DestroyCompiledCode;
-        component_new.CodeInputParam.ObjectChanged += component_new.DestroyCompiledCode;
-
         return component_new;
       }
       return null;
