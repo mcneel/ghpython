@@ -22,6 +22,7 @@ namespace GhPython.Component
         protected string _previousRunCode;
         internal StringList _py_output = new StringList();
         protected PythonEnvironment _env;
+        bool _inDocStringsMode = false;
 
         public bool HideCodeInput { get; set; }
 
@@ -57,9 +58,10 @@ namespace GhPython.Component
 
         internal const string DOCUMENT_NAME = "ghdoc";
         internal const string PARENT_ENVIRONMENT_NAME = "ghenv";
+        internal const string DESCRIPTION = "A python scriptable component";
 
         public ScriptingAncestorComponent()
-            : base("Python Script", "Python", "A python scriptable component", "Math", "Script")
+            : base("Python Script", "Python", DESCRIPTION, "Math", "Script")
         {
         }
 
@@ -195,13 +197,14 @@ namespace GhPython.Component
                     if (_compiled_py == null ||
                         string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
                     {
-                        DocStringUtils.ApplyDocString(script, this);
+                        if(!(_inDocStringsMode = DocStringUtils.FindApplyDocString(script, this)))
+                            ResetAllDescriptions();
                         _compiled_py = _py.Compile(script);
                         _previousRunCode = script;
                     }
                 }
               
-                if (_compiled_py!=null )
+                if (_compiled_py != null)
                 {
                     _compiled_py.Execute(_py);
                     // Python script completed, attempt to set all of the
@@ -283,6 +286,21 @@ namespace GhPython.Component
             return string.Empty;
         }
 
+        private void ResetAllDescriptions()
+        {
+          Description = DESCRIPTION;
+
+          for (int i=HideCodeInput?0:1; i<Params.Input.Count;i++)
+          {
+            Params.Input[i].Description = "Script input " + Params.Input[i].NickName + ".";
+          }
+          for (int i = HideCodeOutput ? 0 : 1; i < Params.Output.Count; i++)
+          {
+            Params.Output[i].Description = "Script output " + Params.Output[i].NickName + ".";
+          }
+
+          SpecialPythonHelpContent = null;
+        }
 
         protected virtual void SetScriptTransientGlobals()
         {
@@ -516,10 +534,29 @@ namespace GhPython.Component
         {
             get
             {
-                return Resources.helpText;
+                if(_inDocStringsMode)
+                {
+                  if (SpecialPythonHelpContent == null)
+                    return base.HelpDescription;
+                  else
+                    return base.HelpDescription +
+                      "<br><br>\n<small>Remarks: <i>" +
+                      DocStringUtils.Htmlify(SpecialPythonHelpContent) +
+                      "</i></small>";
+                }
+                else
+                {
+                  return Resources.helpText;
+                }
             }
         }
 
+        protected override string HtmlHelp_Source()
+        {
+            var b = base.HtmlHelp_Source() ?? string.Empty;
+            return base.HtmlHelp_Source().Replace("\nPython Script", "\n" + NickName);
+        }
+        
         protected static IGH_TypeHint[] PossibleHints = 
         { 
             new GH_HintSeparator(),
@@ -530,7 +567,9 @@ namespace GhPython.Component
             new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
             new GH_UVIntervalHint()
         };
-
+        
         internal abstract void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true);
+
+        public string SpecialPythonHelpContent { get; set; }
     }
 }

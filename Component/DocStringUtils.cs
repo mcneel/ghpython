@@ -29,7 +29,7 @@ sum of all numbers from F to L, included.
 */
   class DocStringUtils
   {
-    public static void ApplyDocString(string code, ScriptingAncestorComponent component)
+    public static bool FindApplyDocString(string code, ScriptingAncestorComponent component)
     {
       var reader = new StringReader(code);
 
@@ -37,10 +37,10 @@ sum of all numbers from F to L, included.
       for (; ; ) //proceeds to begin of docstrings, or leave method
       {
         line = reader.ReadLine();
-        if (line == null) return;
+        if (line == null) return false;
         if (IsEmptyOrFullyCommentedOutLine(line)) continue;
         if (IsDocStringStart(line)) break;
-        return;
+        return false;
       }
 
       //strips the docstring start chars
@@ -48,7 +48,7 @@ sum of all numbers from F to L, included.
       int firstLevelIndent = GetIndent(line);
       int secondLevelIndent = -1;
 
-      string variable = "%HEADING";
+      string variable = "%description";
       StringBuilder result = new StringBuilder();
       KeywordType type = KeywordType.Description;
 
@@ -76,6 +76,7 @@ sum of all numbers from F to L, included.
             if (IsNewKeywordDeclared(line, out keyword))
             {
               var nextType = type;
+              string nextVariable = null;
               bool match = true;
               switch (keyword.ToUpperInvariant())
               {
@@ -83,14 +84,21 @@ sum of all numbers from F to L, included.
                 case "ARGS":
                 case "ARGUMENT":
                 case "ARGUMENTS":
+                case "INPUT":
+                case "INPUTS":
                   nextType = KeywordType.Argument;
                   break;
                 case "RETURN":
                 case "RETURNS":
+                case "OUTPUT":
+                case "OUTPUTS":
                   nextType = KeywordType.Return;
                   break;
                 case "HELP":
+                case "REMARK":
+                case "REMARKS":
                   nextType = KeywordType.Help;
+                  nextVariable = "%help";
                   break;
                 default:
                   match = false;
@@ -101,7 +109,7 @@ sum of all numbers from F to L, included.
               {
                 Send(variable, ref result, type, component);
                 AddLine(result, line.Substring(line.IndexOf(":") + 1).TrimStart(_toTrim));
-                variable = null;
+                variable = nextVariable;
                 type = nextType;
               }
               else
@@ -113,7 +121,7 @@ sum of all numbers from F to L, included.
           else //third level
           {
             string keyword;
-            if (IsNewKeywordDeclared(line, out keyword))
+            if (IsNewKeywordDeclared(line, out keyword) && (variable == null || !variable.StartsWith("%")))
             {
               Send(variable, ref result, type, component);
               AddLine(result, line.Substring(line.IndexOf(":") + 1).TrimStart(_toTrim));
@@ -124,12 +132,13 @@ sum of all numbers from F to L, included.
           }
         }
         else
-          AppendText(result, line);
+          AddLine(result, line);
         if (endSeparator != -1) break;
       }
       while ((line = reader.ReadLine()) != null);
 
       Send(variable, ref result, type, component);
+      return true;
     }
 
     private static void Send(string variable, ref StringBuilder result, KeywordType type, ScriptingAncestorComponent component)
@@ -148,7 +157,7 @@ sum of all numbers from F to L, included.
             FindAndDescribe(component.Params.Output, variable, result.ToString());
             break;
           case KeywordType.Help:
-            FindAndDescribe(component.Params.Input, variable, result.ToString());
+            component.SpecialPythonHelpContent = result.ToString();
             break;
         }
         result = new StringBuilder();
@@ -177,11 +186,11 @@ sum of all numbers from F to L, included.
       Help,
     }
 
-    private static void AppendText(StringBuilder result, string text)
-    {
-      if (result.Length != 0) result.Append(" ");
-      result.Append(text);
-    }
+    //private static void AppendText(StringBuilder result, string text)
+    //{
+    //  if (result.Length != 0) result.Append(" ");
+    //  result.Append(text);
+    //}
 
     private static void AddLine(StringBuilder result, string text)
     {
@@ -229,6 +238,44 @@ sum of all numbers from F to L, included.
       if (after.Length == 0)
         return true;
       return after.IndexOf("#") == 0;
+    }
+
+    public static string Htmlify(string input)
+    {
+      return System.Text.RegularExpressions.Regex.Replace
+      (System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n]",
+        (t) =>
+        {
+          switch (t.Value)
+          {
+            case "<":
+              return "&lt;";
+            case ">":
+              return "&gt;";
+            case "&":
+              return "&amp;";
+            case "\"":
+              return "&#34;";
+            case "'":
+              return "&#39;";
+            case "\n":
+              return "<br>";
+          }
+          return string.Empty;
+        }),
+
+        "(http|https|ftp|sftp|mailto|skype):[A-Za-z0-9!*'\\(\\);:@&=+$,/?#\\[\\]\\-_.~]+",
+        (t) =>
+        {
+          string shortName = t.Value;
+          if (t.Value.StartsWith("http"))
+            shortName = shortName.Substring(7);
+          if (t.Value.StartsWith("mailto"))
+            shortName = shortName.Substring(7);
+
+          return "<a href=\"" + t.Value + "\" target=\"_blank\" title=\"External link to: " +
+            t.Value + "\">" + shortName + "</a>";
+        });
     }
   }
 }
