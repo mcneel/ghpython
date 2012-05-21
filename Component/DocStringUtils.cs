@@ -242,8 +242,7 @@ sum of all numbers from F to L, included.
 
     public static string Htmlify(string input)
     {
-      return System.Text.RegularExpressions.Regex.Replace
-      (System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n]",
+      string firstRepl = System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n]",
         (t) =>
         {
           switch (t.Value)
@@ -262,8 +261,10 @@ sum of all numbers from F to L, included.
               return "<br>";
           }
           return string.Empty;
-        }),
+        });
 
+      return System.Text.RegularExpressions.Regex.Replace
+      (firstRepl,
         "(http|https|ftp|sftp|mailto|skype):[A-Za-z0-9!*'\\(\\);:@&=+$,/?#\\[\\]\\-_.~]+",
         (t) =>
         {

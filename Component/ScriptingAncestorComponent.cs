@@ -117,7 +117,7 @@ namespace GhPython.Component
         {
             var code = new Param_String()
             {
-                Name = "Code",
+                Name = "code",
                 NickName = "code",
                 Description = "Python script to execute",
             };
@@ -143,7 +143,7 @@ namespace GhPython.Component
         {
             var outText = new Param_String()
             {
-                Name = "Output",
+                Name = "out",
                 NickName = "out",
                 Description = "The execution information, as output and error streams",
             };
@@ -189,7 +189,14 @@ namespace GhPython.Component
                 // the "code" string could be embedded in the component itself
                 if (!HideCodeInput || _compiled_py == null)
                 {
-                    string script = CodeInput;
+                    string script;
+                    if (HideCodeInput) 
+                        script = CodeInput;
+                    else
+                    {
+                        script = null;
+                        DA.GetData(0, ref script);
+                    }
 
                     if (string.IsNullOrWhiteSpace(script))
                         throw new ApplicationException("Empty code parameter");

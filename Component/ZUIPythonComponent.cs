@@ -22,8 +22,10 @@ namespace GhPython.Component
 
         internal override void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true)
         {
-          i.Name = string.Format("Variable {0}", i.NickName);
-          i.Description = string.Format("Script Variable {0}", i.NickName);
+          i.Name = i.NickName;
+
+          if (string.IsNullOrEmpty(i.Description))
+              i.Description = string.Format("Script variable {0}", i.NickName);
           i.AllowTreeAccess = true;
           i.Optional = true;
           i.ShowHints = true;
@@ -87,8 +89,8 @@ namespace GhPython.Component
 			            return new Param_ScriptVariable
 			            {
 				              NickName = GH_ComponentParamServer.InventUniqueNickname("xyzuvwst", this.Params.Input),
-                      Name = "Input " + index.ToString(),
-                      Description = "Variable script input " + index.ToString(),
+                      Name = NickName,
+                      Description = "Script variable " + NickName,
 			            };
 		            }
 		            case GH_ParameterSide.Output:
@@ -96,8 +98,8 @@ namespace GhPython.Component
 			            return new Param_GenericObject
 			            {
 				              NickName = GH_ComponentParamServer.InventUniqueNickname("abcdefghijklmn", this.Params.Output),
-                      Name = "Result " + index.ToString(),
-                      Description = "Variable script output " + index.ToString()
+                      Name = NickName,
+                      Description = "Script variable " + NickName,
 			            };
 		            }
 		            default:
@@ -138,7 +140,9 @@ namespace GhPython.Component
                 if (i is Param_GenericObject)
                 {
                     i.Name = i.NickName;
-                    i.Description = i.NickName;
+                    
+                    if(string.IsNullOrEmpty(i.Description))
+                        i.Description = i.NickName;
                 }
             }
         }
