@@ -157,6 +157,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Samples\sampleCommon.py" />
     <None Include="Samples\helpText.html" />
     <Content Include="Samples\sampleScript.py" />
   </ItemGroup>

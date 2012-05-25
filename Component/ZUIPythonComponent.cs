@@ -32,6 +32,8 @@ namespace GhPython.Component
 
           i.Hints = new List<IGH_TypeHint>();
 
+          i.Hints.Add(PythonHints.NewMarshalling[NewDynamicHint.ID]);
+
           i.Hints.Add(PythonHints.NewMarshalling[NewDynamicAsGuidHint.ID]);
           i.Hints.AddRange(PossibleHints);
 

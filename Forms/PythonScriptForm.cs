@@ -416,5 +416,36 @@ namespace GhPython.Forms
             }
             return string.Empty;
         }
+
+        private void rhinoscriptsyntaxBasicsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetSample(Resources.sampleScript);
+        }
+
+        private void rhinoCommonBasicsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetSample(Resources.sampleCommon);
+        }
+
+        private void SetSample(string sample)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(_texteditor.Text))
+                {
+                    var result = MessageBox.Show("Open the sample will remove all changes.",
+                        "Sample opening", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+
+                    if (result != System.Windows.Forms.DialogResult.OK)
+                        return;
+                }
+
+                _texteditor.Text = sample;
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
     }
 }

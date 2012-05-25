@@ -457,6 +457,8 @@ namespace GhPython.Component
       { NewFloatHint.ID, new NewFloatHint() },
       { NewStrHint.ID, new NewStrHint() },
 
+
+      { NewDynamicHint.ID, new NewDynamicHint() },
       { NewDynamicAsGuidHint.ID, new NewDynamicAsGuidHint() },
       { NewSpecialPointAsGuidHint.ID, new NewSpecialPointAsGuidHint() },
       { NewSpecialArcAsGuidHint.ID, new NewSpecialArcAsGuidHint() },
