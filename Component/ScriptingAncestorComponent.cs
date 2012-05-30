@@ -87,13 +87,7 @@ namespace GhPython.Component
                 _py.SetVariable(PARENT_ENVIRONMENT_NAME, _env);
                 _py.SetIntellisenseVariable(PARENT_ENVIRONMENT_NAME, _env);
 
-                // 22 May 2011 S. Baer
-                // Use reflection to set context Id for now. Change in a couple weeks once
-                // we feel confident people having updated to the latest WIP
-                Type t = _py.GetType();
-                var pi = t.GetProperty("ContextId");
-                if (pi != null)
-                  pi.SetValue(_py, 2, null);
+                _py.ContextId = 2; // 2 is Grasshopper
             }
         }
 

@@ -334,45 +334,45 @@ namespace GhPython.DocReplacement
             return GenericAdd(new GH_Surface(surface), attributes);
         }
 
-        //public Guid AddText(Text3d text3d)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddText(Text3d text3d)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddText(Text3d text3d, ObjectAttributes attributes)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddText(Text3d text3d, ObjectAttributes attributes)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic, ObjectAttributes attributes)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddText(string text, Plane plane, double height, string fontName, bool bold, bool italic, ObjectAttributes attributes)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddTextDot(TextDot dot)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddTextDot(TextDot dot)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddTextDot(string text, Point3d location)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddTextDot(string text, Point3d location)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddTextDot(TextDot dot, ObjectAttributes attributes)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddTextDot(TextDot dot, ObjectAttributes attributes)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
-        //public Guid AddTextDot(string text, Point3d location, ObjectAttributes attributes)
-        //{
-        //    throw NotSupportedExceptionHelp();
-        //}
+        public Guid AddTextDot(string text, Point3d location, ObjectAttributes attributes)
+        {
+            throw NotSupportedExceptionHelp();
+        }
 
         public bool Delete(Guid objectId, bool quiet)
         {

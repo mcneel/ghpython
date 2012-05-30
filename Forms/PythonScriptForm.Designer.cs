@@ -32,11 +32,17 @@
       this.menuStrip = new System.Windows.Forms.MenuStrip();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.applyAndCloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
       this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.rhinoscriptsyntaxHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.ghPythonGrasshopperHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+      this.rhinoscriptsyntaxBasicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.rhinoCommonBasicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
       this.rhinoPythonWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.grasshopperForumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,9 +57,6 @@
       this.panel1 = new System.Windows.Forms.Panel();
       this.richTextBox1 = new System.Windows.Forms.RichTextBox();
       this.splitContainer = new System.Windows.Forms.SplitContainer();
-      this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-      this.rhinoscriptsyntaxBasicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.rhinoCommonBasicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.menuStrip.SuspendLayout();
       this.statusStrip.SuspendLayout();
       this.panel1.SuspendLayout();
@@ -77,6 +80,8 @@
       // 
       this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.closeToolStripMenuItem,
+            this.testToolStripMenuItem,
+            this.applyAndCloseToolStripMenuItem,
             this.toolStripSeparator1,
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem});
@@ -88,20 +93,36 @@
       // 
       this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
       this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-      this.closeToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+      this.closeToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
       this.closeToolStripMenuItem.Text = "&Close";
-      this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+      this.closeToolStripMenuItem.Click += new System.EventHandler(this.cancelButton_Click);
+      // 
+      // testToolStripMenuItem
+      // 
+      this.testToolStripMenuItem.Name = "testToolStripMenuItem";
+      this.testToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+      this.testToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+      this.testToolStripMenuItem.Text = "&Test";
+      this.testToolStripMenuItem.Click += new System.EventHandler(this.applyButton_Click);
+      // 
+      // applyAndCloseToolStripMenuItem
+      // 
+      this.applyAndCloseToolStripMenuItem.Name = "applyAndCloseToolStripMenuItem";
+      this.applyAndCloseToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F5)));
+      this.applyAndCloseToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+      this.applyAndCloseToolStripMenuItem.Text = "&OK (Test and Close)";
+      this.applyAndCloseToolStripMenuItem.Click += new System.EventHandler(this.okButton_Click);
       // 
       // toolStripSeparator1
       // 
       this.toolStripSeparator1.Name = "toolStripSeparator1";
-      this.toolStripSeparator1.Size = new System.Drawing.Size(184, 6);
+      this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
       // 
       // openToolStripMenuItem
       // 
       this.openToolStripMenuItem.Name = "openToolStripMenuItem";
       this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.I)));
-      this.openToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+      this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
       this.openToolStripMenuItem.Text = "&Import From...";
       this.openToolStripMenuItem.Click += new System.EventHandler(this.importFrom_Click);
       // 
@@ -109,13 +130,14 @@
       // 
       this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
       this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-      this.saveToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+      this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
       this.saveToolStripMenuItem.Text = "&Export As....";
       this.saveToolStripMenuItem.Click += new System.EventHandler(this.exportAs_Click);
       // 
       // helpToolStripMenuItem
       // 
       this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ghPythonGrasshopperHelpToolStripMenuItem,
             this.rhinoscriptsyntaxHelpToolStripMenuItem,
             this.toolStripMenuItem1,
             this.toolStripSeparator3,
@@ -134,6 +156,36 @@
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Text = "&Help for rhinoscriptsyntax";
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Click += new System.EventHandler(this.rhinoscriptsyntaxHelp);
+      // 
+      // ghPythonGrasshopperHelpToolStripMenuItem
+      // 
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Name = "ghPythonGrasshopperHelpToolStripMenuItem";
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Text = "GhPython Component Help";
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Click += new System.EventHandler(this.ghPythonGrasshopperHelpToolStripMenuItem_Click);
+      // 
+      // toolStripMenuItem1
+      // 
+      this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.rhinoscriptsyntaxBasicsToolStripMenuItem,
+            this.rhinoCommonBasicsToolStripMenuItem});
+      this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+      this.toolStripMenuItem1.Size = new System.Drawing.Size(229, 22);
+      this.toolStripMenuItem1.Text = "&Samples";
+      // 
+      // rhinoscriptsyntaxBasicsToolStripMenuItem
+      // 
+      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Name = "rhinoscriptsyntaxBasicsToolStripMenuItem";
+      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Text = "rhinoscriptsyntax basics";
+      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Click += new System.EventHandler(this.rhinoscriptsyntaxBasicsToolStripMenuItem_Click);
+      // 
+      // rhinoCommonBasicsToolStripMenuItem
+      // 
+      this.rhinoCommonBasicsToolStripMenuItem.Name = "rhinoCommonBasicsToolStripMenuItem";
+      this.rhinoCommonBasicsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+      this.rhinoCommonBasicsToolStripMenuItem.Text = "RhinoCommon basics";
+      this.rhinoCommonBasicsToolStripMenuItem.Click += new System.EventHandler(this.rhinoCommonBasicsToolStripMenuItem_Click);
       // 
       // toolStripSeparator3
       // 
@@ -213,7 +265,7 @@
       this.cancelButton.Name = "cancelButton";
       this.cancelButton.Size = new System.Drawing.Size(75, 23);
       this.cancelButton.TabIndex = 1;
-      this.cancelButton.Text = "Cancel";
+      this.cancelButton.Text = "Close";
       this.cancelButton.UseVisualStyleBackColor = true;
       this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
       // 
@@ -265,29 +317,6 @@
       this.splitContainer.Size = new System.Drawing.Size(542, 464);
       this.splitContainer.SplitterDistance = 330;
       this.splitContainer.TabIndex = 3;
-      // 
-      // toolStripMenuItem1
-      // 
-      this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.rhinoscriptsyntaxBasicsToolStripMenuItem,
-            this.rhinoCommonBasicsToolStripMenuItem});
-      this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-      this.toolStripMenuItem1.Size = new System.Drawing.Size(229, 22);
-      this.toolStripMenuItem1.Text = "&Samples";
-      // 
-      // rhinoscriptsyntaxBasicsToolStripMenuItem
-      // 
-      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Name = "rhinoscriptsyntaxBasicsToolStripMenuItem";
-      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
-      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Text = "rhinoscriptsyntax basics";
-      this.rhinoscriptsyntaxBasicsToolStripMenuItem.Click += new System.EventHandler(this.rhinoscriptsyntaxBasicsToolStripMenuItem_Click);
-      // 
-      // rhinoCommonBasicsToolStripMenuItem
-      // 
-      this.rhinoCommonBasicsToolStripMenuItem.Name = "rhinoCommonBasicsToolStripMenuItem";
-      this.rhinoCommonBasicsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
-      this.rhinoCommonBasicsToolStripMenuItem.Text = "RhinoCommon basics";
-      this.rhinoCommonBasicsToolStripMenuItem.Click += new System.EventHandler(this.rhinoCommonBasicsToolStripMenuItem_Click);
       // 
       // PythonScriptForm
       // 
@@ -347,5 +376,8 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem rhinoscriptsyntaxBasicsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rhinoCommonBasicsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem applyAndCloseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ghPythonGrasshopperHelpToolStripMenuItem;
     }
 }

@@ -10,6 +10,9 @@ using GhPython.Component;
 using GhPython.Properties;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using System.Collections.Generic;
+using Grasshopper.GUI.HTML;
+using Grasshopper;
 
 namespace GhPython.Forms
 {
@@ -43,10 +46,6 @@ namespace GhPython.Forms
                 _texteditor.Dock = DockStyle.Fill;
 
                 _texteditor.Text = _component.CodeInput;
-                
-                // Sample script
-                //if (string.IsNullOrEmpty(_texteditor.Text))
-                //    _texteditor.Text = Resources.sampleScript;
 
                 _hash.HashText(_texteditor.Text);
             }
@@ -98,6 +97,8 @@ namespace GhPython.Forms
             richTextBox1.Text = str;
         }
 
+        Dictionary<Keys, EventHandler> _handlers;
+
         void ScriptForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (_texteditor == null)
@@ -108,6 +109,21 @@ namespace GhPython.Forms
             var mi = _texteditor.GetType().GetMethod("ProcessKeyDown");
             if (mi != null)
                 mi.Invoke(_texteditor, new object[] { e });
+            
+            // 30 May 2012 - G. Piacentino
+            // This is here for the same reason as the above: no win message pump.
+            if (_handlers == null)
+            {
+                 _handlers = new Dictionary<Keys, EventHandler>() {
+                  { Keys.Control | Keys.E, exportAs_Click },
+                  { Keys.Control | Keys.I, importFrom_Click },
+                  { Keys.F5, applyButton_Click },
+                  { Keys.Control | Keys.F5, okButton_Click },
+                };
+            }
+
+            if (_handlers.ContainsKey(e.KeyData))
+              _handlers[e.KeyData](sender, e);
         }
 
         private void okButton_Click(object sender, EventArgs e)
@@ -349,18 +365,6 @@ namespace GhPython.Forms
             }
         }
 
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Close();
-            }
-            catch (Exception ex)
-            {
-                LastHandleException(ex);
-            }
-        }
-
         private void rhinoscriptsyntaxHelp(object sender, EventArgs e)
         {
             try
@@ -441,6 +445,21 @@ namespace GhPython.Forms
                 }
 
                 _texteditor.Text = sample;
+            }
+            catch (Exception ex)
+            {
+                LastHandleException(ex);
+            }
+        }
+
+        private void ghPythonGrasshopperHelpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var helpForm = new GH_HtmlHelpPopup();
+                if (!helpForm.LoadObject(_component)) return;
+                helpForm.SetLocation(Cursor.Position);
+                helpForm.Show(GH_InstanceServer.DocumentEditor);
             }
             catch (Exception ex)
             {

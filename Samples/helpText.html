@@ -1,36 +1,38 @@
 ﻿<p>This component allows to use both RhinoCommon and RhinoScript from within
 Grasshopper. Here some Q&amp;As.</p>
 
+<p><b>How can I use the rhinoscriptsyntax?</b></p>
+<p>By importing RhinoScript, for example by writing:</p>
+<pre style="font-size: smaller">import rhinoscriptsyntax as rs</pre>
+<p>...and then calling some rhinoscript functions...</p>
+<pre style="font-size: smaller">line = rs.AddLine((1, 2, 3), (10, 11, 12))
+a = line</pre>
+
 <p><b>How can I use RhinoCommon?</b></p>
 <p>By importing from the Rhino module, for example by writing:</p>
 <pre style="font-size: smaller">from Rhino.Geometry import Point3d, Line</pre>
 <p>...and then assigning some new geometry to the results</p>
 <pre style="font-size: smaller">a = Line(Point3d(1, 2, 3), Point3d(10, 11, 12))</pre>
 
-<p><b>How can I use RhinoScript?</b></p>
-<p>By importing the rhinoscriptsyntax, for example by writing:</p>
-<pre style="font-size: smaller">import rhinoscriptsyntax as rs</pre>
-<p>...and then calling some rhinoscript functions...</p>
-<pre style="font-size: smaller">rs.AddLine((1, 2, 3), (10, 11, 12))
-a = ghdoc</pre>
-
 <p><b>What is "ghdoc" and how does it relate to the rhinoscriptsyntax?</b></p>
-<p>The ghdoc variable is provided by the component if you select it as
-"target". But why do we need it?<br>
-Its use comes from the design of the RhinoScript library.<br>
+<p>The ghdoc variable is provided by the component for better RhinoScript
+library support.<br>
 This library is imperative, and it is build from a set of
-procedures or functions that act on geometrical types through one level of 
-indirection: most of the time, the user does not work with the geometry itself
+functions that act on geometrical types through one level of indirection:
+most of the time, the user does not work with the geometry itself
 but with an identifier (Guid) of geometry that is present in a document.<br>
 This is exactly what ghdoc is: it is a reference to the document that the RhinoScript
-library always implicitly targets with all Add__() calls (for example, AddLine()).</p>
+library implicitly targets with all Add__() calls (for example, AddLine()).<br>
+The scriptcontext module has a doc variable with the currenly active document,
+that can be assigned by you to ghdoc, or RhinoDoc.ActiveDoc, the Rhino document.
+</p>
 
 <p><b>Is RhinoScript use within GhPython less ideal than RhinoCommon?</b></p>
-<p>While targeting the ghdoc variable, the standard Rhino document
-target of RhinoScript is replaced, therefore we can use Grasshopper while
-leaving the Rhino document unchanged. This saves uncountable Undo's, and
-makes it easy to structure ideas through the definition graph.<br>
-Either RhinoCommon or RhinoScript are both good in practice.</p>
+<p>While targeting the ghdoc variable, the special Grasshopper document
+is used, therefore we can use Grasshopper while leaving the Rhino document unchanged.
+This saves uncountable Undo's, and makes it easy to structure ideas
+through the Grasshopper definition.<br>
+This means that both RhinoCommon or RhinoScript are good in practice.</p>
 
 <p><b>Is the rhinoscriptsyntax target irrelevant if using solely RhinoCommon
 classes?</b></p>
@@ -58,6 +60,11 @@ is a small sample.<br>
 However, 80% of the times it is not necessary to program for
 DataTrees, as the logic itself can be applied per-list and Grasshopper handles
 list-iteration.</p>
+
+<p><b>Any more tips?</b></p>
+<p>It's probably quite easy to get started, but then you might need to know some more tips to be
+proficient. Many tricks have to do with Python (for example, do you know the type() and dir() functions)?
+Other might have more to do with the component setup. (There's even a secret ghenv variable).</p>
 
 <p><b>Can I ask more questions?</b></p>
 <a href="http://www.grasshopper3d.com/forum/categories/vb-c-and-python-coding/listForCategory" target="_blank" style="width: 100%; text-align: right;">Yes, on the forum...</a>

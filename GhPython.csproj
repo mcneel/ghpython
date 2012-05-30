@@ -96,18 +96,18 @@
     <Compile Include="Component\TextHashMaintainer.cs" />
     <Compile Include="Component\ZUIPythonComponent.cs" />
     <Compile Include="DocReplacement\DocStorage.cs" />
-    <Compile Include="Forms\PythonScriptForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\PythonScriptForm.Designer.cs">
-      <DependentUpon>PythonScriptForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Component\PythonComponentAttributes.cs" />
     <Compile Include="Component\SpecialHints\DynamicHint.cs" />
     <Compile Include="DocReplacement\AttributedGeometry.cs" />
     <Compile Include="DocReplacement\CustomTable.cs" />
     <Compile Include="DocReplacement\GrasshopperDocument.cs" />
     <Compile Include="Component\PythonComponent.cs" />
+    <Compile Include="Forms\PythonScriptForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\PythonScriptForm.Designer.cs">
+      <DependentUpon>PythonScriptForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -137,6 +137,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
