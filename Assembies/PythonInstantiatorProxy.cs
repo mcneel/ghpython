@@ -177,12 +177,5 @@ namespace GhPython.Assembies
 			}
 			return null;
 		}
-
-    private static Guid String2Guid(string str)
-    {
-	    var hasher = new MD5CryptoServiceProvider();
-	    byte[] hash = hasher.ComputeHash(Encoding.Default.GetBytes(str));
-      return new Guid(hash);
-    }
 	}
 }
