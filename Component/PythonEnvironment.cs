@@ -69,5 +69,11 @@ namespace GhPython.Component
             get { return _scriptscope; }
             internal set { _scriptscope = value; }
         }
+
+        public object Engine
+        {
+            get { return _engine; }
+            internal set { _engine = value; }
+        }
     }
 }

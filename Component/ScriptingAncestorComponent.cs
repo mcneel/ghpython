@@ -15,7 +15,7 @@ namespace GhPython.Component
 {
     public abstract class ScriptingAncestorComponent : SafeComponent
     {
-        static protected GrasshopperDocument _document = new GrasshopperDocument();
+        static internal GrasshopperDocument _document = new GrasshopperDocument();
         internal ComponentIOMarshal _marshal;
         protected PythonScript _py;
         PythonCompiledCode _compiled_py;
