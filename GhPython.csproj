@@ -80,8 +80,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assembies\PyghaLoader.cs" />
-    <Compile Include="Assembies\PythonInstantiatorProxy.cs" />
+    <Compile Include="Assemblies\PyghaLoader.cs" />
+    <Compile Include="Assemblies\PythonInstantiatorProxy.cs" />
     <Compile Include="Component\ComponentIOMarshal.cs" />
     <Compile Include="Component\DocStringUtils.cs" />
     <Compile Include="Component\GHComponentsLoader.cs" />

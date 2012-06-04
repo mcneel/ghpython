@@ -8,7 +8,7 @@ using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino;
 
-namespace GhPython.Assembies
+namespace GhPython.Assemblies
 {
   class PythonInstantiatorProxy : IGH_ObjectProxy
 	{
