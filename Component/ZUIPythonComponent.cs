@@ -40,44 +40,33 @@ namespace GhPython.Component
           i.Hints.RemoveAll((t) => { var y = t.GetType(); return (y == typeof(GH_DoubleHint_CS) || y == typeof(GH_StringHint_CS)); });
           i.Hints.Insert(4, PythonHints.NewMarshalling[NewFloatHint.ID]);
           i.Hints.Insert(6, PythonHints.NewMarshalling[NewStrHint.ID]);
-          i.Hints.Insert(i.Hints.Count - 4, PythonHints.NewMarshalling[NewSpecialPointAsGuidHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_BoxHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialBoxAsGuidHint.ID]);
           
           i.Hints.Add(new GH_HintSeparator());
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_LineHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialLineHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_CircleHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialCircleHint.ID]);
           
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_ArcHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialArcAsGuidHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_PolylineHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialPolylineHint.ID]);
 
           i.Hints.Add(new GH_HintSeparator());
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_CurveHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialCurveHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_MeshHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialMeshHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_SurfaceHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialSurfaceHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_BrepHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialBrepHint.ID]);
 
           i.Hints.Add(PythonHints.GhMarshalling[typeof(GH_GeometryBaseHint)]);
-          i.Hints.Add(PythonHints.NewMarshalling[NewSpecialGeometryBaseHint.ID]);
 
           if (alsoSetIfNecessary && i.TypeHint == null)
-            i.TypeHint = i.Hints[0];
+            i.TypeHint = i.Hints[1];
         }
 
         #region Members of IGH_VariableParameterComponent

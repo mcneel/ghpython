@@ -79,7 +79,7 @@ namespace GhPython.Component
         else if (t == typeof(Rectangle3d))
           target = ((Rectangle3d)target).ToNurbsCurve();
 
-        else if (t == typeof(Polyline))
+        else if (target is Polyline)
           target = new PolylineCurve((Polyline)target);
       }
 
@@ -100,7 +100,7 @@ namespace GhPython.Component
     {
       get
       {
-        return "dynamic (as rhinoscript Guid)";
+        return "dynamic (rhinoscript Guid when geometry)";
       }
     }
   }
@@ -126,329 +126,6 @@ namespace GhPython.Component
     }
   }
 
-  class NewSpecialPointAsGuidHint : GH_Point3dHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{F3DECF87-5DDB-4BA0-B958-08654E703CE8}");
-
-    bool IGH_TypeHint.Cast(object data, out object target)
-    {
-      bool toReturn = base.Cast(data, out target);
-
-      if (toReturn && target != null)
-      {
-        if (target.GetType() == typeof(Point3d))
-          target = new Point((Point3d)target);
-      }
-
-      return toReturn;
-    }
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Point (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialArcAsGuidHint : GH_ArcHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{E82FF11D-D7BD-436B-A1E0-2B1228EFA6AD}");
-
-    bool IGH_TypeHint.Cast(object data, out object target)
-    {
-      bool toReturn = base.Cast(data, out target);
-
-      if (toReturn && target != null)
-      {
-        Type t = target.GetType();
-
-        if (t == typeof(Arc))
-          target = new ArcCurve((Arc)target);
-
-        else if (t == typeof(Circle))
-          target = new ArcCurve((Circle)target);
-      }
-
-      return toReturn;
-    }
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Arc (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialBoxAsGuidHint : GH_BoxHint, IGH_TypeHint
-  {
-    bool IGH_TypeHint.Cast(object data, out object target)
-    {
-      bool toReturn = base.Cast(data, out target);
-
-      if (toReturn && target != null)
-      {
-        Type t = target.GetType();
-
-        if (t == typeof(Box))
-          target = Brep.CreateFromBox((Box)target);
-
-      }
-
-      return toReturn;
-    }
-
-    internal readonly static Guid ID = new Guid("{8AF34D6D-55F0-4E94-BF99-F56679F868F3}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Box (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialCircleHint : GH_CircleHint, IGH_TypeHint
-  {
-    bool IGH_TypeHint.Cast(object data, out object target)
-    {
-      bool toReturn = base.Cast(data, out target);
-
-      if (toReturn && target != null)
-      {
-        Type t = target.GetType();
-
-        if (t == typeof(Circle))
-          target = new ArcCurve((Circle)target);
-      }
-
-      return toReturn;
-    }
-
-    internal readonly static Guid ID = new Guid("{4D1C5515-6737-4D37-8130-991014E3421B}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Circle (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialLineHint : GH_LineHint, IGH_TypeHint
-  {
-    bool IGH_TypeHint.Cast(object data, out object target)
-    {
-      bool toReturn = base.Cast(data, out target);
-
-      if (toReturn && target != null)
-      {
-        Type t = target.GetType();
-
-        if (t == typeof(Line))
-          target = new LineCurve((Line)target);
-      }
-
-      return toReturn;
-    }
-
-    internal readonly static Guid ID = new Guid("{50E93FEE-8580-491D-9B65-7E408EF47464}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Line (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialPolylineHint : GH_PolylineHint, IGH_TypeHint
-  {
-    bool IGH_TypeHint.Cast(object data, out object target)
-    {
-      bool toReturn = base.Cast(data, out target);
-
-      if (toReturn)
-      {
-        var pT = target as Polyline;
-        if (pT != null)
-          target = new PolylineCurve(pT);
-      }
-
-      return toReturn;
-    }
-
-    internal readonly static Guid ID = new Guid("{49B7102D-7818-4128-9A87-D7BB4327CE8B}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Polyline (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialCurveHint : GH_CurveHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{F299C795-53EC-4043-9968-0F0430975F8E}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Curve (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialSurfaceHint : GH_SurfaceHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{8DAA73DA-D575-4D5F-9009-1454FF977E29}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Surface (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialMeshHint : GH_MeshHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{AC7B57DD-5A7C-44BB-8DF4-858D13A058C2}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Mesh (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialBrepHint : GH_BrepHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{8A768290-D9BF-4156-8419-9232DE9D6895}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "Brep (as rhinoscript Guid)";
-      }
-    }
-  }
-
-  class NewSpecialGeometryBaseHint : GH_GeometryBaseHint, IGH_TypeHint
-  {
-    internal readonly static Guid ID = new Guid("{E643B799-27A9-4251-89EC-5332B36366E4}");
-
-    Guid IGH_TypeHint.HintID
-    {
-      get
-      {
-        return ID;
-      }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get
-      {
-        return "GeometryBase (as rhinoscript Guid)";
-      }
-    }
-  }
-
-
   static class PythonHints
   {
 
@@ -460,18 +137,6 @@ namespace GhPython.Component
 
       { NewDynamicHint.ID, new NewDynamicHint() },
       { NewDynamicAsGuidHint.ID, new NewDynamicAsGuidHint() },
-      { NewSpecialPointAsGuidHint.ID, new NewSpecialPointAsGuidHint() },
-      { NewSpecialArcAsGuidHint.ID, new NewSpecialArcAsGuidHint() },
-      { NewSpecialBoxAsGuidHint.ID, new NewSpecialBoxAsGuidHint() },
-      { NewSpecialCircleHint.ID, new NewSpecialCircleHint() },
-      { NewSpecialLineHint.ID, new NewSpecialLineHint() },
-      { NewSpecialPolylineHint.ID, new NewSpecialPolylineHint() },
-
-      { NewSpecialCurveHint.ID, new NewSpecialCurveHint() },
-      { NewSpecialSurfaceHint.ID, new NewSpecialSurfaceHint() },
-      { NewSpecialMeshHint.ID, new NewSpecialMeshHint() },
-      { NewSpecialBrepHint.ID, new NewSpecialBrepHint() },
-      { NewSpecialGeometryBaseHint.ID, new NewSpecialGeometryBaseHint() },
     };
 
     static Dictionary<Type, IGH_TypeHint> _gh_marshallings = new Dictionary<Type, IGH_TypeHint>() {
@@ -493,28 +158,28 @@ namespace GhPython.Component
       { typeof(GH_NullHint), NewDynamicAsGuidHint.ID },
       { typeof(DynamicHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_Point3dHint), NewSpecialPointAsGuidHint.ID },
+      { typeof(GH_Point3dHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_ArcHint), NewSpecialArcAsGuidHint.ID },
-      { typeof(SpecialArcHint), NewSpecialArcAsGuidHint.ID },
+      { typeof(GH_ArcHint), NewDynamicAsGuidHint.ID },
+      { typeof(SpecialArcHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_BoxHint), NewSpecialBoxAsGuidHint.ID },
-      { typeof(SpecialBoxHint), NewSpecialBoxAsGuidHint.ID },
+      { typeof(GH_BoxHint), NewDynamicAsGuidHint.ID },
+      { typeof(SpecialBoxHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_CircleHint), NewSpecialCircleHint.ID },
-      { typeof(SpecialCircleHint), NewSpecialCircleHint.ID },
+      { typeof(GH_CircleHint), NewDynamicAsGuidHint.ID },
+      { typeof(SpecialCircleHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_LineHint), NewSpecialLineHint.ID },
-      { typeof(SpecialLineHint), NewSpecialLineHint.ID },
+      { typeof(GH_LineHint), NewDynamicAsGuidHint.ID },
+      { typeof(SpecialLineHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_PolylineHint), NewSpecialPolylineHint.ID },
-      { typeof(SpecialPolylineHint), NewSpecialPolylineHint.ID },
+      { typeof(GH_PolylineHint), NewDynamicAsGuidHint.ID },
+      { typeof(SpecialPolylineHint), NewDynamicAsGuidHint.ID },
 
-      { typeof(GH_CurveHint), NewSpecialCurveHint.ID },
-      { typeof(GH_SurfaceHint), NewSpecialSurfaceHint.ID },
-      { typeof(GH_MeshHint), NewSpecialMeshHint.ID },
-      { typeof(GH_BrepHint), NewSpecialBrepHint.ID },
-      { typeof(GH_GeometryBaseHint), NewSpecialGeometryBaseHint.ID },
+      { typeof(GH_CurveHint), NewDynamicAsGuidHint.ID },
+      { typeof(GH_SurfaceHint), NewDynamicAsGuidHint.ID },
+      { typeof(GH_MeshHint), NewDynamicAsGuidHint.ID },
+      { typeof(GH_BrepHint), NewDynamicAsGuidHint.ID },
+      { typeof(GH_GeometryBaseHint), NewDynamicAsGuidHint.ID },
     };
 
     static Dictionary<Type, Type> _old_to_common = new Dictionary<Type, Type>() {
