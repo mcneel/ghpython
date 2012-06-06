@@ -4,11 +4,11 @@ import clr
 # 1. This is a sample of the code to create a Line component in Python.
 # David can make this slightly simpler by never using protected nested types.
 
-clr.AddReferenceByPartialName("Grasshopper")
+clr.AddReference("Grasshopper")
 import Grasshopper
 
 import System, Rhino
-clr.AddReferenceByPartialName("RhinoCommon")
+clr.AddReference("RhinoCommon")
 import Rhino.Geometry as rh
 
 class MyLineComponent(Grasshopper.Kernel.GH_Component):

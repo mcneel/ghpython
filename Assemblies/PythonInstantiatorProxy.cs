@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GH_0_9
+
+using System;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -179,3 +181,4 @@ namespace GhPython.Assemblies
 		}
 	}
 }
+#endif

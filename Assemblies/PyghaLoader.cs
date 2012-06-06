@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GH_0_9
+
+using System;
 using GhPython.Forms;
 using Grasshopper.Kernel;
 using Rhino.Runtime;
@@ -279,3 +281,5 @@ namespace GhPython.Assemblies
     }
   }
 }
+
+#endif
