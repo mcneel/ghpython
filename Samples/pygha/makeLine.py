@@ -26,6 +26,7 @@ class MyLineComponent(Grasshopper.Kernel.GH_Component):
         p.Name = name
         p.NickName = nickname
         p.Description = description
+        
     
     def RegisterInputParams(self, pManager):
         p0 = Grasshopper.Kernel.Parameters.Param_Point()

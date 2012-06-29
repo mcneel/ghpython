@@ -772,6 +772,10 @@ namespace GhPython.DocReplacement
 
         #endregion
 
+        public Guid Add(GeometryBase geometry)
+        {
+            return __InternalAdd(geometry as dynamic);
+        }
 
         // let python figure out the right overload to call. The double underscore
         // syntax hides these functions from the autocomplete in the python editor

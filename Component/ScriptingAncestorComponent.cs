@@ -23,7 +23,9 @@ namespace GhPython.Component
         internal StringList _py_output = new StringList();
         protected PythonEnvironment _env;
         bool _inDocStringsMode = false;
-
+        
+        // The component defaults per se to having a code input, but if necessary this can be removed
+        // and the HideCodeInput property can be set to the appropriate value.
         public bool HideCodeInput { get; set; }
 
         string _codeInput;
@@ -193,7 +195,10 @@ namespace GhPython.Component
                     }
 
                     if (string.IsNullOrWhiteSpace(script))
-                        throw new ApplicationException("Empty code parameter");
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No Python code is ");
+                        return;
+                    }
 
                     if (_compiled_py == null ||
                         string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)

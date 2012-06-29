@@ -8,6 +8,11 @@ namespace GhPython.Component
 {
     public class ZuiPythonComponent : ScriptingAncestorComponent, IGH_VariableParameterComponent
     {
+        public ZuiPythonComponent() : base()
+        {
+            Params.Input.RemoveAt(0); //makes this again without code input
+            HideCodeInput = true;
+        }
 
         protected override void AddDefaultInput(GH_Component.GH_InputParamManager pManager)
         {
