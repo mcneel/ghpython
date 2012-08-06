@@ -40,7 +40,7 @@ namespace GhPython.Component
                         _form = new PythonScriptForm(attachedComp);
                     }
                     if (!_form.Visible)
-                        _form.Show(Grasshopper.GH_InstanceServer.DocumentEditor);
+                        _form.Show(Grasshopper.Instances.DocumentEditor);
                 }
             }
         }

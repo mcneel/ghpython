@@ -30,9 +30,9 @@ namespace GhPython.Component
         protected SafeComponent(string name, string abbreviation, string description, string category, string subCategory) :
             base(name, abbreviation, description, category, subCategory)
         {
-            if (GH_InstanceServer.DocumentServer.DocumentCount > 0)
+            if (Instances.DocumentServer.DocumentCount > 0)
             {
-                _doc = GH_InstanceServer.DocumentServer[0];
+                _doc = Instances.DocumentServer[0];
 
                 CheckAndSetupActions();
             }
@@ -66,7 +66,7 @@ namespace GhPython.Component
                 }
 
                 _doc.ObjectsDeleted += GrasshopperObjectsDeleted;
-                GH_InstanceServer.DocumentServer.DocumentRemoved += GrasshopperDocumentClosed;
+                Instances.DocumentServer.DocumentRemoved += GrasshopperDocumentClosed;
                 _doc.SolutionStart += AfterDocumentChanged;
 
                 _initializationDone = true;
@@ -127,8 +127,8 @@ namespace GhPython.Component
             {
                 _doc.ObjectsDeleted -= GrasshopperObjectsDeleted;
 
-                if (GH_InstanceServer.DocumentServer != null)
-                    GH_InstanceServer.DocumentServer.DocumentRemoved -= GrasshopperDocumentClosed;
+                if (Instances.DocumentServer != null)
+                    Instances.DocumentServer.DocumentRemoved -= GrasshopperDocumentClosed;
 
                _doc.SolutionStart -= AfterDocumentChanged;
             }
