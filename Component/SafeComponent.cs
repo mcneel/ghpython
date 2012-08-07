@@ -15,7 +15,7 @@ namespace GhPython.Component
     /// if you need to execute something also when the assembly loads, and the Initialize() method to setup any single component 
     /// when it first lands and executes on the canvas. Remember to call base.Dispose(disposing) if you override Dispose(bool).
     /// </summary>
-    public abstract class SafeComponent : GH_Component, IGH_DocumentObject, IDisposable
+    public abstract class SafeComponent : GH_Component, IDisposable
     {
         GH_Document _doc;
         

@@ -2,17 +2,11 @@
 using System.Reflection;
 using GhPython.Properties;
 using Grasshopper.Kernel;
-using GhPython.Component;
 
 namespace GhPython
 {
   public class PythonPluginInfo : GH_AssemblyInfo
   {
-    public PythonPluginInfo()
-    {
-      //GHComponentsLoader.LoadAllLibraries();
-    }
-
     public override string Description
     {
       get

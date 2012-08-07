@@ -12,15 +12,14 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using System.Collections.Generic;
 using Grasshopper.GUI.HTML;
-using Grasshopper;
 
 namespace GhPython.Forms
 {
   public partial class PythonScriptForm : Form
   {
-    Control _texteditor;
+    readonly Control _texteditor;
     bool _showClosePrompt = true;
-    TextHashMaintainer _hash = new TextHashMaintainer();
+    readonly TextHashMaintainer _hash = new TextHashMaintainer();
 
     /// <summary>
     /// The linked component. This field might be null.
@@ -115,7 +114,7 @@ namespace GhPython.Forms
       // This is here for the same reason as the above: no win message pump.
       if (_handlers == null)
       {
-        _handlers = new Dictionary<Keys, EventHandler>() {
+        _handlers = new Dictionary<Keys, EventHandler> {
                   { Keys.Control | Keys.E, exportAs_Click },
                   { Keys.Control | Keys.I, importFrom_Click },
                   { Keys.F5, applyButton_Click },
@@ -169,7 +168,6 @@ namespace GhPython.Forms
       {
         var codeInput = _component.CodeInputParam;
 
-        string newCode;
         if (codeInput != null)
         {
           if (codeInput.SourceCount != 0)
@@ -187,7 +185,7 @@ namespace GhPython.Forms
                 new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(codeInput));
 
           codeInput.ClearData();
-          newCode = _texteditor.Text;
+          string newCode = _texteditor.Text;
 
           if (!string.IsNullOrEmpty(newCode))
           {
@@ -282,7 +280,7 @@ namespace GhPython.Forms
     {
       if (ex != null)
       {
-        MessageBox.Show("An error occurred in the Python script window.\nPlease send a screenshot of this to steve@mcneel.com.\nThanks.\n\n" + ex.ToString(),
+        MessageBox.Show("An error occurred in the Python script window.\nPlease send a screenshot of this to steve@mcneel.com.\nThanks.\n\n" + ex,
             "Error in Python script window (" + ex.GetType().Name + ")", MessageBoxButtons.OK);
       }
     }
@@ -378,7 +376,7 @@ namespace GhPython.Forms
         if (System.IO.File.Exists(filename))
         {
           var topic = GetCurrentWord();
-          var mode = HelpNavigator.KeywordIndex;
+          const HelpNavigator mode = HelpNavigator.KeywordIndex;
           System.Windows.Forms.Help.ShowHelp(this, filename);
 
           // 2011 Aug 22 Giulio Piacentino

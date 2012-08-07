@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Grasshopper.Kernel;
@@ -52,8 +50,6 @@ sum of all numbers from F to L, included.
       StringBuilder result = new StringBuilder();
       KeywordType type = KeywordType.Description;
 
-      List<KeyValuePair<KeywordType, string>> l = new List<KeyValuePair<KeywordType, string>>();
-
       do //consumes docstring lines and then leaves
       {
         int endSeparator = line.IndexOf(_docStringSeparator);
@@ -62,7 +58,7 @@ sum of all numbers from F to L, included.
         if (IsEmptyLine(line)) {
           if (endSeparator != -1) break;
           continue;
-        };
+        }
         int newIndent = GetIndent(line);
         if (newIndent > firstLevelIndent)
         {
@@ -164,9 +160,9 @@ sum of all numbers from F to L, included.
       }
     }
 
-    private static bool FindAndDescribe(List<IGH_Param> list, string variable, string p)
+    private static void FindAndDescribe(List<IGH_Param> list, string variable, string p)
     {
-      int i = list.FindIndex((match) => match.NickName == variable);
+      int i = list.FindIndex(match => match.NickName == variable);
       if (i != -1)
       {
         var item = list[i];
@@ -175,7 +171,6 @@ sum of all numbers from F to L, included.
           item.Description = p;
         }
       }
-      return false;
     }
 
     enum KeywordType
@@ -243,7 +238,7 @@ sum of all numbers from F to L, included.
     public static string Htmlify(string input)
     {
       string firstRepl = System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n]",
-        (t) =>
+        t =>
         {
           switch (t.Value)
           {
@@ -266,7 +261,7 @@ sum of all numbers from F to L, included.
       return System.Text.RegularExpressions.Regex.Replace
       (firstRepl,
         "(http|https|ftp|sftp|mailto|skype):[A-Za-z0-9!*'\\(\\);:@&=+$,/?#\\[\\]\\-_.~]+",
-        (t) =>
+        t =>
         {
           string shortName = t.Value;
           if (t.Value.StartsWith("http"))

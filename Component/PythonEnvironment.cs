@@ -1,79 +1,55 @@
 ﻿using System;
+using Grasshopper.Kernel;
 using Rhino.Runtime;
 
 namespace GhPython.Component
 {
-    public class PythonEnvironment
+  public class PythonEnvironment
+  {
+    internal PythonEnvironment(Grasshopper.Kernel.GH_Component component, PythonScript script)
     {
-        Grasshopper.Kernel.GH_Component _component;
-        PythonScript _script;
-        object _localscope;
-        object _engine;
-        object _scriptscope;
+      Component = component;
+      Script = script;
 
-        internal PythonEnvironment(Grasshopper.Kernel.GH_Component component, PythonScript script)
+      if (script != null)
+      {
+        Type scriptType = script.GetType();
+
+        var scopeField = scriptType.GetField("m_scope");
+        if (scopeField != null)
         {
-            _component = component;
-            _script = script;
-
-            if (script != null)
-            {
-                Type scriptType = script.GetType();
-
-                var scopeField = scriptType.GetField("m_scope");
-                if (scopeField != null)
-                {
-                    _localscope = scopeField.GetValue(script);
-                }
-
-                var baseType = scriptType.BaseType;
-                if(baseType != null && baseType != typeof(object))
-                {
-                    var hostType = baseType.Assembly.GetType("RhinoPython.Host");
-                    if (hostType != null)
-                    {
-                        var engineInfo = hostType.GetProperty("Engine");
-                        if (engineInfo != null)
-                            _engine = engineInfo.GetValue(null, null);
-
-                        var scopeInfo = hostType.GetProperty("Scope", System.Reflection.BindingFlags.NonPublic |
-                            System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Static);
-                        if (scopeInfo != null)
-                            _scriptscope = scopeInfo.GetValue(null, null);
-                    }
-                }
-            }
-
+          LocalScope = scopeField.GetValue(script);
         }
 
-        public Grasshopper.Kernel.GH_Component Component
+        var baseType = scriptType.BaseType;
+        if (baseType != null && baseType != typeof (object))
         {
-            get { return _component; }
-            internal set { _component = value; }
-        }
+          var hostType = baseType.Assembly.GetType("RhinoPython.Host");
+          if (hostType != null)
+          {
+            var engineInfo = hostType.GetProperty("Engine");
+            if (engineInfo != null)
+              Engine = engineInfo.GetValue(null, null);
 
-        public PythonScript Script
-        {
-            get { return _script; }
-            internal set { _script = value; }
+            var scopeInfo = hostType.GetProperty("Scope", System.Reflection.BindingFlags.NonPublic |
+                                                          System.Reflection.BindingFlags.GetProperty |
+                                                          System.Reflection.BindingFlags.Static);
+            if (scopeInfo != null)
+              ScriptScope = scopeInfo.GetValue(null, null);
+          }
         }
+      }
 
-        public object LocalScope
-        {
-            get { return _localscope; }
-            internal set { _localscope = value; }
-        }
-
-        public object ScriptScope
-        {
-            get { return _scriptscope; }
-            internal set { _scriptscope = value; }
-        }
-
-        public object Engine
-        {
-            get { return _engine; }
-            internal set { _engine = value; }
-        }
     }
+
+    public GH_Component Component { get; internal set; }
+
+    public PythonScript Script { get; internal set; }
+
+    public object LocalScope { get; internal set; }
+
+    public object ScriptScope { get; internal set; }
+
+    public object Engine { get; internal set; }
+  }
 }

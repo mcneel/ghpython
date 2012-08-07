@@ -15,28 +15,28 @@ namespace GhPython.Component
 {
   public abstract class ScriptingAncestorComponent : SafeComponent
   {
-    static internal GrasshopperDocument _document = new GrasshopperDocument();
+    internal static GrasshopperDocument _document = new GrasshopperDocument();
     internal ComponentIOMarshal _marshal;
     protected PythonScript _py;
-    PythonCompiledCode _compiled_py;
+    private PythonCompiledCode _compiled_py;
     protected string _previousRunCode;
     internal StringList _py_output = new StringList();
     protected PythonEnvironment _env;
-    bool _inDocStringsMode = false;
+    private bool _inDocStringsMode;
 
     // The component defaults per se to having a code input, but if necessary this can be removed
     // and the HideCodeInput property can be set to the appropriate value.
     public bool HideCodeInput { get; set; }
 
-    string _codeInput;
+    private string _codeInput;
+
     public string CodeInput
     {
       get
       {
         if (HideCodeInput)
           return _codeInput;
-        else
-          return ScriptingAncestorComponent.ExtractCodeString((Param_String)Params.Input[0]);
+        return ScriptingAncestorComponent.ExtractCodeString((Param_String) Params.Input[0]);
       }
       set
       {
@@ -46,12 +46,13 @@ namespace GhPython.Component
         _compiled_py = null;
       }
     }
+
     public Param_String CodeInputParam
     {
       get
       {
         if (!HideCodeInput)
-          return (Param_String)Params.Input[0];
+          return (Param_String) Params.Input[0];
         return null;
       }
     }
@@ -111,12 +112,12 @@ namespace GhPython.Component
 
     public Param_String ConstructCodeInputParameter()
     {
-      var code = new Param_String()
-      {
-        Name = "code",
-        NickName = "code",
-        Description = "Python script to execute",
-      };
+      var code = new Param_String
+        {
+          Name = "code",
+          NickName = "code",
+          Description = "Python script to execute",
+        };
       return code;
     }
 
@@ -137,12 +138,12 @@ namespace GhPython.Component
 
     private static Param_String ConstructOutOutputParam()
     {
-      var outText = new Param_String()
-      {
-        Name = "out",
-        NickName = "out",
-        Description = "The execution information, as output and error streams",
-      };
+      var outText = new Param_String
+        {
+          Name = "out",
+          NickName = "out",
+          Description = "The execution information, as output and error streams",
+        };
       return outText;
     }
 
@@ -159,7 +160,7 @@ namespace GhPython.Component
       _py_output.Reset();
 
       var rhdoc = RhinoDoc.ActiveDoc;
-      var prevEnabled = (rhdoc == null) ? false : rhdoc.Views.RedrawEnabled;
+      var prevEnabled = (rhdoc != null) && rhdoc.Views.RedrawEnabled;
 
       try
       {
@@ -255,7 +256,7 @@ namespace GhPython.Component
 
     private void SetFormErrorOrClearIt(IGH_DataAccess DA, StringList sl)
     {
-      var attr = (PythonComponentAttributes)Attributes;
+      var attr = (PythonComponentAttributes) Attributes;
 
       if (sl.Result.Count > 0)
       {
@@ -335,31 +336,37 @@ namespace GhPython.Component
 
         {
           var tsi = new ToolStripMenuItem("&Presentation style", null, new ToolStripItem[]
-                    {
-                        new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!HideCodeInput), new TargetGroupToggler()
-                            {
-                                Component = this,
-                                Params = Params.Input,
-                                GetIsShowing = ()=>{return HideCodeInput;},
-                                SetIsShowing = (value)=>{HideCodeInput = value;},
-                                Side = GH_ParameterSide.Input,
-                            }.Toggle)
-                        {
-                             ToolTipText = string.Format("Code input is {0}. Click to {1} it.", HideCodeInput ? "hidden" : "shown", HideCodeInput ? "show" : "hide"),
-                        },
-                        new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!HideCodeOutput), new TargetGroupToggler()
-                            {
-                                Component = this,
-                                Params = Params.Output,
-                                GetIsShowing = ()=>{return HideCodeOutput;},
-                                SetIsShowing = (value)=>{HideCodeOutput = value;},
-                                Side = GH_ParameterSide.Output,
-                            }.Toggle)
-                        {
-                             ToolTipText = string.Format("Print output is {0}. Click to {1} it.", HideCodeOutput ? "hidden" : "shown", HideCodeOutput ? "show" : "hide"),
-                             Height = 32,
-                        }
-                    });
+            {
+              new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!HideCodeInput),
+                                    new TargetGroupToggler
+                                      {
+                                        Component = this,
+                                        Params = Params.Input,
+                                        GetIsShowing = () => HideCodeInput,
+                                        SetIsShowing = value => { HideCodeInput = value; },
+                                        Side = GH_ParameterSide.Input,
+                                      }.Toggle)
+                {
+                  ToolTipText =
+                    string.Format("Code input is {0}. Click to {1} it.", HideCodeInput ? "hidden" : "shown",
+                                  HideCodeInput ? "show" : "hide"),
+                },
+              new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!HideCodeOutput),
+                                    new TargetGroupToggler
+                                      {
+                                        Component = this,
+                                        Params = Params.Output,
+                                        GetIsShowing = () => HideCodeOutput,
+                                        SetIsShowing = value => { HideCodeOutput = value; },
+                                        Side = GH_ParameterSide.Output,
+                                      }.Toggle)
+                {
+                  ToolTipText =
+                    string.Format("Print output is {0}. Click to {1} it.", HideCodeOutput ? "hidden" : "shown",
+                                  HideCodeOutput ? "show" : "hide"),
+                  Height = 32,
+                }
+            });
 
           iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi);
         }
@@ -367,11 +374,11 @@ namespace GhPython.Component
 
         {
           var tsi = new ToolStripMenuItem("&Open editor...", null, (sender, e) =>
-          {
-            var attr = Attributes as PythonComponentAttributes;
-            if (attr != null)
-              attr.OpenEditor();
-          });
+            {
+              var attr = Attributes as PythonComponentAttributes;
+              if (attr != null)
+                attr.OpenEditor();
+            });
           tsi.Font = new Font(tsi.Font, FontStyle.Bold);
 
           if (Locked) tsi.Enabled = false;
@@ -390,13 +397,13 @@ namespace GhPython.Component
       return toReturn;
     }
 
-    class TargetGroupToggler
+    private class TargetGroupToggler
     {
-      public ScriptingAncestorComponent Component { get; set; }
-      public List<IGH_Param> Params { get; set; }
-      public Func<bool> GetIsShowing { get; set; }
-      public Action<bool> SetIsShowing { get; set; }
-      public GH_ParameterSide Side { get; set; }
+      public ScriptingAncestorComponent Component { private get; set; }
+      public List<IGH_Param> Params { private get; set; }
+      public Func<bool> GetIsShowing { private get; set; }
+      public Action<bool> SetIsShowing { private get; set; }
+      public GH_ParameterSide Side { private get; set; }
 
       public void Toggle(object sender, EventArgs e)
       {
@@ -444,9 +451,9 @@ namespace GhPython.Component
       }
     }
 
-    const string HideInputIdentifier = "HideInput";
-    const string CodeInputIdentifier = "CodeInput";
-    const string HideOutputIdentifier = "HideOutput";
+    private const string HideInputIdentifier = "HideInput";
+    private const string CodeInputIdentifier = "CodeInput";
+    private const string HideOutputIdentifier = "HideOutput";
 
     public override bool Write(GH_IO.Serialization.GH_IWriter writer)
     {
@@ -514,12 +521,7 @@ namespace GhPython.Component
       return check ? Resources._checked : Resources._unchecked;
     }
 
-    protected override void OnLockedChanged(bool nowIsLocked)
-    {
-      base.OnLockedChanged(nowIsLocked);
-    }
-
-    void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
+    private void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
     {
       if (_document != null)
         _document.Objects.Clear();
@@ -548,35 +550,30 @@ namespace GhPython.Component
         {
           if (SpecialPythonHelpContent == null)
             return base.HelpDescription;
-          else
-            return base.HelpDescription +
-              "<br><br>\n<small>Remarks: <i>" +
-              DocStringUtils.Htmlify(SpecialPythonHelpContent) +
-              "</i></small>";
+          return base.HelpDescription +
+                 "<br><br>\n<small>Remarks: <i>" +
+                 DocStringUtils.Htmlify(SpecialPythonHelpContent) +
+                 "</i></small>";
         }
-        else
-        {
-          return Resources.helpText;
-        }
+        return Resources.helpText;
       }
     }
 
     protected override string HtmlHelp_Source()
     {
-      var b = base.HtmlHelp_Source() ?? string.Empty;
       return base.HtmlHelp_Source().Replace("\nPython Script", "\n" + NickName);
     }
 
-    protected static IGH_TypeHint[] PossibleHints = 
-        { 
-            new GH_HintSeparator(),
-            new GH_BooleanHint_CS(),new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
-            new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(),
-            new GH_HintSeparator(),
-            new GH_Point3dHint(),
-            new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
-            new GH_UVIntervalHint()
-        };
+    protected static IGH_TypeHint[] PossibleHints =
+      {
+        new GH_HintSeparator(),
+        new GH_BooleanHint_CS(), new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
+        new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(),
+        new GH_HintSeparator(),
+        new GH_Point3dHint(),
+        new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
+        new GH_UVIntervalHint()
+      };
 
     internal abstract void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true);
 

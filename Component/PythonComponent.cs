@@ -284,7 +284,7 @@ namespace GhPython.Component
             i.TypeHint = i.Hints[0];
         }
 
-        static IGH_TypeHint[] AlreadyGeometryBaseHints = 
+        static readonly IGH_TypeHint[] AlreadyGeometryBaseHints = 
         { 
             new GH_CurveHint(),
             new GH_SurfaceHint(), new GH_BrepHint(), new GH_MeshHint(),

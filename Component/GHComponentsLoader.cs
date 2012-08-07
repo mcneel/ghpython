@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,8 @@ using System.Collections.ObjectModel;
 
 namespace GhPython.Component
 {
-    /* Giulio Piacentino, 2011-9-19
-     * This is experimental code to load Grasshopper "gha"s that needs to be reviewed
-     * 
+    // Giulio Piacentino, 2011-9-19
+    // This is experimental code to load Grasshopper "gha"s that needs to be reviewed
     class GHComponentsLoader
     {
         internal static void LoadAllLibraries()
@@ -88,5 +88,5 @@ namespace GhPython
             }
         }
     }
-    */
 }
+*/

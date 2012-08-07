@@ -13,7 +13,7 @@ namespace GhPython.DocReplacement
 {
   public class GrasshopperDocument
   {
-    CustomTable _table = new CustomTable();
+    readonly CustomTable _table = new CustomTable();
 
     public RhinoList<Guid> CommitIntoRhinoDocument()
     {
@@ -24,10 +24,9 @@ namespace GhPython.DocReplacement
         var geom = content.Geometry;
         var attr = content.Attributes;
 
-        Guid guid = Guid.Empty;
-
         if (geom is IGH_BakeAwareData)
         {
+          Guid guid;
           (geom as IGH_BakeAwareData).BakeGeometry(RhinoDoc.ActiveDoc, attr, out guid);
           if (!guid.Equals(Guid.Empty))
             newGuids.Add(guid);
@@ -55,7 +54,7 @@ namespace GhPython.DocReplacement
       {
         if (guids == null)
           throw new ArgumentNullException("guids",
-              "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent_OBSOLETE.DOCUMENT_NAME);
+              "Cannot obtain a null item or subset from " + GhPython.Component.ScriptingAncestorComponent.DOCUMENT_NAME);
 
         return SubSet(guids);
       }
@@ -65,7 +64,7 @@ namespace GhPython.DocReplacement
     {
       if (guids == null)
         throw new ArgumentNullException("guids",
-            "Cannot obtain a null item or subset from " + GhPython.Component.PythonComponent_OBSOLETE.DOCUMENT_NAME);
+            "Cannot obtain a null item or subset from " + GhPython.Component.ScriptingAncestorComponent.DOCUMENT_NAME);
 
       foreach (var obj in guids)
       {
@@ -387,7 +386,8 @@ namespace GhPython.DocReplacement
           throw CustomTable.NotSupportedExceptionHelp();
       }
     }
-    GhViewTable _views = new GhViewTable(() => RhinoDoc.ActiveDoc.Views, false);
+
+    readonly GhViewTable _views = new GhViewTable(() => RhinoDoc.ActiveDoc.Views, false);
     public GhViewTable Views
     {
       get
@@ -399,8 +399,8 @@ namespace GhPython.DocReplacement
 
   public class GhViewTable : IEnumerable<RhinoView>
   {
-    Func<ViewTable> _tableFunc;
-    bool _redraws;
+    readonly Func<ViewTable> _tableFunc;
+    readonly bool _redraws;
 
     public GhViewTable(Func<ViewTable> tableFunc, bool redraws)
     {

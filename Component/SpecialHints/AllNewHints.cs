@@ -130,7 +130,7 @@ namespace GhPython.Component
   {
 
 
-    static Dictionary<Guid, IGH_TypeHint> _new_marshallings = new Dictionary<Guid, IGH_TypeHint>() {
+    static readonly Dictionary<Guid, IGH_TypeHint> _new_marshallings = new Dictionary<Guid, IGH_TypeHint> {
       { NewFloatHint.ID, new NewFloatHint() },
       { NewStrHint.ID, new NewStrHint() },
 
@@ -139,7 +139,7 @@ namespace GhPython.Component
       { NewDynamicAsGuidHint.ID, new NewDynamicAsGuidHint() },
     };
 
-    static Dictionary<Type, IGH_TypeHint> _gh_marshallings = new Dictionary<Type, IGH_TypeHint>() {
+    static readonly Dictionary<Type, IGH_TypeHint> _gh_marshallings = new Dictionary<Type, IGH_TypeHint> {
       { typeof(GH_BoxHint), new GH_BoxHint() },
       { typeof(GH_LineHint), new GH_LineHint() },
       { typeof(GH_CircleHint), new GH_CircleHint() },
@@ -152,7 +152,7 @@ namespace GhPython.Component
       { typeof(GH_GeometryBaseHint), new GH_GeometryBaseHint() },
     };
 
-    static Dictionary<Type, Guid> _old_to_rs = new Dictionary<Type, Guid>() {
+    static readonly Dictionary<Type, Guid> _old_to_rs = new Dictionary<Type, Guid> {
       { typeof(GH_DoubleHint_CS), NewFloatHint.ID },
 
       { typeof(GH_NullHint), NewDynamicAsGuidHint.ID },
@@ -182,7 +182,7 @@ namespace GhPython.Component
       { typeof(GH_GeometryBaseHint), NewDynamicAsGuidHint.ID },
     };
 
-    static Dictionary<Type, Type> _old_to_common = new Dictionary<Type, Type>() {
+    static readonly Dictionary<Type, Type> _old_to_common = new Dictionary<Type, Type> {
       { typeof(GH_DoubleHint_CS), typeof(NewFloatHint) },
 
       { typeof(GH_NullHint), typeof(NewDynamicHint) },
@@ -216,10 +216,7 @@ namespace GhPython.Component
         newHint = _new_marshallings[_old_to_rs[probeType]];
         return true;
       }
-      else
-      {
-        return false;
-      }
+      return false;
     }
 
     internal static bool ToNewRhinoCommonHint(IGH_TypeHint probe, out IGH_TypeHint newHint)

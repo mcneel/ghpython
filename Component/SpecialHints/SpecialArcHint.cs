@@ -7,7 +7,7 @@ namespace GhPython.Component
 {
   class SpecialArcHint : GH_ArcHint, IGH_TypeHint
   {
-    PythonComponent_OBSOLETE _component;
+    readonly PythonComponent_OBSOLETE _component;
 
     public SpecialArcHint(PythonComponent_OBSOLETE component)
     {
