@@ -249,7 +249,7 @@ namespace GhPython.Component
 
           if (string.IsNullOrWhiteSpace(script))
           {
-            AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No Python code is ");
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No script to execute");
             return;
           }
 
