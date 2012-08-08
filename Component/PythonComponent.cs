@@ -272,7 +272,7 @@ namespace GhPython.Component
                 new SpecialLineHint(this),
                 new SpecialCircleHint(this),
                 new SpecialArcHint(this),
-                new SpecialPolylineHint(this),
+                new SpecialPolylineHint(this)
             });
       i.Hints.AddRange(AlreadyGeometryBaseHints);
 

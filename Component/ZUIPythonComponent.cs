@@ -1,4 +1,5 @@
-﻿using Grasshopper.Kernel;
+﻿using System.Linq;
+using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Parameters.Hints;
 using System;
@@ -35,50 +36,53 @@ namespace GhPython.Component
       i.AllowTreeAccess = true;
       i.Optional = true;
       i.ShowHints = true;
-
-      i.Hints = new List<IGH_TypeHint>();
-
-      i.Hints.Add(PythonHints.NewMarshalling[NewDynamicHint.ID]);
-
-      i.Hints.Add(PythonHints.NewMarshalling[NewDynamicAsGuidHint.ID]);
-      i.Hints.AddRange(PossibleHints);
-
-      i.Hints.RemoveAll(t =>
-        {
-          var y = t.GetType();
-          return (y == typeof (GH_DoubleHint_CS) || y == typeof (GH_StringHint_CS));
-        });
-      i.Hints.Insert(4, PythonHints.NewMarshalling[NewFloatHint.ID]);
-      i.Hints.Insert(6, PythonHints.NewMarshalling[NewStrHint.ID]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_BoxHint)]);
-
-      i.Hints.Add(new GH_HintSeparator());
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_LineHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_CircleHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_ArcHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_PolylineHint)]);
-
-      i.Hints.Add(new GH_HintSeparator());
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_CurveHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_MeshHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_SurfaceHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_BrepHint)]);
-
-      i.Hints.Add(PythonHints.GhMarshalling[typeof (GH_GeometryBaseHint)]);
+      i.Hints = GetHints();
 
       if (alsoSetIfNecessary && i.TypeHint == null)
         i.TypeHint = i.Hints[1];
     }
 
+    static readonly List<IGH_TypeHint> m_hints = new List<IGH_TypeHint>();
+    static List<IGH_TypeHint> GetHints()
+    {
+      lock (m_hints)
+      {
+        if (m_hints.Count == 0)
+        {
+          m_hints.Add(new NoChangeHint());
+          m_hints.Add(new GhDocGuidHint());
+
+          m_hints.AddRange(PossibleHints);
+
+          m_hints.RemoveAll(t =>
+            {
+              var y = t.GetType();
+              return (y == typeof (GH_DoubleHint_CS) || y == typeof (GH_StringHint_CS));
+            });
+          m_hints.Insert(4, new NewFloatHint());
+          m_hints.Insert(6, new NewStrHint());
+
+          m_hints.Add(new GH_BoxHint());
+
+          m_hints.Add(new GH_HintSeparator());
+
+          m_hints.Add(new GH_LineHint());
+          m_hints.Add(new GH_CircleHint());
+          m_hints.Add(new GH_ArcHint());
+          m_hints.Add(new GH_PolylineHint());
+
+          m_hints.Add(new GH_HintSeparator());
+
+          m_hints.Add(new GH_CurveHint());
+          m_hints.Add(new GH_MeshHint());
+          m_hints.Add(new GH_SurfaceHint());
+          m_hints.Add(new GH_BrepHint());
+          m_hints.Add(new GH_GeometryBaseHint());
+        }
+      }
+      return m_hints;
+    }
+    
     #region Members of IGH_VariableParameterComponent
 
     public IGH_Param CreateParameter(GH_ParameterSide side, int index)
@@ -119,7 +123,7 @@ namespace GhPython.Component
     {
       if (side == GH_ParameterSide.Input)
         return index > (!CodeInputVisible ? -1 : 0);
-      else if (side == GH_ParameterSide.Output)
+      if (side == GH_ParameterSide.Output)
         return index > (HideCodeOutput ? -1 : 0);
       return false;
     }
@@ -131,20 +135,14 @@ namespace GhPython.Component
 
     public override void VariableParameterMaintenance()
     {
-      foreach (var i in Params.Input)
-      {
-        if (i is Param_ScriptVariable)
-          FixGhInput(i as Param_ScriptVariable);
-      }
-      foreach (var i in Params.Output)
-      {
-        if (i is Param_GenericObject)
-        {
-          i.Name = i.NickName;
+      foreach (Param_ScriptVariable variable in Params.Input.OfType<Param_ScriptVariable>())
+        FixGhInput(variable);
 
-          if (string.IsNullOrEmpty(i.Description))
-            i.Description = i.NickName;
-        }
+      foreach (Param_GenericObject i in Params.Output.OfType<Param_GenericObject>())
+      {
+        i.Name = i.NickName;
+        if (string.IsNullOrEmpty(i.Description))
+          i.Description = i.NickName;
       }
     }
 

@@ -2,26 +2,32 @@
 using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Parameters.Hints;
 using Rhino.Geometry;
+using System.Runtime.InteropServices;
 
 namespace GhPython.Component
 {
-  internal class DynamicHint : GH_NullHint, IGH_TypeHint
+  [Guid("C1C11093-4F61-4E99-90C7-113C6421CC73")]
+  class DynamicHint : GH_NullHint, IGH_TypeHint
   {
-    private readonly PythonComponent_OBSOLETE _component;
+    private readonly PythonComponent_OBSOLETE m_component;
 
     public DynamicHint(PythonComponent_OBSOLETE component)
     {
       if (component == null)
         throw new ArgumentNullException("component");
 
-      _component = component;
+      m_component = component;
     }
+
+    Guid IGH_TypeHint.HintID { get { return GetType().GUID; } }
+
+    string IGH_TypeHint.TypeName { get { return "dynamic"; } }
 
     bool IGH_TypeHint.Cast(object data, out object target)
     {
       bool toReturn = base.Cast(data, out target);
 
-      if (_component.DocStorageMode == DocReplacement.DocStorage.AutomaticMarshal && target != null)
+      if (m_component.DocStorageMode == DocReplacement.DocStorage.AutomaticMarshal && target != null)
       {
         Type t = target.GetType();
 
@@ -51,16 +57,6 @@ namespace GhPython.Component
       }
 
       return toReturn;
-    }
-
-    Guid IGH_TypeHint.HintID
-    {
-      get { return new Guid("{C1C11093-4F61-4E99-90C7-113C6421CC73}"); }
-    }
-
-    string IGH_TypeHint.TypeName
-    {
-      get { return "dynamic"; }
     }
   }
 }

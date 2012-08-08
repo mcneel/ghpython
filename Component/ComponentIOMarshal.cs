@@ -36,7 +36,7 @@ namespace GhPython.Component
     public override object GetInput(IGH_DataAccess DA, int i)
     {
       var input = (Param_ScriptVariable) _component.Params.Input[i];
-      bool addIntoGhDoc = PythonHints.ShouldAddToGhDoc(input.TypeHint);
+      bool addIntoGhDoc = input.TypeHint is GhDocGuidHint;
 
       object o;
       switch (input.Access)
@@ -190,6 +190,15 @@ namespace GhPython.Component
         {
         }
         DA.SetDataTree(index, o as IGH_DataTree);
+      }
+      else if (o is System.Numerics.Complex)
+      {
+        // 8 August 2012 (S. Baer) - https://github.com/mcneel/ghpython/issues/17
+        // Grasshopper doesn't internally support System.Numerics.Complex right now
+        // and uses a built-in complex data structure.  Convert to GH complex when
+        // we run into System.Numeric.Complex
+        System.Numerics.Complex cplx = (System.Numerics.Complex)o;
+        DA.SetData(index, new Complex(cplx.Real, cplx.Imaginary));
       }
       else
       {

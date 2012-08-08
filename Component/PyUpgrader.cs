@@ -41,17 +41,16 @@ namespace GhPython.Component
           {
             var sc = c as Param_ScriptVariable;
             if (sc == null) continue;
-            IGH_TypeHint newHint;
 
             if (toRhinoScript)
             {
+              IGH_TypeHint newHint;
               if (PythonHints.ToNewRhinoscriptHint(sc.TypeHint, out newHint))
                 sc.TypeHint = newHint;
             }
             else
             {
-              if (PythonHints.ToNewRhinoCommonHint(sc.TypeHint, out newHint))
-                sc.TypeHint = newHint;
+              PythonHints.ToNewRhinoCommonHint(sc);
             }
           }
         }
