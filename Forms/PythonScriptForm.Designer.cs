@@ -38,8 +38,8 @@
       this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.rhinoscriptsyntaxHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.ghPythonGrasshopperHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.rhinoscriptsyntaxHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       this.rhinoscriptsyntaxBasicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.rhinoCommonBasicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -149,6 +149,13 @@
       this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.helpToolStripMenuItem.Text = "&Help";
       // 
+      // ghPythonGrasshopperHelpToolStripMenuItem
+      // 
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Name = "ghPythonGrasshopperHelpToolStripMenuItem";
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Text = "GhPython Component Help";
+      this.ghPythonGrasshopperHelpToolStripMenuItem.Click += new System.EventHandler(this.ghPythonGrasshopperHelpToolStripMenuItem_Click);
+      // 
       // rhinoscriptsyntaxHelpToolStripMenuItem
       // 
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Name = "rhinoscriptsyntaxHelpToolStripMenuItem";
@@ -156,13 +163,6 @@
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Text = "&Help for rhinoscriptsyntax";
       this.rhinoscriptsyntaxHelpToolStripMenuItem.Click += new System.EventHandler(this.rhinoscriptsyntaxHelp);
-      // 
-      // ghPythonGrasshopperHelpToolStripMenuItem
-      // 
-      this.ghPythonGrasshopperHelpToolStripMenuItem.Name = "ghPythonGrasshopperHelpToolStripMenuItem";
-      this.ghPythonGrasshopperHelpToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-      this.ghPythonGrasshopperHelpToolStripMenuItem.Text = "GhPython Component Help";
-      this.ghPythonGrasshopperHelpToolStripMenuItem.Click += new System.EventHandler(this.ghPythonGrasshopperHelpToolStripMenuItem_Click);
       // 
       // toolStripMenuItem1
       // 
@@ -232,7 +232,7 @@
       // mainStatusText
       // 
       this.mainStatusText.Name = "mainStatusText";
-      this.mainStatusText.Size = new System.Drawing.Size(481, 17);
+      this.mainStatusText.Size = new System.Drawing.Size(450, 17);
       this.mainStatusText.Spring = true;
       this.mainStatusText.Text = "...";
       this.mainStatusText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -328,6 +328,7 @@
       this.Controls.Add(this.panel1);
       this.Controls.Add(this.statusStrip);
       this.Controls.Add(this.menuStrip);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.KeyPreview = true;
       this.MainMenuStrip = this.menuStrip;

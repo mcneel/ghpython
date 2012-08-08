@@ -1,14 +1,13 @@
-﻿"""
-Constructs a recursive Koch curve.
+﻿"""Constructs a recursive Koch curve.
     Inputs:
         x: The original line. (Line)
         y: The the number of subdivisions. (int)
     Outputs:
         a: The Koch curve, as a list of lines.
 """
-
 import Rhino.Geometry as rg
 import math
+
 
 def Main():
     global a # as usual, you can assign to the global scope with the "global" keyword

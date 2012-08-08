@@ -1,12 +1,12 @@
 ﻿# sample script to show how to use this component and the rhinoscriptsyntax
-'''Constructs a sinusoidal series of circles.
-    Inputs:
-        x: The number of circles. (integer)
-        y: The radius of each circle. (float)
-    Outputs:
-        a: The list of circles. (list of circle)
-        b: The list of radii. (list of float)
-'''
+"""Constructs a sinusoidal series of circles.
+  Inputs:
+    x: The number of circles. (integer)
+    y: The radius of each circle. (float)
+  Outputs:
+    a: The list of circles. (list of circle)
+    b: The list of radii. (list of float)
+"""
 import math
 import rhinoscriptsyntax as rs
 

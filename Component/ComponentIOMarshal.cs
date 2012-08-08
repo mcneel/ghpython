@@ -11,13 +11,13 @@ using Rhino.Geometry;
 
 namespace GhPython.Component
 {
-  internal abstract class ComponentIOMarshal
+  abstract class ComponentIOMarshal
   {
     public abstract object GetInput(IGH_DataAccess DA, int i);
     public abstract void SetOutput(object o, IGH_DataAccess DA, int index);
   }
 
-  internal sealed class NewComponentIOMarshal : ComponentIOMarshal
+  sealed class NewComponentIOMarshal : ComponentIOMarshal
   {
     private readonly ZuiPythonComponent _component;
 
@@ -236,7 +236,7 @@ namespace GhPython.Component
   }
 
 
-  internal sealed class OldComponentIOMarshal : ComponentIOMarshal
+  sealed class OldComponentIOMarshal : ComponentIOMarshal
   {
     private readonly dynamic _document; //GrasshopperDocument-like object
     private readonly dynamic _objectTable; //CustomTable-like object

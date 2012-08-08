@@ -3,7 +3,10 @@ using System.Text;
 
 namespace GhPython.Component
 {
-  internal class StringList
+  /// <summary>
+  /// Used to capture the output stream from an executing python script
+  /// </summary>
+  class StringList
   {
     private readonly List<string> _txts = new List<string>();
 
@@ -22,7 +25,7 @@ namespace GhPython.Component
       get { return new System.Collections.ObjectModel.ReadOnlyCollection<string>(_txts); }
     }
 
-    public string GetResultAsOne()
+    public override string ToString()
     {
       var sb = new StringBuilder();
       foreach (string s in _txts)

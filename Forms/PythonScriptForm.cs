@@ -170,13 +170,11 @@ namespace GhPython.Forms
 
         if (codeInput != null)
         {
-          if (codeInput.SourceCount != 0)
+          if( _component.CodeInputIsLinked() )
           {
-            if (MessageBox.Show("There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.",
-                "Rhino.Python", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-            {
+            const string msg ="There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.";
+            if (MessageBox.Show(msg, "Rhino.Python", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
               return;
-            }
           }
 
           GH_Document ghd = _component.OnPingDocument();
@@ -184,7 +182,7 @@ namespace GhPython.Forms
             ghd.UndoServer.PushUndoRecord("Python code changed",
                 new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(codeInput));
 
-          codeInput.ClearData();
+          codeInput.PersistentData.Clear();
           string newCode = _texteditor.Text;
 
           if (!string.IsNullOrEmpty(newCode))

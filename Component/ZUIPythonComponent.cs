@@ -3,15 +3,16 @@ using Grasshopper.Kernel.Parameters;
 using Grasshopper.Kernel.Parameters.Hints;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace GhPython.Component
 {
+  [Guid("410755B1-224A-4C1E-A407-BF32FB45EA7E")]
   public class ZuiPythonComponent : ScriptingAncestorComponent, IGH_VariableParameterComponent
   {
     public ZuiPythonComponent()
     {
-      Params.Input.RemoveAt(0); //makes this again without code input
-      HideCodeInput = true;
+      CodeInputVisible = false;
     }
 
     protected override void AddDefaultInput(GH_Component.GH_InputParamManager pManager)
@@ -117,7 +118,7 @@ namespace GhPython.Component
     bool IGH_VariableParameterComponent.CanInsertParameter(GH_ParameterSide side, int index)
     {
       if (side == GH_ParameterSide.Input)
-        return index > (HideCodeInput ? -1 : 0);
+        return index > (!CodeInputVisible ? -1 : 0);
       else if (side == GH_ParameterSide.Output)
         return index > (HideCodeOutput ? -1 : 0);
       return false;
@@ -157,11 +158,9 @@ namespace GhPython.Component
       _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
     }
 
-    internal const string Id = "{410755B1-224A-4C1E-A407-BF32FB45EA7E}";
-
     public override Guid ComponentGuid
     {
-      get { return new Guid(Id); }
+      get { return typeof(ZuiPythonComponent).GUID; }
     }
 
     #endregion
