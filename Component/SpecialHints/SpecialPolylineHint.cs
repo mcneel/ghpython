@@ -5,7 +5,7 @@ using Rhino.Geometry;
 
 namespace GhPython.Component
 {
-  internal class SpecialPolylineHint : GH_PolylineHint, IGH_TypeHint
+  class SpecialPolylineHint : GH_PolylineHint, IGH_TypeHint
   {
     private readonly PythonComponent_OBSOLETE _component;
 

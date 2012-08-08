@@ -5,7 +5,7 @@ using Rhino.Geometry;
 
 namespace GhPython.Component
 {
-  internal class SpecialLineHint : GH_LineHint, IGH_TypeHint
+  class SpecialLineHint : GH_LineHint, IGH_TypeHint
   {
     private readonly PythonComponent_OBSOLETE _component;
 

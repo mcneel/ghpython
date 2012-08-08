@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace GhPython.Component
 {
   [Guid("39FBC626-7A01-46AB-A18E-EC1C0C41685B")]
-  class NewFloatHint : GH_DoubleHint_CS, IGH_TypeHint
+  public class NewFloatHint : GH_DoubleHint_CS, IGH_TypeHint
   {
     Guid IGH_TypeHint.HintID { get { return this.GetType().GUID; } }
 
@@ -16,7 +16,7 @@ namespace GhPython.Component
   }
 
   [Guid("37261734-EEC7-4F50-B6A8-B8D1F3C4396B")]
-  class NewStrHint : GH_StringHint_CS, IGH_TypeHint
+  public class NewStrHint : GH_StringHint_CS, IGH_TypeHint
   {
     Guid IGH_TypeHint.HintID { get { return this.GetType().GUID; } }
 
@@ -24,7 +24,7 @@ namespace GhPython.Component
   }
 
   [Guid("87F87F55-5B71-41F4-8AEA-21D494016F81")]
-  class GhDocGuidHint : GH_NullHint, IGH_TypeHint
+  public class GhDocGuidHint : GH_NullHint, IGH_TypeHint
   {
     Guid IGH_TypeHint.HintID { get { return this.GetType().GUID; } }
     bool IGH_TypeHint.Cast(object data, out object target)
@@ -67,7 +67,7 @@ namespace GhPython.Component
   }
 
   [Guid("35915213-5534-4277-81B8-1BDC9E7383D2")]
-  class NoChangeHint : GH_NullHint, IGH_TypeHint
+  public class NoChangeHint : GH_NullHint, IGH_TypeHint
   {
     Guid IGH_TypeHint.HintID { get { return this.GetType().GUID; } }
 

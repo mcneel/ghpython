@@ -5,7 +5,7 @@ using Rhino.Geometry;
 
 namespace GhPython.Component
 {
-  internal class SpecialBoxHint : GH_BoxHint, IGH_TypeHint
+  class SpecialBoxHint : GH_BoxHint, IGH_TypeHint
   {
     private readonly PythonComponent_OBSOLETE _component;
 

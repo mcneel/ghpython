@@ -5,7 +5,7 @@ using Rhino.Geometry;
 
 namespace GhPython.Component
 {
-  internal class SpecialCircleHint : GH_CircleHint, IGH_TypeHint
+  class SpecialCircleHint : GH_CircleHint, IGH_TypeHint
   {
     private readonly PythonComponent_OBSOLETE _component;
 
