@@ -12,6 +12,12 @@ namespace GhPython.Component
 
     public void Write(string s)
     {
+      if (s == null) s = string.Empty;
+
+      // print() seems to always adds a \n char at the end of the string
+      // we want to counteract that
+      if (s.EndsWith("\n")) s = s.Remove(s.Length - 1);
+
       _txts.Add(s);
     }
 
@@ -27,9 +33,14 @@ namespace GhPython.Component
 
     public override string ToString()
     {
-      var sb = new StringBuilder();
-      foreach (string s in _txts)
-        sb.AppendLine(s);
+      if (_txts.Count == 0) return string.Empty;
+
+      var sb = new StringBuilder(_txts[0]);
+      for (int i = 1; i < _txts.Count; i++)
+      {
+        sb.AppendLine().Append(_txts[i]);
+      }
+
       return sb.ToString();
     }
   }

@@ -69,6 +69,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL" />
     <Reference Include="RhinoCommon">
       <HintPath>references\RhinoCommon.dll</HintPath>
       <Private>False</Private>
@@ -110,11 +111,6 @@
     </Compile>
     <Compile Include="Forms\PythonScriptForm.Designer.cs">
       <DependentUpon>PythonScriptForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="PythonPluginInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -167,10 +163,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -182,7 +174,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>move /Y "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
-REM copy "$(TargetPath)" "C:\Users\Giulio\AppData\Roaming\Grasshopper\Libraries\$(ProjectName).gha"</PostBuildEvent>
+    <PostBuildEvent>REM copy "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
+copy "$(TargetPath)" "%25appdata%25\Grasshopper\Libraries\$(ProjectName).gha"</PostBuildEvent>
   </PropertyGroup>
 </Project>

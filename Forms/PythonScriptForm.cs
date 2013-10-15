@@ -45,7 +45,7 @@ namespace GhPython.Forms
         this.splitContainer.Panel1.Controls.Add(_texteditor);
         _texteditor.Dock = DockStyle.Fill;
 
-        _texteditor.Text = _component.CodeInput;
+        _texteditor.Text = _component.Code;
 
         _hash.HashText(_texteditor.Text);
       }
@@ -66,11 +66,11 @@ namespace GhPython.Forms
     {
       try
       {
-        if (IsOnScreen(Settings.Default.EditorLocation))
-          Location = Settings.Default.EditorLocation;
+        if (_component.DefaultEditorLocation != null && IsOnScreen(_component.DefaultEditorLocation.Value))
+          Location = _component.DefaultEditorLocation.Value;
 
-        if (Settings.Default.EditorSize != Size.Empty)
-          Size = Settings.Default.EditorSize;
+        if (_component.DefaultEditorSize != Size.Empty)
+          Size = _component.DefaultEditorSize;
       }
       catch (Exception ex)
       {
@@ -82,9 +82,11 @@ namespace GhPython.Forms
     {
       try
       {
-        Settings.Default.EditorLocation = Location;
-        Settings.Default.EditorSize = (WindowState == FormWindowState.Normal) ? Size : RestoreBounds.Size;
-        Settings.Default.Save();
+        if (_component != null)
+        {
+          _component.DefaultEditorLocation = Location;
+          _component.DefaultEditorSize = (WindowState == FormWindowState.Normal) ? Size : RestoreBounds.Size;
+        }
       }
       catch (Exception ex)
       {
@@ -170,7 +172,7 @@ namespace GhPython.Forms
 
         if (codeInput != null)
         {
-          if( _component.CodeInputIsLinked() )
+          if( _component.IsCodeInputLinked() )
           {
             const string msg ="There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.";
             if (MessageBox.Show(msg, "Rhino.Python", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
@@ -198,7 +200,7 @@ namespace GhPython.Forms
             ghd.UndoServer.PushUndoRecord("Python code changed",
                 new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(_component));
 
-          _component.CodeInput = _texteditor.Text;
+          _component.Code = _texteditor.Text;
           _hash.HashText(_texteditor.Text);
         }
 
@@ -278,7 +280,7 @@ namespace GhPython.Forms
     {
       if (ex != null)
       {
-        MessageBox.Show("An error occurred in the Python script window.\nPlease send a screenshot of this to steve@mcneel.com.\nThanks.\n\n" + ex,
+        MessageBox.Show("An error occurred in the Python script window.\nPlease send a screenshot of this to giulio@mcneel.com.\nThanks.\n\n" + ex,
             "Error in Python script window (" + ex.GetType().Name + ")", MessageBoxButtons.OK);
       }
     }

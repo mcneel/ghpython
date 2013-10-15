@@ -5,8 +5,6 @@ using Grasshopper.Kernel;
 
 namespace GhPython
 {
-  // Supposedly used to show extra information in Grasshopper about
-  // this component, but I can't find where this data shows up.
   public class PythonPluginInfo : GH_AssemblyInfo
   {
     public override string Description
@@ -36,7 +34,7 @@ namespace GhPython
 
     public override string AuthorContact
     {
-      get { return "steve@mcneel.com"; }
+      get { return "giulio@mcneel.com"; }
     }
 
     public override GH_LibraryLicense License

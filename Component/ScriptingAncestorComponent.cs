@@ -16,8 +16,7 @@ namespace GhPython.Component
   public abstract class ScriptingAncestorComponent : SafeComponent
   {
     // python output stream is piped to m_py_output
-    readonly StringList m_py_output = new StringList();
-
+    private readonly StringList m_py_output = new StringList();
 
     internal static GrasshopperDocument _document = new GrasshopperDocument();
     internal ComponentIOMarshal _marshal;
@@ -26,101 +25,23 @@ namespace GhPython.Component
     protected string _previousRunCode;
     protected PythonEnvironment _env;
     private bool _inDocStringsMode;
-    private string _codeInput;
+    protected string _inner_codeInput = string.Empty;
 
     internal const string DOCUMENT_NAME = "ghdoc";
-    const string PARENT_ENVIRONMENT_NAME = "ghenv";
-    const string DESCRIPTION = "A python scriptable component";
+    private const string PARENT_ENVIRONMENT_NAME = "ghenv";
 
+    #region Setup
+
+    const string DESCRIPTION = "A python scriptable component";
 
     protected ScriptingAncestorComponent()
       : base("Python Script", "Python", DESCRIPTION, "Math", "Script")
     {
     }
 
-    /// <summary>
-    /// Show/Hide the "Code" input no this component.  This is not something that
-    /// users typically need to work with so it defaults to off and is only useful
-    /// when users are dynamically generating scripts through some other component
-    /// </summary>
-    public bool CodeInputVisible
+    public override void AddRuntimeMessage(GH_RuntimeMessageLevel level, string text)
     {
-      get
-      {
-        if (Params.Input.Count < 1)
-          return false;
-        var param = Params.Input[0] as Grasshopper.Kernel.Parameters.Param_String;
-        return (param != null && String.Compare(param.Name, "code", StringComparison.InvariantCultureIgnoreCase) == 0);
-      }
-      set
-      {
-        if (value != CodeInputVisible)
-        {
-          if (value)
-          {
-            var param = ConstructCodeInputParameter();
-            Params.RegisterInputParam(param, 0);
-            param.SetPersistentData(new GH_String(CodeInput));
-          }
-          else
-          {
-            Params.UnregisterParameter(Params.Input[0]);
-          }
-          Params.OnParametersChanged();
-          OnDisplayExpired(true);
-          if(value) 
-            ExpireSolution(true);
-        }
-      }
-    }
-    
-
-
-    public string CodeInput
-    {
-      get
-      {
-        if (!CodeInputVisible)
-          return _codeInput;
-        return ScriptingAncestorComponent.ExtractCodeString((Param_String) Params.Input[0]);
-      }
-      set
-      {
-        if (CodeInputVisible)
-          throw new InvalidOperationException("Cannot assign to CodeInput while parameter exists");
-        _codeInput = value;
-        _compiled_py = null;
-      }
-    }
-
-    /// <summary>
-    /// Returns true if the "Code" input parameter is visible AND wired up to
-    /// another component
-    /// </summary>
-    /// <returns></returns>
-    public bool CodeInputIsLinked()
-    {
-      if (!CodeInputVisible)
-        return false;
-      var param = Params.Input[0];
-      return param.SourceCount > 0;
-    }
-
-    public Param_String CodeInputParam
-    {
-      get
-      {
-        if (CodeInputVisible)
-          return (Param_String) Params.Input[0];
-        return null;
-      }
-    }
-
-    public bool HideCodeOutput { get; set; }
-
-    public override void CreateAttributes()
-    {
-      this.Attributes = new PythonComponentAttributes(this);
+      base.AddRuntimeMessage(level, text);
     }
 
     protected override void Initialize()
@@ -137,24 +58,138 @@ namespace GhPython.Component
         _py.Output = m_py_output.Write;
         _py.SetVariable("__name__", "__main__");
         _env = new PythonEnvironment(this, _py);
+
         _py.SetVariable(PARENT_ENVIRONMENT_NAME, _env);
         _py.SetIntellisenseVariable(PARENT_ENVIRONMENT_NAME, _env);
 
         _py.ContextId = 2; // 2 is Grasshopper
+
+        _env.LoadAssembly(typeof(GH_Component).Assembly); //add Grasshopper.dll reference
+
+        
+      }
+    }
+    #endregion
+
+    #region Input and Output
+
+    /// <summary>
+    /// Show/Hide the "code" input in this component.  This is not something that
+    /// users typically do NOT need to work with so it defaults to OFF and is only useful
+    /// when users are dynamically generating scripts through some other component
+    /// </summary>
+    public bool HiddenCodeInput
+    {
+      get
+      {
+        if (Params.Input.Count < 1)
+          return true;
+        return !(Params.Input[0] is Grasshopper.Kernel.Parameters.Param_String);
+      }
+      set
+      {
+        if (value != HiddenCodeInput)
+        {
+          if (value)
+          {
+            _inner_codeInput = Code;
+            Params.UnregisterParameter(Params.Input[0]);
+          }
+          else
+          {
+            var param = ConstructCodeInputParameter();
+            param.SetPersistentData(new GH_String(Code));
+            Params.RegisterInputParam(param, 0);
+          }
+          Params.OnParametersChanged();
+          OnDisplayExpired(true);
+
+          if (!value)
+            ExpireSolution(true);
+        }
       }
     }
 
-    public Control CreateEditorControl(Action<string> helpCallback)
+    public string Code
     {
-      return (_py == null) ? null : _py.CreateTextEditorControl("", helpCallback);
+      get
+      {
+        if (HiddenCodeInput)
+          return _inner_codeInput;
+
+        return ScriptingAncestorComponent.ExtractCodeString((Param_String)Params.Input[0]);
+      }
+      set
+      {
+        if (!HiddenCodeInput)
+          throw new InvalidOperationException("Cannot assign to code while code parameter exists");
+
+        _inner_codeInput = value ?? string.Empty;
+        _compiled_py = null;
+      }
     }
+
+    /// <summary>
+    /// Returns true if the "code" input parameter is visible AND wired up to
+    /// another component
+    /// </summary>
+    /// <returns></returns>
+    public bool IsCodeInputLinked()
+    {
+      if (HiddenCodeInput)
+        return false;
+      var param = Params.Input[0];
+      return param.SourceCount > 0;
+    }
+
+    public Param_String CodeInputParam
+    {
+      get
+      {
+        if (!HiddenCodeInput)
+          return (Param_String)Params.Input[0];
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Show/Hide the "out" output in this component.  This is not something that
+    /// users typically need to work with so it defaults to ON to help debugging.
+    /// </summary>
+    public bool HiddenOutOutput
+    {
+      get
+      {
+        if (Params.Output.Count < 1)
+          return true;
+        return !(Params.Output[0] is Grasshopper.Kernel.Parameters.Param_String);
+      }
+      set
+      {
+        if (value != HiddenOutOutput)
+        {
+          if (value)
+          {
+            Params.UnregisterParameter(Params.Output[0]);
+          }
+          else
+          {
+            var param = ConstructOutOutputParam();
+            Params.RegisterOutputParam(param, 0);
+          }
+          Params.OnParametersChanged();
+          OnDisplayExpired(true);
+
+          if (value)
+            ExpireSolution(true);
+        }
+      }
+    }
+    
 
     protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
     {
-      if (CodeInputVisible)
-      {
-        pManager.RegisterParam(ConstructCodeInputParameter());
-      }
+      //pManager.RegisterParam(ConstructCodeInputParameter()); should not show by default
       AddDefaultInput(pManager);
     }
 
@@ -175,10 +210,7 @@ namespace GhPython.Component
 
     protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
     {
-      if (!HideCodeOutput)
-      {
-        pManager.RegisterParam(ConstructOutOutputParam());
-      }
+      pManager.RegisterParam(ConstructOutOutputParam());
 
       AddDefaultOutput(pManager);
       VariableParameterMaintenance();
@@ -197,6 +229,23 @@ namespace GhPython.Component
       return outText;
     }
 
+    protected static IGH_TypeHint[] PossibleHints =
+      {
+        new GH_HintSeparator(),
+        new GH_BooleanHint_CS(), new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
+        new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(),
+        new GH_HintSeparator(),
+        new GH_Point3dHint(),
+        new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
+        new GH_UVIntervalHint()
+      };
+
+    internal abstract void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true);
+
+    #endregion
+
+    #region Solving
+
     protected override void SafeSolveInstance(IGH_DataAccess DA)
     {
       if (_py == null)
@@ -205,7 +254,8 @@ namespace GhPython.Component
         return;
       }
 
-      DA.DisableGapLogic(0);
+      if(!HiddenOutOutput)
+        DA.DisableGapLogic(0);
 
       m_py_output.Reset();
 
@@ -215,14 +265,14 @@ namespace GhPython.Component
       try
       {
         // set output variables to "None"
-        for (int i = HideCodeOutput ? 0 : 1; i < Params.Output.Count; i++)
+        for (int i = HiddenOutOutput ? 0 : 1; i < Params.Output.Count; i++)
         {
           string varname = Params.Output[i].NickName;
           _py.SetVariable(varname, null);
         }
 
         // caching variable to keep things as fast as possible
-        bool showing_code_input = CodeInputVisible; 
+        bool showing_code_input = !HiddenCodeInput;
         // Set all input variables. Even null variables may be used in the
         // script, so do not attempt to skip these for optimization purposes.
         // Skip "Code" input parameter
@@ -240,7 +290,7 @@ namespace GhPython.Component
         {
           string script;
           if (!showing_code_input)
-            script = CodeInput;
+            script = Code;
           else
           {
             script = null;
@@ -268,7 +318,7 @@ namespace GhPython.Component
           _compiled_py.Execute(_py);
           // Python script completed, attempt to set all of the
           // output paramerers
-          for (int i = HideCodeOutput ? 0 : 1; i < Params.Output.Count; i++)
+          for (int i = HiddenOutOutput ? 0 : 1; i < Params.Output.Count; i++)
           {
             string varname = Params.Output[i].NickName;
             object o = _py.GetVariable(varname);
@@ -277,7 +327,7 @@ namespace GhPython.Component
         }
         else
         {
-          m_py_output.Write("There was a permanent error parsing this script. Please report to steve@mcneel.com.");
+          m_py_output.Write("There was a permanent error parsing this script. Please report to giulio@mcneel.com.");
         }
       }
       catch (Exception ex)
@@ -308,11 +358,11 @@ namespace GhPython.Component
 
     private void SetFormErrorOrClearIt(IGH_DataAccess DA, StringList sl)
     {
-      var attr = (PythonComponentAttributes) Attributes;
+      var attr = (PythonComponentAttributes)Attributes;
 
       if (sl.Result.Count > 0)
       {
-        if (!HideCodeOutput)
+        if (!HiddenOutOutput)
           DA.SetDataList(0, sl.Result);
         attr.TrySetLinkedFormHelpText(sl.ToString());
       }
@@ -353,20 +403,45 @@ namespace GhPython.Component
     {
       Description = DESCRIPTION;
 
-      for (int i = !CodeInputVisible ? 0 : 1; i < Params.Input.Count; i++)
+      for (int i = !HiddenCodeInput ? 0 : 1; i < Params.Input.Count; i++)
       {
         Params.Input[i].Description = "Script input " + Params.Input[i].NickName + ".";
       }
-      for (int i = HideCodeOutput ? 0 : 1; i < Params.Output.Count; i++)
+      for (int i = HiddenOutOutput ? 0 : 1; i < Params.Output.Count; i++)
       {
         Params.Output[i].Description = "Script output " + Params.Output[i].NickName + ".";
       }
 
-      SpecialPythonHelpContent = null;
+      AdditionalHelpFromDocStrings = null;
     }
 
     protected virtual void SetScriptTransientGlobals()
     {
+    }
+
+    private void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
+    {
+      if (_document != null)
+        _document.Objects.Clear();
+    }
+
+    #endregion
+
+    #region Appearance
+
+    public Point? DefaultEditorLocation { get; set; }
+    public Size DefaultEditorSize { get; set; }
+
+    public override void CreateAttributes()
+    {
+      this.Attributes = new PythonComponentAttributes(this);
+    }
+
+    public Control CreateEditorControl(Action<string> helpCallback)
+    {
+      if (_py == null) return null;
+      var control = _py.CreateTextEditorControl("", helpCallback);
+      return control;
     }
 
     protected override Bitmap Icon
@@ -385,52 +460,55 @@ namespace GhPython.Component
 
       try
       {
-
         {
-          var tsi = new ToolStripMenuItem("&Presentation style", null, new ToolStripItem[]
-            {
-              new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(CodeInputVisible),
-                                    new TargetGroupToggler
-                                      {
-                                        Component = this,
-                                        Params = Params.Input,
-                                        GetIsShowing = () => CodeInputVisible,
-                                        SetIsShowing = value => { CodeInputVisible = value; },
-                                        Side = GH_ParameterSide.Input,
-                                      }.Toggle)
-                {
-                  ToolTipText =
-                    string.Format("Code input is {0}. Click to {1} it.", CodeInputVisible ? "shown": "hidden",
-                                  CodeInputVisible ? "hide" : "show"),
-                },
-              new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!HideCodeOutput),
-                                    new TargetGroupToggler
-                                      {
-                                        Component = this,
-                                        Params = Params.Output,
-                                        GetIsShowing = () => HideCodeOutput,
-                                        SetIsShowing = value => { HideCodeOutput = value; },
-                                        Side = GH_ParameterSide.Output,
-                                      }.Toggle)
-                {
-                  ToolTipText =
-                    string.Format("Print output is {0}. Click to {1} it.", HideCodeOutput ? "hidden" : "shown",
-                                  HideCodeOutput ? "show" : "hide"),
-                  Height = 32,
-                }
-            });
+          var t0 = new ToolStripMenuItem("Show \"code\" input parameter", GetCheckedImage(!HiddenCodeInput),
+                                new TargetGroupToggler
+                                {
+                                  Component = this,
+                                  Params = Params.Input,
+                                  GetIsShowing = () => !HiddenCodeInput,
+                                  SetIsShowing = value =>
+                                  {
+                                    HiddenCodeInput = !value;
+                                  },
+                                  Side = GH_ParameterSide.Input,
+                                }.Toggle)
+          {
+            ToolTipText =
+              string.Format("Code input is {0}. Click to {1} it.", HiddenCodeInput ? "shown" : "hidden",
+                            HiddenCodeInput ? "hide" : "show"),
+          };
+          var t1 = new ToolStripMenuItem("Show output \"out\" parameter", GetCheckedImage(!HiddenOutOutput),
+                                new TargetGroupToggler
+                                {
+                                  Component = this,
+                                  Params = Params.Output,
+                                  GetIsShowing = () => !HiddenOutOutput,
+                                  SetIsShowing = value =>
+                                  {
+                                    HiddenOutOutput = !value;
+                                  },
+                                  Side = GH_ParameterSide.Output,
+                                }.Toggle)
+          {
+            ToolTipText =
+              string.Format("Print output is {0}. Click to {1} it.", HiddenOutOutput ? "hidden" : "shown",
+                            HiddenOutOutput ? "show" : "hide"),
+            Height = 32,
+          };
 
-          iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), tsi);
+          iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 1), t0);
+          iMenu.Items.Insert(Math.Min(iMenu.Items.Count, 2), t1);
         }
 
 
         {
           var tsi = new ToolStripMenuItem("&Open editor...", null, (sender, e) =>
-            {
-              var attr = Attributes as PythonComponentAttributes;
-              if (attr != null)
-                attr.OpenEditor();
-            });
+          {
+            var attr = Attributes as PythonComponentAttributes;
+            if (attr != null)
+              attr.OpenEditor();
+          });
           tsi.Font = new Font(tsi.Font, FontStyle.Bold);
 
           if (Locked) tsi.Enabled = false;
@@ -461,40 +539,12 @@ namespace GhPython.Component
       {
         try
         {
-          var code = Component.CodeInput;
-
           SetIsShowing(!GetIsShowing());
-
-          bool recompute = false;
-
-          if (GetIsShowing())
-          {
-            Component.Params.UnregisterParameter(Params[0]);
-
-            if (Side == GH_ParameterSide.Input)
-              Component.CodeInput = code;
-          }
-          else
-          {
-            Param_String param;
-            if (Side == GH_ParameterSide.Input)
-            {
-              param = Component.ConstructCodeInputParameter();
-              Component.Params.RegisterInputParam(param, 0);
-              param.SetPersistentData(new GH_String(code));
-              recompute = true;
-            }
-            else
-            {
-              param = ConstructOutOutputParam();
-              Component.Params.RegisterOutputParam(param, 0);
-            }
-          }
 
           Component.Params.OnParametersChanged();
           Component.OnDisplayExpired(true);
 
-          if (recompute) Component.ExpireSolution(true);
+          Component.ExpireSolution(true);
         }
         catch (Exception ex)
         {
@@ -503,111 +553,70 @@ namespace GhPython.Component
       }
     }
 
+
+    protected static Bitmap GetCheckedImage(bool check)
+    {
+      return check ? Resources._checked : Resources._unchecked;
+    }
+
+    #endregion
+
+    #region IO
+
     // used as keys for file IO
-    const string HideInputIdentifier = "HideInput";
-    const string CodeInputIdentifier = "CodeInput";
-    const string HideOutputIdentifier = "HideOutput";
+    const string ID_HideInput = "HideInput";
+    const string ID_CodeInput = "CodeInput";
+    const string ID_HideOutput = "HideOutput";
+    const string ID_EditorLocation = "EditorLocation";
+    const string ID_EditorSize = "EditorSize";
 
     public override bool Write(GH_IO.Serialization.GH_IWriter writer)
     {
       bool rc = base.Write(writer);
 
-      writer.SetBoolean(HideInputIdentifier, !CodeInputVisible);
-      if (!CodeInputVisible)
-        writer.SetString(CodeInputIdentifier, CodeInput);
+      writer.SetBoolean(ID_HideInput, HiddenCodeInput);
 
-      writer.SetBoolean(HideOutputIdentifier, HideCodeOutput);
+      if (HiddenCodeInput)
+        writer.SetString(ID_CodeInput, Code);
+
+      writer.SetBoolean(ID_HideOutput, HiddenOutOutput);
+
+      if (DefaultEditorLocation != null)
+      {
+        writer.SetDrawingPoint(ID_EditorLocation, DefaultEditorLocation.Value);
+        writer.SetDrawingSize(ID_EditorSize, DefaultEditorSize);
+      }
 
       return rc;
     }
 
     public override bool Read(GH_IO.Serialization.GH_IReader reader)
     {
-      // 8 Aug. 2012
-      // There are a couple of "hacks" in here to get IO code to work properly.
-      // I'll discuss fixes for this so we can skip over the code in future
-      // versions of grasshopper
+      // 2013 Oct 8 - Giulio
+      // Removing all hacks and making this work properly from Gh 0.9.61 onwards
+      // The logic is this: this component ALWAYS gets constructed without "code" & with "out".
+      // Then, when they are not necessary, these are added or removed.
+      // RegisterInput/Output must always insert the original amount of items.
 
-      bool perform_hacks = this is IGH_VarParamComponent;
-      if (perform_hacks)
-      {
-        // only perform these hacks on 0.9.6 and below. Assuming that this
-        // will get fixed in the very next GH release
-        var version = Grasshopper.Versioning.Version;
-        if (version.major > 0 || version.minor > 9 || (version.minor == 9 && version.revision > 6))
-          perform_hacks = false;
-      }
 
-      if( perform_hacks )
-      {
-        // Hack #1
-        // When deserializing, this component is constructed and the I can't tell
-        // that this component was created for deserializing from disk and the
-        // "AddDefaultInput" / "AddDefaultOutput" functions are called. The low level
-        // parameter reading code skips reading of params when they already exists
-        // (see Read_IGH_VarParamParamList in GH_ComponentParamServer.vb)
-        //   ... If (i<params.Count) Then Continue For
-        // Clear out the default input parameters so the GH variable
-        // parameter reader doesn't get hosed
-        for (int i = Params.Input.Count - 1; i >= 0; i--)
-          Params.UnregisterParameter(Params.Input[0]);
-        for (int i = Params.Output.Count - 1; i >= 0; i--)
-          Params.UnregisterParameter(Params.Output[0]);
-      }
+      if (reader.ItemExists(ID_EditorLocation))
+        DefaultEditorLocation = reader.GetDrawingPoint(ID_EditorLocation);
+      if (reader.ItemExists(ID_EditorSize))
+        DefaultEditorSize = reader.GetDrawingSize(ID_EditorSize);
 
-      bool rc = base.Read(reader);
-
-      if (perform_hacks)
-      {
-        // Hack #2
-        // The IO code in checks to see if "Access" exists when it looks like
-        // it should be checking if "Access" at index exists
-        // (see Read_IGH_VarParamParamList in GH_ComponentParamServer.vb)
-        //   ...If( reader.ItemExists("Access")) Then
-        //   probably should be
-        //   ...If( reader.ItemExists("Access", i)) Then
-        //
-        // Working around this issue by manually digging through the chuncks
-        if (reader.ChunkCount > 1)
-        {
-          var chunk = reader.Chunks[1];
-          for (int i = 0; i < chunk.ItemCount; i++)
-          {
-            var item = chunk.Items[i];
-            if (item != null && string.Compare(item.Name, "Access", StringComparison.InvariantCulture) == 0)
-            {
-              int index = item.Index;
-              if (index >= 0 && index < Params.Input.Count)
-              {
-                int access = item._int32;
-                if (1 == access)
-                  Params.Input[index].Access = GH_ParamAccess.list;
-                else if (2 == access)
-                  Params.Input[index].Access = GH_ParamAccess.tree;
-              }
-            }
-          }
-        }
-      }
-
-      bool hideInput = false;
-      if (reader.TryGetBoolean(HideInputIdentifier, ref hideInput))
-        CodeInputVisible = !hideInput;
-
-      if (!CodeInputVisible)
-      {
-        string code = null;
-        if (reader.TryGetString(CodeInputIdentifier, ref code))
-          CodeInput = code;
-      }
-
+      bool hideInput = true;
+      if (reader.TryGetBoolean(ID_HideInput, ref hideInput))
+        HiddenCodeInput = hideInput;
 
       bool hideOutput = false;
-      if (reader.TryGetBoolean(HideOutputIdentifier, ref hideOutput))
-        HideCodeOutput = hideOutput;
+      if (reader.TryGetBoolean(ID_HideOutput, ref hideOutput))
+        HiddenOutOutput = hideOutput;
 
-      if (HideCodeOutput)
-        Params.Output.RemoveAt(0);
+      if (hideInput)
+        if (!reader.TryGetString(ID_CodeInput, ref _inner_codeInput))
+          _inner_codeInput = string.Empty;
+
+      bool rc = base.Read(reader);
 
 
       // Dynamic input fix for existing scripts
@@ -615,7 +624,7 @@ namespace GhPython.Component
       // will set Line and not LineCurve, etc...
       if (Params != null && Params.Input != null)
       {
-        for (int i = CodeInputVisible ? 1 : 0; i < Params.Input.Count; i++)
+        for (int i = HiddenCodeInput ? 1 : 0; i < Params.Input.Count; i++)
         {
           var p = Params.Input[i] as Param_ScriptVariable;
           if (p != null)
@@ -631,16 +640,37 @@ namespace GhPython.Component
       return rc;
     }
 
-    protected static Bitmap GetCheckedImage(bool check)
+    #endregion
+
+    #region Help
+
+    protected override string HelpDescription
     {
-      return check ? Resources._checked : Resources._unchecked;
+      get
+      {
+        if (_inDocStringsMode)
+        {
+          if (string.IsNullOrEmpty(AdditionalHelpFromDocStrings))
+            return base.HelpDescription;
+          return base.HelpDescription +
+                 "<br><br>\n<small>Remarks: <i>" +
+                 DocStringUtils.Htmlify(AdditionalHelpFromDocStrings) +
+                 "</i></small>";
+        }
+        return Resources.helpText;
+      }
     }
 
-    private void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
+    protected override string HtmlHelp_Source()
     {
-      if (_document != null)
-        _document.Objects.Clear();
+      return base.HtmlHelp_Source().Replace("\nPython Script", "\n" + NickName);
     }
+
+    public string AdditionalHelpFromDocStrings { get; set; }
+
+    #endregion
+
+    #region Disposal
 
     protected override void Dispose(bool disposing)
     {
@@ -656,42 +686,6 @@ namespace GhPython.Component
           attr.DisableLinkedForm(true);
       }
     }
-
-    protected override string HelpDescription
-    {
-      get
-      {
-        if (_inDocStringsMode)
-        {
-          if (SpecialPythonHelpContent == null)
-            return base.HelpDescription;
-          return base.HelpDescription +
-                 "<br><br>\n<small>Remarks: <i>" +
-                 DocStringUtils.Htmlify(SpecialPythonHelpContent) +
-                 "</i></small>";
-        }
-        return Resources.helpText;
-      }
-    }
-
-    protected override string HtmlHelp_Source()
-    {
-      return base.HtmlHelp_Source().Replace("\nPython Script", "\n" + NickName);
-    }
-
-    protected static IGH_TypeHint[] PossibleHints =
-      {
-        new GH_HintSeparator(),
-        new GH_BooleanHint_CS(), new GH_IntegerHint_CS(), new GH_DoubleHint_CS(), new GH_ComplexHint(),
-        new GH_StringHint_CS(), new GH_DateTimeHint(), new GH_ColorHint(),
-        new GH_HintSeparator(),
-        new GH_Point3dHint(),
-        new GH_Vector3dHint(), new GH_PlaneHint(), new GH_IntervalHint(),
-        new GH_UVIntervalHint()
-      };
-
-    internal abstract void FixGhInput(Param_ScriptVariable i, bool alsoSetIfNecessary = true);
-
-    public string SpecialPythonHelpContent { get; set; }
+    #endregion
   }
 }

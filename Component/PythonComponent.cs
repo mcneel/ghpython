@@ -14,8 +14,8 @@ namespace GhPython.Component
   {
     protected override void AddDefaultInput(GH_Component.GH_InputParamManager inputManager)
     {
-      inputManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
-      inputManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "y"));
+      inputManager.AddParameter(ConstructVariable(GH_VarParamSide.Input, "x"));
+      inputManager.AddParameter(ConstructVariable(GH_VarParamSide.Input, "y"));
     }
 
     protected override void AddDefaultOutput(GH_Component.GH_OutputParamManager outputManager)
@@ -88,7 +88,7 @@ namespace GhPython.Component
       {
         try
         {
-          Component.CheckAndSetupActions();
+          Component.CheckIfSetupActionsAreNecessary();
 
           Component.DocStorageMode = NewDocStorage;
           Component.SetScriptTransientGlobals();
@@ -181,13 +181,13 @@ namespace GhPython.Component
 
     public bool IsVariableParam(GH_VarParamEventArgs e)
     {
-      return e.Index > (!CodeInputVisible ? -1 : 0);
+      return e.Index > (!HiddenCodeInput ? -1 : 0);
     }
 
     public void ManagerConstructed(GH_VarParamSide side, Grasshopper.GUI.GH_VariableParameterManager manager)
     {
       string pool = (side == GH_VarParamSide.Input) ? "xyzuvw" : "abcdef";
-      manager.NameConstructor = new GH_CharPatternParamNameConstructor(pool, 4);
+      manager.NameConstructor = new Grasshopper.Kernel.GH_StringPattern(pool, 4);
     }
 
     public void ParametersModified(GH_VarParamSide side)

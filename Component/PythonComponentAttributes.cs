@@ -25,7 +25,7 @@ namespace GhPython.Component
       var attachedComp = this.Owner as ScriptingAncestorComponent;
       if (attachedComp != null && !attachedComp.Locked)
       {
-        attachedComp.CheckAndSetupActions();
+        attachedComp.CheckIfSetupActionsAreNecessary();
 
         if (m_form == null || m_form.IsDisposed)
           m_form = new PythonScriptForm(attachedComp);
