@@ -182,12 +182,6 @@ namespace GhPython.Component
       Help,
     }
 
-    //private static void AppendText(StringBuilder result, string text)
-    //{
-    //  if (result.Length != 0) result.Append(" ");
-    //  result.Append(text);
-    //}
-
     private static void AddLine(StringBuilder result, string text)
     {
       if (result.Length != 0) result.AppendLine();
@@ -238,7 +232,7 @@ namespace GhPython.Component
 
     public static string Htmlify(string input)
     {
-      string firstRepl = System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n]",
+      string firstRepl = System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n\r]",
         t =>
         {
           switch (t.Value)
@@ -255,6 +249,8 @@ namespace GhPython.Component
               return "&#39;";
             case "\n":
               return "<br>";
+            case "\r":
+              return string.Empty;
           }
           return string.Empty;
         });

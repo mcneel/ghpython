@@ -97,7 +97,6 @@
     <Compile Include="Component\SpecialHints\SpecialArcHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialCircleHint.cs" />
     <Compile Include="Component\SpecialHints\SpecialLineHint.cs" />
-    <Compile Include="Component\TextHashMaintainer.cs" />
     <Compile Include="Component\ZUIPythonComponent.cs" />
     <Compile Include="DocReplacement\DocStorage.cs" />
     <Compile Include="Component\PythonComponentAttributes.cs" />

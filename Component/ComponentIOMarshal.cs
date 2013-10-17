@@ -19,23 +19,22 @@ namespace GhPython.Component
 
   sealed class NewComponentIOMarshal : ComponentIOMarshal
   {
-    private readonly ZuiPythonComponent _component;
-
-    private readonly GrasshopperDocument _document;
-    private readonly CustomTable _objectTable;
+    private readonly ZuiPythonComponent m_component;
+    private readonly CustomTable m_objectTable;
+    private readonly GrasshopperDocument m_document;
 
     public NewComponentIOMarshal(GrasshopperDocument document, ZuiPythonComponent component)
     {
-      _document = document;
-      _objectTable = _document.Objects;
-      _component = component;
+      m_document = document;
+      m_objectTable = m_document.Objects;
+      m_component = component;
     }
 
     #region Inputs
 
     public override object GetInput(IGH_DataAccess DA, int i)
     {
-      var input = (Param_ScriptVariable) _component.Params.Input[i];
+      var input = (Param_ScriptVariable) m_component.Params.Input[i];
       bool addIntoGhDoc = input.TypeHint is GhDocGuidHint;
 
       object o;
@@ -76,7 +75,7 @@ namespace GhPython.Component
     {
       List<IGH_Goo> list2 = new List<IGH_Goo>();
       DA.GetDataList(index, list2);
-      IGH_TypeHint typeHint = ((Param_ScriptVariable) _component.Params.Input[index]).TypeHint;
+      IGH_TypeHint typeHint = ((Param_ScriptVariable) m_component.Params.Input[index]).TypeHint;
       var t = Type.GetType("IronPython.Runtime.List,IronPython");
       IList list = Activator.CreateInstance(t) as IList;
 
@@ -97,7 +96,7 @@ namespace GhPython.Component
     {
       GH_Structure<IGH_Goo> structure;
       DA.GetDataTree(index, out structure);
-      IGH_TypeHint typeHint = ((Param_ScriptVariable) _component.Params.Input[index]).TypeHint;
+      IGH_TypeHint typeHint = ((Param_ScriptVariable) m_component.Params.Input[index]).TypeHint;
       var tree = new DataTree<object>();
 
       for (int i = 0; i < structure.PathCount; i++)
@@ -120,7 +119,7 @@ namespace GhPython.Component
 
     private object TypeCast(IGH_Goo data, int index)
     {
-      Param_ScriptVariable variable = (Param_ScriptVariable) _component.Params.Input[index];
+      Param_ScriptVariable variable = (Param_ScriptVariable) m_component.Params.Input[index];
       return this.TypeCast(data, variable.TypeHint);
     }
 
@@ -146,11 +145,11 @@ namespace GhPython.Component
       {
         if (input is GeometryBase)
         {
-          input = _objectTable.__InternalAdd(input as dynamic);
+          input = m_objectTable.__InternalAdd(input as dynamic);
         }
         else if (input is Point3d)
         {
-          input = _objectTable.AddPoint((Point3d) input);
+          input = m_objectTable.AddPoint((Point3d) input);
         }
       }
     }
@@ -186,8 +185,9 @@ namespace GhPython.Component
         {
           o = (this as dynamic).GeometryTree(o as dynamic);
         }
-        catch
+        catch (Exception ex)
         {
+          Rhino.Runtime.HostUtils.ExceptionReport(ex);
         }
         DA.SetDataTree(index, o as IGH_DataTree);
       }
@@ -211,7 +211,7 @@ namespace GhPython.Component
     {
       if (input is Guid)
       {
-        AttributedGeometry a = _objectTable.Find((Guid) input);
+        AttributedGeometry a = m_objectTable.Find((Guid) input);
         input = a.Geometry;
       }
     }
@@ -423,8 +423,9 @@ namespace GhPython.Component
           {
             o = (this as dynamic).GeometryTree(o as dynamic);
           }
-          catch
+          catch (Exception ex)
           {
+            Rhino.Runtime.HostUtils.ExceptionReport(ex);
           }
         }
         DA.SetDataTree(index, o as IGH_DataTree);

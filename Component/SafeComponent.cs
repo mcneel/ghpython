@@ -14,12 +14,12 @@ namespace GhPython.Component
   /// </summary>
   public abstract class SafeComponent : GH_Component, IDisposable
   {
-    GH_Document _doc;
+    GH_Document m_doc;
 
-    bool _initializationDone;
-    bool _orphan;
-    bool _locked;
-    bool _afterDisposal;
+    bool m_initializationDone;
+    bool m_orphan;
+    bool m_locked;
+    bool m_afterDisposal;
 
     /// <summary>
     /// Do not use this constructor for initialization, but always use the Initialize() method, which will run only once.
@@ -30,7 +30,7 @@ namespace GhPython.Component
     {
       if (Instances.DocumentServer.DocumentCount > 0)
       {
-        _doc = Instances.DocumentServer[0];
+        m_doc = Instances.DocumentServer[0];
 
         CheckIfSetupActionsAreNecessary();
       }
@@ -41,34 +41,34 @@ namespace GhPython.Component
       get
       {
         CheckIfSetupActionsAreNecessary();
-        return _doc;
+        return m_doc;
       }
     }
 
     public void CheckIfSetupActionsAreNecessary()
     {
-      if (_afterDisposal) return;
+      if (m_afterDisposal) return;
 
-      if (_orphan)
+      if (m_orphan)
       {
-        _orphan = false;
+        m_orphan = false;
         GC.ReRegisterForFinalize(this);
       }
 
-      if (!_initializationDone)
+      if (!m_initializationDone)
       {
-        if (_doc == null)
+        if (m_doc == null)
         {
-          _doc = OnPingDocument();
+          m_doc = OnPingDocument();
 
-          if (_doc == null) return;
+          if (m_doc == null) return;
         }
 
-        _doc.ObjectsDeleted += GrasshopperObjectsDeleted;
+        m_doc.ObjectsDeleted += GrasshopperObjectsDeleted;
         Instances.DocumentServer.DocumentRemoved += GrasshopperDocumentClosed;
-        _doc.SolutionStart += AfterDocumentChanged;
+        m_doc.SolutionStart += AfterDocumentChanged;
 
-        _initializationDone = true;
+        m_initializationDone = true;
         Initialize();
       }
     }
@@ -83,7 +83,7 @@ namespace GhPython.Component
 
     private void GrasshopperDocumentClosed(GH_DocumentServer sender, GH_Document doc)
     {
-      if (doc != null && (_doc != null && doc.DocumentID == _doc.DocumentID))
+      if (doc != null && (m_doc != null && doc.DocumentID == m_doc.DocumentID))
       {
         Dispose();
       }
@@ -108,10 +108,10 @@ namespace GhPython.Component
     void AfterDocumentChanged(object sender, GH_SolutionEventArgs args)
     {
 
-      if (this.Locked != _locked)
+      if (this.Locked != m_locked)
       {
-        _locked = this.Locked;
-        OnLockedChanged(_locked);
+        m_locked = this.Locked;
+        OnLockedChanged(m_locked);
       }
     }
 
@@ -121,14 +121,14 @@ namespace GhPython.Component
 
     private void DeregisterComponent()
     {
-      if (_doc != null && _initializationDone)
+      if (m_doc != null && m_initializationDone)
       {
-        _doc.ObjectsDeleted -= GrasshopperObjectsDeleted;
+        m_doc.ObjectsDeleted -= GrasshopperObjectsDeleted;
 
         if (Instances.DocumentServer != null)
           Instances.DocumentServer.DocumentRemoved -= GrasshopperDocumentClosed;
 
-        _doc.SolutionStart -= AfterDocumentChanged;
+        m_doc.SolutionStart -= AfterDocumentChanged;
       }
     }
 
@@ -155,14 +155,14 @@ namespace GhPython.Component
     /// can be disposed.</param>
     protected virtual void Dispose(bool disposing)
     {
-      _afterDisposal = true;
+      m_afterDisposal = true;
       try
       {
-        if (!_orphan)
+        if (!m_orphan)
         {
           DeregisterComponent();
-          _orphan = true;
-          _initializationDone = false;
+          m_orphan = true;
+          m_initializationDone = false;
 
           if (disposing)
           {
@@ -170,16 +170,10 @@ namespace GhPython.Component
           }
         }
       }
-#if DEBUG
       catch (Exception ex)
       {
-        MessageBox.Show(ex.ToString());
+        GhPython.Forms.PythonScriptForm.LastHandleException(ex);
       }
-#else
-               catch
-               {
-               }
-#endif
     }
 
     /// <summary>
@@ -187,7 +181,7 @@ namespace GhPython.Component
     /// </summary>
     public void Dispose()
     {
-      _afterDisposal = true;
+      m_afterDisposal = true;
       Dispose(true);
     }
 

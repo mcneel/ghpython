@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -8,10 +9,9 @@ using System.Text;
 using System.Windows.Forms;
 using GhPython.Component;
 using GhPython.Properties;
+using Grasshopper.GUI.HTML;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
-using System.Collections.Generic;
-using Grasshopper.GUI.HTML;
 
 namespace GhPython.Forms
 {
@@ -19,7 +19,7 @@ namespace GhPython.Forms
   {
     readonly Control _texteditor;
     bool _showClosePrompt = true;
-    readonly TextHashMaintainer _hash = new TextHashMaintainer();
+    string m_previous_script = null;
 
     /// <summary>
     /// The linked component. This field might be null.
@@ -47,7 +47,7 @@ namespace GhPython.Forms
 
         _texteditor.Text = _component.Code;
 
-        _hash.HashText(_texteditor.Text);
+        m_previous_script = _texteditor.Text;
       }
 
       versionLabel.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -190,7 +190,7 @@ namespace GhPython.Forms
           if (!string.IsNullOrEmpty(newCode))
           {
             codeInput.SetPersistentData(new GH_String(newCode));
-            _hash.HashText(newCode);
+            m_previous_script = newCode;
           }
         }
         else
@@ -201,7 +201,7 @@ namespace GhPython.Forms
                 new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(_component));
 
           _component.Code = _texteditor.Text;
-          _hash.HashText(_texteditor.Text);
+          m_previous_script = _texteditor.Text;
         }
 
         if (expire)
@@ -224,7 +224,8 @@ namespace GhPython.Forms
     {
       try
       {
-        var textHasChanged = !_hash.IsSameHashAsBefore(_texteditor.Text);
+        var textHasChanged = m_previous_script != _texteditor.Text;
+
         if (_showClosePrompt && textHasChanged)
         {
           var result = MessageBox.Show("Do you want to apply before closing?",
@@ -280,6 +281,9 @@ namespace GhPython.Forms
     {
       if (ex != null)
       {
+        Rhino.Runtime.HostUtils.ExceptionReport(ex);
+
+        // for now let's keep also the previous route open...
         MessageBox.Show("An error occurred in the Python script window.\nPlease send a screenshot of this to giulio@mcneel.com.\nThanks.\n\n" + ex,
             "Error in Python script window (" + ex.GetType().Name + ")", MessageBoxButtons.OK);
       }

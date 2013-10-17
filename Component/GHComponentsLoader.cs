@@ -72,7 +72,8 @@ namespace GhPython
             {
                 object newobj = System.Activator.CreateInstance(t);
             }
-            catch(Exception ex)
+            
+ * (Exception ex)
             {
                 int h = 0; 
                     

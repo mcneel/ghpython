@@ -10,22 +10,21 @@ using Grasshopper.Kernel.Parameters.Hints;
 using Grasshopper.Kernel.Types;
 using Rhino;
 using Rhino.Runtime;
+using System.IO;
 
 namespace GhPython.Component
 {
   public abstract class ScriptingAncestorComponent : SafeComponent
   {
-    // python output stream is piped to m_py_output
-    private readonly StringList m_py_output = new StringList();
-
-    internal static GrasshopperDocument _document = new GrasshopperDocument();
-    internal ComponentIOMarshal _marshal;
-    protected PythonScript _py;
-    private PythonCompiledCode _compiled_py;
-    protected string _previousRunCode;
-    protected PythonEnvironment _env;
-    private bool _inDocStringsMode;
-    protected string _inner_codeInput = string.Empty;
+    private readonly StringList m_py_output = new StringList(); // python output stream is piped here
+    internal static GrasshopperDocument m_document = new GrasshopperDocument();
+    internal ComponentIOMarshal m_marshal;
+    protected PythonScript m_py;
+    private PythonCompiledCode m_compiled_py;
+    protected string m_previousRunCode;
+    protected PythonEnvironment m_env;
+    private bool m_inDocStringsMode;
+    protected string m_inner_codeInput = string.Empty;
 
     internal const string DOCUMENT_NAME = "ghdoc";
     private const string PARENT_ENVIRONMENT_NAME = "ghenv";
@@ -51,20 +50,20 @@ namespace GhPython.Component
       if (Doc != null)
         Doc.SolutionEnd += OnDocSolutionEnd;
 
-      _py = PythonScript.Create();
-      if (_py != null)
+      m_py = PythonScript.Create();
+      if (m_py != null)
       {
         SetScriptTransientGlobals();
-        _py.Output = m_py_output.Write;
-        _py.SetVariable("__name__", "__main__");
-        _env = new PythonEnvironment(this, _py);
+        m_py.Output = m_py_output.Write;
+        m_py.SetVariable("__name__", "__main__");
+        m_env = new PythonEnvironment(this, m_py);
 
-        _py.SetVariable(PARENT_ENVIRONMENT_NAME, _env);
-        _py.SetIntellisenseVariable(PARENT_ENVIRONMENT_NAME, _env);
+        m_py.SetVariable(PARENT_ENVIRONMENT_NAME, m_env);
+        m_py.SetIntellisenseVariable(PARENT_ENVIRONMENT_NAME, m_env);
 
-        _py.ContextId = 2; // 2 is Grasshopper
+        m_py.ContextId = 2; // 2 is Grasshopper
 
-        _env.LoadAssembly(typeof(GH_Component).Assembly); //add Grasshopper.dll reference
+        m_env.LoadAssembly(typeof(GH_Component).Assembly); //add Grasshopper.dll reference
 
         
       }
@@ -92,7 +91,7 @@ namespace GhPython.Component
         {
           if (value)
           {
-            _inner_codeInput = Code;
+            m_inner_codeInput = Code;
             Params.UnregisterParameter(Params.Input[0]);
           }
           else
@@ -115,7 +114,7 @@ namespace GhPython.Component
       get
       {
         if (HiddenCodeInput)
-          return _inner_codeInput;
+          return m_inner_codeInput;
 
         return ScriptingAncestorComponent.ExtractCodeString((Param_String)Params.Input[0]);
       }
@@ -124,8 +123,8 @@ namespace GhPython.Component
         if (!HiddenCodeInput)
           throw new InvalidOperationException("Cannot assign to code while code parameter exists");
 
-        _inner_codeInput = value ?? string.Empty;
-        _compiled_py = null;
+        m_inner_codeInput = value ?? string.Empty;
+        m_compiled_py = null;
       }
     }
 
@@ -248,7 +247,7 @@ namespace GhPython.Component
 
     protected override void SafeSolveInstance(IGH_DataAccess DA)
     {
-      if (_py == null)
+      if (m_py == null)
       {
         DA.SetData(0, "No Python engine available. This component needs Rhino v5");
         return;
@@ -268,7 +267,7 @@ namespace GhPython.Component
         for (int i = HiddenOutOutput ? 0 : 1; i < Params.Output.Count; i++)
         {
           string varname = Params.Output[i].NickName;
-          _py.SetVariable(varname, null);
+          m_py.SetVariable(varname, null);
         }
 
         // caching variable to keep things as fast as possible
@@ -280,13 +279,13 @@ namespace GhPython.Component
         for (int i = showing_code_input ? 1 : 0; i < Params.Input.Count; i++)
         {
           string varname = Params.Input[i].NickName;
-          object o = _marshal.GetInput(DA, i);
-          _py.SetVariable(varname, o);
-          _py.SetIntellisenseVariable(varname, o);
+          object o = m_marshal.GetInput(DA, i);
+          m_py.SetVariable(varname, o);
+          m_py.SetIntellisenseVariable(varname, o);
         }
 
         // the "code" string could be embedded in the component itself
-        if (showing_code_input || _compiled_py == null)
+        if (showing_code_input || m_compiled_py == null)
         {
           string script;
           if (!showing_code_input)
@@ -303,26 +302,32 @@ namespace GhPython.Component
             return;
           }
 
-          if (_compiled_py == null ||
-              string.Compare(script, _previousRunCode, StringComparison.InvariantCulture) != 0)
+          if (m_compiled_py == null ||
+              string.Compare(script, m_previousRunCode, StringComparison.InvariantCulture) != 0)
           {
-            if (!(_inDocStringsMode = DocStringUtils.FindApplyDocString(script, this)))
+            if (!(m_inDocStringsMode = DocStringUtils.FindApplyDocString(script, this)))
               ResetAllDescriptions();
-            _compiled_py = _py.Compile(script);
-            _previousRunCode = script;
+            m_compiled_py = m_py.Compile(script);
+            m_previousRunCode = script;
           }
         }
 
-        if (_compiled_py != null)
+        if (m_compiled_py != null)
         {
-          _compiled_py.Execute(_py);
+          string localPath;
+          bool added = AddLocalPath(out localPath);
+
+          m_compiled_py.Execute(m_py);
+
+          if (added) RemoveLocalPath(localPath);
+
           // Python script completed, attempt to set all of the
           // output paramerers
           for (int i = HiddenOutOutput ? 0 : 1; i < Params.Output.Count; i++)
           {
             string varname = Params.Output[i].NickName;
-            object o = _py.GetVariable(varname);
-            _marshal.SetOutput(o, DA, i);
+            object o = m_py.GetVariable(varname);
+            m_marshal.SetOutput(o, DA, i);
           }
         }
         else
@@ -344,11 +349,37 @@ namespace GhPython.Component
       SetFormErrorOrClearIt(DA, m_py_output);
     }
 
+    private bool AddLocalPath(out string location)
+    {
+      location = m_document.Path;
+      if (string.IsNullOrWhiteSpace(location)) return false;
+
+      location = Path.GetDirectoryName(location);
+      if (!Directory.Exists(location)) return false;
+
+      var added = m_py.EvaluateExpression(
+@"import sys",
+string.Format("(sys.path.insert(0,r\"{0}\") or True) if r\"{0}\" not in sys.path else False",
+location)
+      );
+      m_py.RemoveVariable("sys");
+
+      if (!(added is bool)) return false;
+      return (bool)added;
+    }
+
+    private void RemoveLocalPath(string location)
+    {
+      var added = m_py.EvaluateExpression(@"import sys
+if r""" + location + @""" in sys.path: sys.path.remove(""" + location + @""")
+del sys", "True");
+    }
+
     private void AddErrorNicely(StringList sw, Exception ex)
     {
       sw.Write(string.Format("Runtime error ({0}): {1}", ex.GetType().Name, ex.Message));
 
-      string error = _py.GetStackTraceFromException(ex);
+      string error = m_py.GetStackTraceFromException(ex);
 
       error = error.Replace(", in <module>, \"<string>\"", ", in script");
       error = error.Trim();
@@ -421,8 +452,8 @@ namespace GhPython.Component
 
     private void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
     {
-      if (_document != null)
-        _document.Objects.Clear();
+      if (m_document != null)
+        m_document.Objects.Clear();
     }
 
     #endregion
@@ -439,8 +470,8 @@ namespace GhPython.Component
 
     public Control CreateEditorControl(Action<string> helpCallback)
     {
-      if (_py == null) return null;
-      var control = _py.CreateTextEditorControl("", helpCallback);
+      if (m_py == null) return null;
+      var control = m_py.CreateTextEditorControl("", helpCallback);
       return control;
     }
 
@@ -613,8 +644,8 @@ namespace GhPython.Component
         HiddenOutOutput = hideOutput;
 
       if (hideInput)
-        if (!reader.TryGetString(ID_CodeInput, ref _inner_codeInput))
-          _inner_codeInput = string.Empty;
+        if (!reader.TryGetString(ID_CodeInput, ref m_inner_codeInput))
+          m_inner_codeInput = string.Empty;
 
       bool rc = base.Read(reader);
 
@@ -648,7 +679,7 @@ namespace GhPython.Component
     {
       get
       {
-        if (_inDocStringsMode)
+        if (m_inDocStringsMode)
         {
           if (string.IsNullOrEmpty(AdditionalHelpFromDocStrings))
             return base.HelpDescription;

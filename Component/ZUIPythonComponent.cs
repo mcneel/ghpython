@@ -116,7 +116,7 @@ namespace GhPython.Component
     bool IGH_VariableParameterComponent.DestroyParameter(GH_ParameterSide side, int index)
     {
       if(side == GH_ParameterSide.Input && !HiddenCodeInput && index == 0)
-          _inner_codeInput = Code;
+          m_inner_codeInput = Code;
 
       return true;
     }
@@ -148,10 +148,10 @@ namespace GhPython.Component
     {
       base.SetScriptTransientGlobals();
 
-      _py.ScriptContextDoc = _document;
-      _marshal = new NewComponentIOMarshal(_document, this);
-      _py.SetVariable(DOCUMENT_NAME, _document);
-      _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
+      m_py.ScriptContextDoc = m_document;
+      m_marshal = new NewComponentIOMarshal(m_document, this);
+      m_py.SetVariable(DOCUMENT_NAME, m_document);
+      m_py.SetIntellisenseVariable(DOCUMENT_NAME, m_document);
     }
 
     public override Guid ComponentGuid
