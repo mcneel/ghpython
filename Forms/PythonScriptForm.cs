@@ -17,7 +17,7 @@ namespace GhPython.Forms
 {
   public partial class PythonScriptForm : Form
   {
-    readonly Control _texteditor;
+    internal readonly Control m_texteditor;
     bool _showClosePrompt = true;
     string m_previous_script = null;
 
@@ -34,20 +34,17 @@ namespace GhPython.Forms
     public PythonScriptForm(ScriptingAncestorComponent linkedComponent)
     {
       InitializeComponent();
-      this.KeyDown += ScriptForm_KeyDown;
-      this.HelpRequested += rhinoscriptsyntaxHelp;
 
       _component = linkedComponent;
 
       if (_component != null)
       {
-        _texteditor = _component.CreateEditorControl(OnPythonHelp);
-        this.splitContainer.Panel1.Controls.Add(_texteditor);
-        _texteditor.Dock = DockStyle.Fill;
+        m_texteditor = _component.CreateEditorControl(OnPythonHelp);
+        this.splitContainer.Panel1.Controls.Add(m_texteditor);
+        m_texteditor.Dock = DockStyle.Fill;
 
-        _texteditor.Text = _component.Code;
-
-        m_previous_script = _texteditor.Text;
+        m_texteditor.Text = _component.Code;
+        m_previous_script = m_texteditor.Text;
       }
 
       versionLabel.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -66,27 +63,17 @@ namespace GhPython.Forms
     {
       try
       {
+        KeyDown += ScriptForm_KeyDown;
+        HelpRequested += rhinoscriptsyntaxHelp;
+        Move += PythonScriptForm_MoveResize;
+        Resize += PythonScriptForm_MoveResize;
+        Grasshopper.Instances.DocumentEditor.Move += PythonScriptForm_MoveResize;
+
         if (_component.DefaultEditorLocation != null && IsOnScreen(_component.DefaultEditorLocation.Value))
           Location = _component.DefaultEditorLocation.Value;
 
         if (_component.DefaultEditorSize != Size.Empty)
           Size = _component.DefaultEditorSize;
-      }
-      catch (Exception ex)
-      {
-        LastHandleException(ex);
-      }
-    }
-
-    private void PythonScriptForm_FormClosing(object sender, FormClosingEventArgs e)
-    {
-      try
-      {
-        if (_component != null)
-        {
-          _component.DefaultEditorLocation = Location;
-          _component.DefaultEditorSize = (WindowState == FormWindowState.Normal) ? Size : RestoreBounds.Size;
-        }
       }
       catch (Exception ex)
       {
@@ -103,14 +90,14 @@ namespace GhPython.Forms
 
     void ScriptForm_KeyDown(object sender, KeyEventArgs e)
     {
-      if (_texteditor == null)
+      if (m_texteditor == null)
         return;
       // 22 April 2011 - S. Baer
       // I realize this is very "hacky", but it will keep
       // things working until I move this logic into the control itself
-      var mi = _texteditor.GetType().GetMethod("ProcessKeyDown");
+      var mi = m_texteditor.GetType().GetMethod("ProcessKeyDown");
       if (mi != null)
-        mi.Invoke(_texteditor, new object[] { e });
+        mi.Invoke(m_texteditor, new object[] { e });
 
       // 30 May 2012 - G. Piacentino
       // This is here for the same reason as the above: no win message pump.
@@ -126,6 +113,13 @@ namespace GhPython.Forms
 
       if (_handlers.ContainsKey(e.KeyData))
         _handlers[e.KeyData](sender, e);
+    }
+
+    void PythonScriptForm_MoveResize(object sender, EventArgs e)
+    {
+      if (_component == null) return;
+
+      _component.OnDisplayExpired(true);
     }
 
     private void okButton_Click(object sender, EventArgs e)
@@ -172,9 +166,9 @@ namespace GhPython.Forms
 
         if (codeInput != null)
         {
-          if( _component.IsCodeInputLinked() )
+          if (_component.IsCodeInputLinked())
           {
-            const string msg ="There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.";
+            const string msg = "There is dynamic inherited input that overrides this components behaviour.\nPlease unlink the first input to see the result.";
             if (MessageBox.Show(msg, "Rhino.Python", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
               return;
           }
@@ -185,7 +179,7 @@ namespace GhPython.Forms
                 new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(codeInput));
 
           codeInput.PersistentData.Clear();
-          string newCode = _texteditor.Text;
+          string newCode = m_texteditor.Text;
 
           if (!string.IsNullOrEmpty(newCode))
           {
@@ -200,8 +194,8 @@ namespace GhPython.Forms
             ghd.UndoServer.PushUndoRecord("Python code changed",
                 new Grasshopper.Kernel.Undo.Actions.GH_GenericObjectAction(_component));
 
-          _component.Code = _texteditor.Text;
-          m_previous_script = _texteditor.Text;
+          _component.Code = m_texteditor.Text;
+          m_previous_script = m_texteditor.Text;
         }
 
         if (expire)
@@ -224,7 +218,7 @@ namespace GhPython.Forms
     {
       try
       {
-        var textHasChanged = m_previous_script != _texteditor.Text;
+        var textHasChanged = m_previous_script != m_texteditor.Text;
 
         if (_showClosePrompt && textHasChanged)
         {
@@ -254,9 +248,20 @@ namespace GhPython.Forms
 
           if (attributes != null)
           {
-            attributes.DisableLinkedForm(false);
+            attributes.DisableLinkedEditor(false);
           }
+
+          //we need to remove origin hinting
+          _component.OnDisplayExpired(true); 
+
+          //store last location
+          _component.DefaultEditorLocation = Location;
+          _component.DefaultEditorSize = (WindowState == FormWindowState.Normal) ? Size : RestoreBounds.Size;
+
+          _component = null;
         }
+
+        Grasshopper.Instances.DocumentEditor.Move -= PythonScriptForm_MoveResize;
       }
 
       base.OnClosing(e);
@@ -301,7 +306,7 @@ namespace GhPython.Forms
           if (fd.ShowDialog() == DialogResult.OK)
           {
             string text = File.ReadAllText(fd.FileName);
-            _texteditor.Text = text;
+            m_texteditor.Text = text;
           }
         }
       }
@@ -322,7 +327,7 @@ namespace GhPython.Forms
 
           if (fd.ShowDialog() == DialogResult.OK)
           {
-            File.WriteAllText(fd.FileName, _texteditor.Text, Encoding.UTF8);
+            File.WriteAllText(fd.FileName, m_texteditor.Text, Encoding.UTF8);
           }
         }
       }
@@ -401,7 +406,7 @@ namespace GhPython.Forms
     {
       try
       {
-        var t = _texteditor as dynamic;
+        var t = m_texteditor as dynamic;
         var actTxtCtrl = t.ActiveTextAreaControl;
         var caret = actTxtCtrl.Caret;
         var pos = caret.Position;
@@ -438,7 +443,7 @@ namespace GhPython.Forms
     {
       try
       {
-        if (!string.IsNullOrWhiteSpace(_texteditor.Text))
+        if (!string.IsNullOrWhiteSpace(m_texteditor.Text))
         {
           var result = MessageBox.Show("Open the sample will remove all changes.",
               "Sample opening", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
@@ -447,7 +452,7 @@ namespace GhPython.Forms
             return;
         }
 
-        _texteditor.Text = sample;
+        m_texteditor.Text = sample;
       }
       catch (Exception ex)
       {

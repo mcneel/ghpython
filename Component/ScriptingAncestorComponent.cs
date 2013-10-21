@@ -64,8 +64,6 @@ namespace GhPython.Component
         m_py.ContextId = 2; // 2 is Grasshopper
 
         m_env.LoadAssembly(typeof(GH_Component).Assembly); //add Grasshopper.dll reference
-
-        
       }
     }
     #endregion
@@ -389,17 +387,17 @@ del sys", "True");
 
     private void SetFormErrorOrClearIt(IGH_DataAccess DA, StringList sl)
     {
-      var attr = (PythonComponentAttributes)Attributes;
+      var attr = Attributes;
 
       if (sl.Result.Count > 0)
       {
         if (!HiddenOutOutput)
           DA.SetDataList(0, sl.Result);
-        attr.TrySetLinkedFormHelpText(sl.ToString());
+        attr.TrySetLinkedEditorHelpText(sl.ToString());
       }
       else
       {
-        attr.TrySetLinkedFormHelpText("Execution completed successfully.");
+        attr.TrySetLinkedEditorHelpText("Execution completed successfully.");
       }
     }
 
@@ -465,7 +463,13 @@ del sys", "True");
 
     public override void CreateAttributes()
     {
-      this.Attributes = new PythonComponentAttributes(this);
+      base.Attributes = new PythonComponentAttributes(this);
+    }
+
+    internal new PythonComponentAttributes Attributes
+    {
+      get
+      { return (PythonComponentAttributes)base.Attributes; }
     }
 
     public Control CreateEditorControl(Action<string> helpCallback)
@@ -536,7 +540,7 @@ del sys", "True");
         {
           var tsi = new ToolStripMenuItem("&Open editor...", null, (sender, e) =>
           {
-            var attr = Attributes as PythonComponentAttributes;
+            var attr = Attributes;
             if (attr != null)
               attr.OpenEditor();
           });
@@ -612,6 +616,16 @@ del sys", "True");
 
       writer.SetBoolean(ID_HideOutput, HiddenOutOutput);
 
+
+      //update if possible and save editor location
+      {
+        Form editor;
+        if (Attributes.TryGetEditor(out editor))
+        {
+          DefaultEditorLocation = editor.Location;
+          DefaultEditorSize = editor.Visible ? editor.Size : editor.RestoreBounds.Size;
+        }
+      }
       if (DefaultEditorLocation != null)
       {
         writer.SetDrawingPoint(ID_EditorLocation, DefaultEditorLocation.Value);
@@ -712,9 +726,9 @@ del sys", "True");
         if (Doc != null)
           Doc.SolutionEnd -= OnDocSolutionEnd;
 
-        var attr = Attributes as PythonComponentAttributes;
+        var attr = Attributes;
         if (attr != null)
-          attr.DisableLinkedForm(true);
+          attr.DisableLinkedEditor(true);
       }
     }
     #endregion

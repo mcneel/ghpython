@@ -82,6 +82,8 @@ namespace GhPython.Component
 
     public object Runtime { get; internal set; }
 
+    public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
+
     public void LoadAssembly(System.Reflection.Assembly assembly)
     {
       FunctionalityLoad(assembly);
@@ -105,7 +107,8 @@ namespace GhPython.Component
       if (list == null) return;
       foreach (var namesp in GetToplevelNamespacesForAssembly(assembly))
       {
-        list.Add(namesp);
+        if (!list.Contains(namesp))
+          list.Add(namesp);
       }
     }
 
