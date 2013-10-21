@@ -335,7 +335,6 @@
       this.MinimumSize = new System.Drawing.Size(300, 400);
       this.Name = "PythonScriptForm";
       this.Text = "Grasshopper Python Script Editor";
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PythonScriptForm_FormClosing);
       this.Load += new System.EventHandler(this.PythonScriptForm_Load);
       this.menuStrip.ResumeLayout(false);
       this.menuStrip.PerformLayout();

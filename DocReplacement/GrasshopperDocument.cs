@@ -32,7 +32,7 @@ namespace GhPython.DocReplacement
             newGuids.Add(guid);
         }
         else
-          throw new ApplicationException("UnexpectedObjectException. Please report this error to steve@mcneel.com");
+          throw new ApplicationException("UnexpectedObjectException. Please report this error to giulio@mcneel.com");
       }
 
       return newGuids;

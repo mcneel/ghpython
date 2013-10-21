@@ -1,12 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhPython", "GhPython.csproj", "{8955361B-7612-44DE-9B12-C081EC8C6F2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug32|Any CPU = Debug32|Any CPU
+		Mono|Any CPU = Mono|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -14,6 +15,8 @@ Global
 		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Debug32|Any CPU.ActiveCfg = Debug32|Any CPU
 		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Debug32|Any CPU.Build.0 = Debug32|Any CPU
+		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Mono|Any CPU.ActiveCfg = Release|Any CPU
+		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Mono|Any CPU.Build.0 = Release|Any CPU
 		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8955361B-7612-44DE-9B12-C081EC8C6F2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

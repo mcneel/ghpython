@@ -14,24 +14,11 @@ namespace GhPython.Component
 
       ZuiPythonComponent component_new = new ZuiPythonComponent();
 
-      bool show_code_input = false;
-      if (component_OBSOLETE.CodeInputVisible)
-      {
-        // see if the "code" input on the old component really has anything
-        // hooked up to it.  If not, don't show the input
-        show_code_input = component_OBSOLETE.Params.Input[0].SourceCount > 0;
-      }
-      component_new.CodeInputVisible = show_code_input;
+      component_new.HiddenCodeInput = component_OBSOLETE.HiddenCodeInput;
+      component_new.HiddenOutOutput = component_OBSOLETE.HiddenOutOutput;
 
-      component_new.HideCodeOutput = component_OBSOLETE.HideCodeOutput;
-
-      if (component_new.HideCodeOutput)
-        component_new.Params.Output.RemoveAt(0);
-
-      if (!component_new.CodeInputVisible)
-        component_new.CodeInput = component_OBSOLETE.CodeInput;
-
-      component_OBSOLETE.Dispose();
+      if (!component_new.HiddenCodeInput)
+        component_new.Code = component_OBSOLETE.Code;
 
       if (GH_UpgradeUtil.SwapComponents(component_OBSOLETE, component_new))
       {
@@ -55,7 +42,8 @@ namespace GhPython.Component
           }
         }
 
-        component_new.CodeInputVisible = show_code_input;
+        component_OBSOLETE.Dispose();
+
         return component_new;
       }
       return null;
@@ -73,7 +61,7 @@ namespace GhPython.Component
 
     public DateTime Version
     {
-      get { return new DateTime(2012, 3, 19, 21, 0, 0); }
+      get { return new DateTime(2013, 10, 14, 0, 0, 0); }
     }
   }
 }

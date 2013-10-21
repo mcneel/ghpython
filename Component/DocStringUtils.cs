@@ -5,26 +5,26 @@ using Grasshopper.Kernel;
 
 namespace GhPython.Component
 {
-/*
-# based on DocStrings as defined in
-# http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Comments
-""""""
-Title: Arithmetic Series
-Description: Computes the Sum of an Arithmetic Progression, or the
-sum of all numbers from F to L, included.
-    Args:
-        F: the first number included in the series.
-        L: the last number included in the series.
-    Returns:
-        S: If F > L, then sum of all numbers [F,L].
-            If F = L, then 0.
-            If F < L, then sum of all numbers (L,F).
-        K: Not used.
-    Help:
-        See also the Gauss elementary school story:
-        http://mathworld.wolfram.com/ArithmeticSeries.html
-""""""
-*/
+  /*
+  # based on DocStrings as defined in
+  # http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Comments
+  """"""
+  Title: Arithmetic Series
+  Description: Computes the Sum of an Arithmetic Progression, or the
+  sum of all numbers from F to L, included.
+      Args:
+          F: the first number included in the series.
+          L: the last number included in the series.
+      Returns:
+          S: If F > L, then sum of all numbers [F,L].
+              If F = L, then 0.
+              If F < L, then sum of all numbers (L,F).
+          K: Not used.
+      Help:
+          See also the Gauss elementary school story:
+          http://mathworld.wolfram.com/ArithmeticSeries.html
+  """"""
+  */
   class DocStringUtils
   {
     public static bool FindApplyDocString(string code, ScriptingAncestorComponent component)
@@ -55,7 +55,8 @@ sum of all numbers from F to L, included.
         int endSeparator = line.IndexOf(_docStringSeparator);
         if (endSeparator != -1) line = line.Substring(0, endSeparator);
 
-        if (IsEmptyLine(line)) {
+        if (IsEmptyLine(line))
+        {
           if (endSeparator != -1) break;
           continue;
         }
@@ -141,7 +142,7 @@ sum of all numbers from F to L, included.
     {
       if (variable != null)
       {
-        switch(type)
+        switch (type)
         {
           case KeywordType.Description:
             component.Description = result.ToString();
@@ -153,7 +154,7 @@ sum of all numbers from F to L, included.
             FindAndDescribe(component.Params.Output, variable, result.ToString());
             break;
           case KeywordType.Help:
-            component.SpecialPythonHelpContent = result.ToString();
+            component.AdditionalHelpFromDocStrings = result.ToString();
             break;
         }
         result = new StringBuilder();
@@ -180,12 +181,6 @@ sum of all numbers from F to L, included.
       Return,
       Help,
     }
-
-    //private static void AppendText(StringBuilder result, string text)
-    //{
-    //  if (result.Length != 0) result.Append(" ");
-    //  result.Append(text);
-    //}
 
     private static void AddLine(StringBuilder result, string text)
     {
@@ -237,7 +232,7 @@ sum of all numbers from F to L, included.
 
     public static string Htmlify(string input)
     {
-      string firstRepl = System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n]",
+      string firstRepl = System.Text.RegularExpressions.Regex.Replace(input, "[<>&\"'\n\r]",
         t =>
         {
           switch (t.Value)
@@ -254,6 +249,8 @@ sum of all numbers from F to L, included.
               return "&#39;";
             case "\n":
               return "<br>";
+            case "\r":
+              return string.Empty;
           }
           return string.Empty;
         });

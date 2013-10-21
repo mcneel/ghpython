@@ -13,13 +13,12 @@ namespace GhPython.Component
   {
     public ZuiPythonComponent()
     {
-      CodeInputVisible = false;
     }
 
     protected override void AddDefaultInput(GH_Component.GH_InputParamManager pManager)
     {
-      pManager.RegisterParam(CreateParameter(GH_ParameterSide.Input, pManager.ParamCount));
-      pManager.RegisterParam(CreateParameter(GH_ParameterSide.Input, pManager.ParamCount));
+      pManager.AddParameter(CreateParameter(GH_ParameterSide.Input, pManager.ParamCount));
+      pManager.AddParameter(CreateParameter(GH_ParameterSide.Input, pManager.ParamCount));
     }
 
     protected override void AddDefaultOutput(GH_Component.GH_OutputParamManager pManager)
@@ -83,7 +82,7 @@ namespace GhPython.Component
       return m_hints;
     }
     
-    #region Members of IGH_VariableParameterComponent
+    #region IGH_VariableParameterComponent implementation
 
     public IGH_Param CreateParameter(GH_ParameterSide side, int index)
     {
@@ -116,16 +115,15 @@ namespace GhPython.Component
 
     bool IGH_VariableParameterComponent.DestroyParameter(GH_ParameterSide side, int index)
     {
+      if(side == GH_ParameterSide.Input && !HiddenCodeInput && index == 0)
+          m_inner_codeInput = Code;
+
       return true;
     }
 
     bool IGH_VariableParameterComponent.CanInsertParameter(GH_ParameterSide side, int index)
     {
-      if (side == GH_ParameterSide.Input)
-        return index > (!CodeInputVisible ? -1 : 0);
-      if (side == GH_ParameterSide.Output)
-        return index > (HideCodeOutput ? -1 : 0);
-      return false;
+      return index > -1;
     }
 
     bool IGH_VariableParameterComponent.CanRemoveParameter(GH_ParameterSide side, int index)
@@ -150,10 +148,10 @@ namespace GhPython.Component
     {
       base.SetScriptTransientGlobals();
 
-      _py.ScriptContextDoc = _document;
-      _marshal = new NewComponentIOMarshal(_document, this);
-      _py.SetVariable(DOCUMENT_NAME, _document);
-      _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
+      m_py.ScriptContextDoc = m_document;
+      m_marshal = new NewComponentIOMarshal(m_document, this);
+      m_py.SetVariable(DOCUMENT_NAME, m_document);
+      m_py.SetIntellisenseVariable(DOCUMENT_NAME, m_document);
     }
 
     public override Guid ComponentGuid

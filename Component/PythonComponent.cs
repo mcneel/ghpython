@@ -14,8 +14,8 @@ namespace GhPython.Component
   {
     protected override void AddDefaultInput(GH_Component.GH_InputParamManager inputManager)
     {
-      inputManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "x"));
-      inputManager.RegisterParam(ConstructVariable(GH_VarParamSide.Input, "y"));
+      inputManager.AddParameter(ConstructVariable(GH_VarParamSide.Input, "x"));
+      inputManager.AddParameter(ConstructVariable(GH_VarParamSide.Input, "y"));
     }
 
     protected override void AddDefaultOutput(GH_Component.GH_OutputParamManager outputManager)
@@ -43,21 +43,21 @@ namespace GhPython.Component
         case DocStorage.InGrasshopperMemory:
         case DocStorage.AutomaticMarshal:
           {
-            _py.ScriptContextDoc = _document;
-            _marshal = new OldComponentIOMarshal(_document, this);
-            _py.SetVariable(DOCUMENT_NAME, _document);
-            _py.SetIntellisenseVariable(DOCUMENT_NAME, _document);
+            m_py.ScriptContextDoc = m_document;
+            m_marshal = new OldComponentIOMarshal(m_document, this);
+            m_py.SetVariable(DOCUMENT_NAME, m_document);
+            m_py.SetIntellisenseVariable(DOCUMENT_NAME, m_document);
             break;
           }
         case DocStorage.InRhinoDoc:
           {
-            _py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
-            _marshal = new OldComponentIOMarshal(Rhino.RhinoDoc.ActiveDoc, this);
+            m_py.ScriptContextDoc = Rhino.RhinoDoc.ActiveDoc;
+            m_marshal = new OldComponentIOMarshal(Rhino.RhinoDoc.ActiveDoc, this);
             Rhino.RhinoDoc.ActiveDoc.UndoRecordingEnabled = true;
-            if (_py.ContainsVariable(DOCUMENT_NAME))
+            if (m_py.ContainsVariable(DOCUMENT_NAME))
             {
-              _py.RemoveVariable(DOCUMENT_NAME);
-              _py.SetIntellisenseVariable(DOCUMENT_NAME, null);
+              m_py.RemoveVariable(DOCUMENT_NAME);
+              m_py.SetIntellisenseVariable(DOCUMENT_NAME, null);
             }
             break;
           }
@@ -88,7 +88,7 @@ namespace GhPython.Component
       {
         try
         {
-          Component.CheckAndSetupActions();
+          Component.CheckIfSetupActionsAreNecessary();
 
           Component.DocStorageMode = NewDocStorage;
           Component.SetScriptTransientGlobals();
@@ -181,13 +181,13 @@ namespace GhPython.Component
 
     public bool IsVariableParam(GH_VarParamEventArgs e)
     {
-      return e.Index > (!CodeInputVisible ? -1 : 0);
+      return e.Index > (!HiddenCodeInput ? -1 : 0);
     }
 
     public void ManagerConstructed(GH_VarParamSide side, Grasshopper.GUI.GH_VariableParameterManager manager)
     {
       string pool = (side == GH_VarParamSide.Input) ? "xyzuvw" : "abcdef";
-      manager.NameConstructor = new GH_CharPatternParamNameConstructor(pool, 4);
+      manager.NameConstructor = new Grasshopper.Kernel.GH_StringPattern(pool, 4);
     }
 
     public void ParametersModified(GH_VarParamSide side)

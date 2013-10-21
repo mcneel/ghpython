@@ -1,6 +1,10 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using Rhino.Runtime;
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace GhPython.Component
 {
@@ -21,6 +25,19 @@ namespace GhPython.Component
           LocalScope = scopeField.GetValue(script);
         }
 
+        var intellisenseField = scriptType.GetField("m_intellisense",
+          System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField);
+        if (intellisenseField != null)
+        {
+          Intellisense = intellisenseField.GetValue(script);
+          if (Intellisense != null)
+          {
+            var intellisenseType = Intellisense.GetType();
+            var scopeProperty = intellisenseType.GetProperty("Scope");
+            IntellisenseScope = scopeProperty.GetValue(Intellisense, null);
+          }
+        }
+
         var baseType = scriptType.BaseType;
         if (baseType != null && baseType != typeof (object))
         {
@@ -29,7 +46,15 @@ namespace GhPython.Component
           {
             var engineInfo = hostType.GetProperty("Engine");
             if (engineInfo != null)
+            {
               Engine = engineInfo.GetValue(null, null);
+
+              if (Engine != null)
+              {
+                var runtimeInfo = Engine.GetType().GetProperty("Runtime");
+                Runtime = runtimeInfo.GetValue(Engine, null);
+              }
+            }
 
             var scopeInfo = hostType.GetProperty("Scope", System.Reflection.BindingFlags.NonPublic |
                                                           System.Reflection.BindingFlags.GetProperty |
@@ -39,7 +64,6 @@ namespace GhPython.Component
           }
         }
       }
-
     }
 
     public GH_Component Component { get; internal set; }
@@ -50,6 +74,63 @@ namespace GhPython.Component
 
     public object ScriptScope { get; internal set; }
 
+    public object Intellisense { get; internal set; }
+
+    public object IntellisenseScope { get; internal set; }
+
     public object Engine { get; internal set; }
+
+    public object Runtime { get; internal set; }
+
+    public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
+
+    public void LoadAssembly(System.Reflection.Assembly assembly)
+    {
+      FunctionalityLoad(assembly);
+
+      // now intellisense
+      if (IntellisenseScope == null) return; 
+
+      // we really want to get intellisense right away. No matter what
+      // so, we first make it cache, then add to it
+
+      var intellisenseType = Intellisense.GetType();
+      var m = intellisenseType.GetMethod("GetModuleList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
+      m.Invoke(Intellisense, null);
+
+      var ex_m_autocomplete_modules = intellisenseType.GetField("m_autocomplete_modules",
+        BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
+
+      if (ex_m_autocomplete_modules == null) return;
+      var list = ex_m_autocomplete_modules.GetValue(Intellisense) as IList;
+
+      if (list == null) return;
+      foreach (var namesp in GetToplevelNamespacesForAssembly(assembly))
+      {
+        if (!list.Contains(namesp))
+          list.Add(namesp);
+      }
+    }
+
+    private void FunctionalityLoad(System.Reflection.Assembly assembly)
+    {
+      var runtime = Runtime as dynamic;
+      runtime.LoadAssembly(assembly);
+    }
+
+    private static IEnumerable<string> GetToplevelNamespacesForAssembly(Assembly assembly)
+    {
+      return assembly.GetTypes().Select(GetTopLevelNamespace)
+        .Where(s => !string.IsNullOrEmpty(s)).Distinct();
+    }
+
+    // question by David here:
+    // http://stackoverflow.com/questions/1549198/finding-all-namespaces-in-an-assembly-using-reflection-dotnet
+    static string GetTopLevelNamespace(Type t)
+    {
+        string ns = t.Namespace ?? "";
+        int firstDot = ns.IndexOf('.');
+        return firstDot == -1 ? ns : ns.Substring(0, firstDot);
+    }
   }
 }
