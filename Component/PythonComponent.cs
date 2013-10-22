@@ -181,7 +181,10 @@ namespace GhPython.Component
 
     public bool IsVariableParam(GH_VarParamEventArgs e)
     {
-      return e.Index > (!HiddenCodeInput ? -1 : 0);
+      if(e.Side == GH_VarParamSide.Input)
+        return e.Index > (HiddenCodeInput ? -1 : 0);
+      else
+        return e.Index > (HiddenOutOutput ? -1 : 0);
     }
 
     public void ManagerConstructed(GH_VarParamSide side, Grasshopper.GUI.GH_VariableParameterManager manager)

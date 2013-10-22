@@ -17,7 +17,7 @@ namespace GhPython.Component
       component_new.HiddenCodeInput = component_OBSOLETE.HiddenCodeInput;
       component_new.HiddenOutOutput = component_OBSOLETE.HiddenOutOutput;
 
-      if (!component_new.HiddenCodeInput)
+      if (component_new.HiddenCodeInput)
         component_new.Code = component_OBSOLETE.Code;
 
       if (GH_UpgradeUtil.SwapComponents(component_OBSOLETE, component_new))
