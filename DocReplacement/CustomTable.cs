@@ -905,7 +905,8 @@ namespace GhPython.DocReplacement
     public static NotSupportedException NotSupportedExceptionHelp()
     {
       return new NotSupportedException(
-        "This call is not supported from within a Grasshopper component");
+        "This type of object is not supported in Grasshopper, so this Python script cannot create it. "+
+        "You might want to use 'scriptcontext.doc = Rhino.RhinoDoc.ActiveDoc' to use the Rhino doc, instead? If you do, remember to restore it: 'scriptcontext.doc = ghdoc'.");
     }
 
     private const int _listInferStart = 4;
