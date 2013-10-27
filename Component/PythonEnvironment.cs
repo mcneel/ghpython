@@ -84,7 +84,7 @@ namespace GhPython.Component
 
     public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
-    public void LoadAssembly(System.Reflection.Assembly assembly)
+    public void LoadAssembly(Assembly assembly)
     {
       FunctionalityLoad(assembly);
 
@@ -94,11 +94,11 @@ namespace GhPython.Component
       // we really want to get intellisense right away. No matter what
       // so, we first make it cache, then add to it
 
-      var intellisenseType = Intellisense.GetType();
-      var m = intellisenseType.GetMethod("GetModuleList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
+      var intellisense_type = Intellisense.GetType();
+      var m = intellisense_type.GetMethod("GetModuleList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
       m.Invoke(Intellisense, null);
 
-      var ex_m_autocomplete_modules = intellisenseType.GetField("m_autocomplete_modules",
+      var ex_m_autocomplete_modules = intellisense_type.GetField("m_autocomplete_modules",
         BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
 
       if (ex_m_autocomplete_modules == null) return;
@@ -112,7 +112,7 @@ namespace GhPython.Component
       }
     }
 
-    private void FunctionalityLoad(System.Reflection.Assembly assembly)
+    private void FunctionalityLoad(Assembly assembly)
     {
       var runtime = Runtime as dynamic;
       runtime.LoadAssembly(assembly);

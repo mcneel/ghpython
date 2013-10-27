@@ -11,17 +11,13 @@ namespace GhPython.Component
   [Guid("410755B1-224A-4C1E-A407-BF32FB45EA7E")]
   public class ZuiPythonComponent : ScriptingAncestorComponent, IGH_VariableParameterComponent
   {
-    public ZuiPythonComponent()
-    {
-    }
-
-    protected override void AddDefaultInput(GH_Component.GH_InputParamManager pManager)
+    protected override void AddDefaultInput(GH_InputParamManager pManager)
     {
       pManager.AddParameter(CreateParameter(GH_ParameterSide.Input, pManager.ParamCount));
       pManager.AddParameter(CreateParameter(GH_ParameterSide.Input, pManager.ParamCount));
     }
 
-    protected override void AddDefaultOutput(GH_Component.GH_OutputParamManager pManager)
+    protected override void AddDefaultOutput(GH_OutputParamManager pManager)
     {
       pManager.RegisterParam(CreateParameter(GH_ParameterSide.Output, pManager.ParamCount));
     }
@@ -41,45 +37,45 @@ namespace GhPython.Component
         i.TypeHint = i.Hints[1];
     }
 
-    static readonly List<IGH_TypeHint> m_hints = new List<IGH_TypeHint>();
+    static readonly List<IGH_TypeHint> g_hints = new List<IGH_TypeHint>();
     static List<IGH_TypeHint> GetHints()
     {
-      lock (m_hints)
+      lock (g_hints)
       {
-        if (m_hints.Count == 0)
+        if (g_hints.Count == 0)
         {
-          m_hints.Add(new NoChangeHint());
-          m_hints.Add(new GhDocGuidHint());
+          g_hints.Add(new NoChangeHint());
+          g_hints.Add(new GhDocGuidHint());
 
-          m_hints.AddRange(PossibleHints);
+          g_hints.AddRange(PossibleHints);
 
-          m_hints.RemoveAll(t =>
+          g_hints.RemoveAll(t =>
             {
               var y = t.GetType();
               return (y == typeof (GH_DoubleHint_CS) || y == typeof (GH_StringHint_CS));
             });
-          m_hints.Insert(4, new NewFloatHint());
-          m_hints.Insert(6, new NewStrHint());
+          g_hints.Insert(4, new NewFloatHint());
+          g_hints.Insert(6, new NewStrHint());
 
-          m_hints.Add(new GH_BoxHint());
+          g_hints.Add(new GH_BoxHint());
 
-          m_hints.Add(new GH_HintSeparator());
+          g_hints.Add(new GH_HintSeparator());
 
-          m_hints.Add(new GH_LineHint());
-          m_hints.Add(new GH_CircleHint());
-          m_hints.Add(new GH_ArcHint());
-          m_hints.Add(new GH_PolylineHint());
+          g_hints.Add(new GH_LineHint());
+          g_hints.Add(new GH_CircleHint());
+          g_hints.Add(new GH_ArcHint());
+          g_hints.Add(new GH_PolylineHint());
 
-          m_hints.Add(new GH_HintSeparator());
+          g_hints.Add(new GH_HintSeparator());
 
-          m_hints.Add(new GH_CurveHint());
-          m_hints.Add(new GH_MeshHint());
-          m_hints.Add(new GH_SurfaceHint());
-          m_hints.Add(new GH_BrepHint());
-          m_hints.Add(new GH_GeometryBaseHint());
+          g_hints.Add(new GH_CurveHint());
+          g_hints.Add(new GH_MeshHint());
+          g_hints.Add(new GH_SurfaceHint());
+          g_hints.Add(new GH_BrepHint());
+          g_hints.Add(new GH_GeometryBaseHint());
         }
       }
-      return m_hints;
+      return g_hints;
     }
     
     #region IGH_VariableParameterComponent implementation
