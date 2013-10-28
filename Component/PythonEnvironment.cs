@@ -105,6 +105,12 @@ namespace GhPython.Component
       var list = ex_m_autocomplete_modules.GetValue(Intellisense) as IList;
 
       if (list == null) return;
+      
+      // add ghpython package
+      if (!list.Contains("ghpython"))
+        list.Add("ghpython");
+
+
       foreach (var namesp in GetToplevelNamespacesForAssembly(assembly))
       {
         if (!list.Contains(namesp))
