@@ -79,7 +79,7 @@ namespace GhPython.Component
       SafeSolveInstance(DA);
     }
 
-    protected abstract void SafeSolveInstance(IGH_DataAccess DA);
+    protected abstract void SafeSolveInstance(IGH_DataAccess da);
 
     private void GrasshopperDocumentClosed(GH_DocumentServer sender, GH_Document doc)
     {

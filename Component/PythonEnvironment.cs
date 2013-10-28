@@ -10,7 +10,7 @@ namespace GhPython.Component
 {
   public class PythonEnvironment
   {
-    internal PythonEnvironment(Grasshopper.Kernel.GH_Component component, PythonScript script)
+    internal PythonEnvironment(GH_Component component, PythonScript script)
     {
       Component = component;
       Script = script;
@@ -26,7 +26,7 @@ namespace GhPython.Component
         }
 
         var intellisenseField = scriptType.GetField("m_intellisense",
-          System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField);
+          BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
         if (intellisenseField != null)
         {
           Intellisense = intellisenseField.GetValue(script);
@@ -56,9 +56,9 @@ namespace GhPython.Component
               }
             }
 
-            var scopeInfo = hostType.GetProperty("Scope", System.Reflection.BindingFlags.NonPublic |
-                                                          System.Reflection.BindingFlags.GetProperty |
-                                                          System.Reflection.BindingFlags.Static);
+            var scopeInfo = hostType.GetProperty("Scope", BindingFlags.NonPublic |
+                                                          BindingFlags.GetProperty |
+                                                          BindingFlags.Static);
             if (scopeInfo != null)
               ScriptScope = scopeInfo.GetValue(null, null);
           }
@@ -84,7 +84,7 @@ namespace GhPython.Component
 
     public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
-    public void LoadAssembly(System.Reflection.Assembly assembly)
+    public void LoadAssembly(Assembly assembly)
     {
       FunctionalityLoad(assembly);
 
@@ -94,17 +94,23 @@ namespace GhPython.Component
       // we really want to get intellisense right away. No matter what
       // so, we first make it cache, then add to it
 
-      var intellisenseType = Intellisense.GetType();
-      var m = intellisenseType.GetMethod("GetModuleList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
+      var intellisense_type = Intellisense.GetType();
+      var m = intellisense_type.GetMethod("GetModuleList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
       m.Invoke(Intellisense, null);
 
-      var ex_m_autocomplete_modules = intellisenseType.GetField("m_autocomplete_modules",
+      var ex_m_autocomplete_modules = intellisense_type.GetField("m_autocomplete_modules",
         BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
 
       if (ex_m_autocomplete_modules == null) return;
       var list = ex_m_autocomplete_modules.GetValue(Intellisense) as IList;
 
       if (list == null) return;
+      
+      // add ghpython package
+      if (!list.Contains("ghpython"))
+        list.Add("ghpython");
+
+
       foreach (var namesp in GetToplevelNamespacesForAssembly(assembly))
       {
         if (!list.Contains(namesp))
@@ -112,7 +118,7 @@ namespace GhPython.Component
       }
     }
 
-    private void FunctionalityLoad(System.Reflection.Assembly assembly)
+    private void FunctionalityLoad(Assembly assembly)
     {
       var runtime = Runtime as dynamic;
       runtime.LoadAssembly(assembly);
