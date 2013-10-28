@@ -10,7 +10,7 @@ namespace GhPython.Component
 {
   public class PythonEnvironment
   {
-    internal PythonEnvironment(Grasshopper.Kernel.GH_Component component, PythonScript script)
+    internal PythonEnvironment(GH_Component component, PythonScript script)
     {
       Component = component;
       Script = script;
@@ -26,7 +26,7 @@ namespace GhPython.Component
         }
 
         var intellisenseField = scriptType.GetField("m_intellisense",
-          System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField);
+          BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
         if (intellisenseField != null)
         {
           Intellisense = intellisenseField.GetValue(script);
@@ -56,9 +56,9 @@ namespace GhPython.Component
               }
             }
 
-            var scopeInfo = hostType.GetProperty("Scope", System.Reflection.BindingFlags.NonPublic |
-                                                          System.Reflection.BindingFlags.GetProperty |
-                                                          System.Reflection.BindingFlags.Static);
+            var scopeInfo = hostType.GetProperty("Scope", BindingFlags.NonPublic |
+                                                          BindingFlags.GetProperty |
+                                                          BindingFlags.Static);
             if (scopeInfo != null)
               ScriptScope = scopeInfo.GetValue(null, null);
           }

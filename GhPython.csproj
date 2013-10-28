@@ -153,6 +153,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="package\components.py" />
+    <EmbeddedResource Include="package\__init__.py" />
     <Content Include="Samples\sampleCommon.py" />
     <None Include="Samples\helpText.html" />
     <Content Include="Samples\sampleScript.py" />

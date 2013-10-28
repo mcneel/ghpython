@@ -16,6 +16,7 @@ namespace GhPython.Component
 {
   public abstract class ScriptingAncestorComponent : SafeComponent
   {
+    static bool g_resources_unpacked = false;
     private readonly StringList m_py_output = new StringList(); // python output stream is piped here
     internal static GrasshopperDocument m_document = new GrasshopperDocument();
     internal ComponentIOMarshal m_marshal;
@@ -38,9 +39,81 @@ namespace GhPython.Component
     {
     }
 
-    public override void AddRuntimeMessage(GH_RuntimeMessageLevel level, string text)
+    private static void UnpackScriptResources()
     {
-      base.AddRuntimeMessage(level, text);
+      if (g_resources_unpacked)
+        return;
+      Guid python_plugin_id = new Guid("814d908a-e25c-493d-97e9-ee3861957f49");
+      var plugin = Rhino.PlugIns.PlugIn.Find(python_plugin_id);
+      if (plugin == null)
+        return;
+
+      g_resources_unpacked = true;
+
+      // Unpack ghcomponents.py to the Python plug directory
+      string settings_directory = plugin.SettingsDirectory;
+      string marker_file = Path.Combine(settings_directory, "ghpy_version.txt");
+      try
+      {
+        if (File.Exists(marker_file))
+        {
+          string text = File.ReadAllText(marker_file);
+          Version markedversion = new Version(text);
+          Version this_version = typeof(ZuiPythonComponent).Assembly.GetName().Version;
+          if (markedversion == this_version)
+          {
+#if !DEBUG
+            // everything looks good, bail out
+            return;
+#endif
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        HostUtils.ExceptionReport(ex);
+      }
+
+      try
+      {
+        // if we get to here, we need to unpack the resources
+        if (!Directory.Exists(settings_directory))
+          Directory.CreateDirectory(settings_directory);
+        string ghpython_package_dir = Path.Combine(settings_directory, "lib", "ghpython");
+        if (Directory.Exists(ghpython_package_dir))
+          Directory.Delete(ghpython_package_dir, true);
+        Directory.CreateDirectory(ghpython_package_dir);
+        System.Reflection.Assembly a = typeof(ZuiPythonComponent).Assembly;
+        string[] names = a.GetManifestResourceNames();
+
+        const string prefix = "GhPython.package.";
+
+        foreach (string name in names)
+        {
+          if (!name.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+            continue;
+
+          Stream resource_stream = a.GetManifestResourceStream(name);
+          if (resource_stream == null)
+            continue;
+          StreamReader stream = new StreamReader(resource_stream);
+          string s = stream.ReadToEnd();
+          stream.Close();
+          string filename = name.Replace(prefix, "");
+          string path = Path.Combine(ghpython_package_dir, filename);
+          File.WriteAllText(path, s);
+        }
+
+        // Write the marker file at the very end to ensure that we actually got to this point.
+        // If an exception occured for some reason like a file was in use, then the plug-in
+        // will just attempt to unpack the resources next time.
+        string str = a.GetName().Version.ToString();
+        File.WriteAllText(marker_file, str);
+      }
+      catch (Exception ex)
+      {
+        HostUtils.DebugString("Exception while unpacking resources: " + ex.Message);
+      }
     }
 
     protected override void Initialize()
@@ -53,6 +126,7 @@ namespace GhPython.Component
       m_py = PythonScript.Create();
       if (m_py != null)
       {
+        UnpackScriptResources();
         SetScriptTransientGlobals();
         m_py.Output = m_py_output.Write;
         m_py.SetVariable("__name__", "__main__");
@@ -243,16 +317,16 @@ namespace GhPython.Component
 
     #region Solving
 
-    protected override void SafeSolveInstance(IGH_DataAccess DA)
+    protected override void SafeSolveInstance(IGH_DataAccess da)
     {
       if (m_py == null)
       {
-        DA.SetData(0, "No Python engine available. This component needs Rhino v5");
+        da.SetData(0, "No Python engine available. This component needs Rhino v5");
         return;
       }
 
       if(!HiddenOutOutput)
-        DA.DisableGapLogic(0);
+        da.DisableGapLogic(0);
 
       m_py_output.Reset();
 
@@ -277,7 +351,7 @@ namespace GhPython.Component
         for (int i = showing_code_input ? 1 : 0; i < Params.Input.Count; i++)
         {
           string varname = Params.Input[i].NickName;
-          object o = m_marshal.GetInput(DA, i);
+          object o = m_marshal.GetInput(da, i);
           m_py.SetVariable(varname, o);
           m_py.SetIntellisenseVariable(varname, o);
         }
@@ -291,7 +365,7 @@ namespace GhPython.Component
           else
           {
             script = null;
-            DA.GetData(0, ref script);
+            da.GetData(0, ref script);
           }
 
           if (string.IsNullOrWhiteSpace(script))
@@ -325,7 +399,7 @@ namespace GhPython.Component
           {
             string varname = Params.Output[i].NickName;
             object o = m_py.GetVariable(varname);
-            m_marshal.SetOutput(o, DA, i);
+            m_marshal.SetOutput(o, da, i);
           }
         }
         else
@@ -336,7 +410,7 @@ namespace GhPython.Component
       catch (Exception ex)
       {
         AddErrorNicely(m_py_output, ex);
-        SetFormErrorOrClearIt(DA, m_py_output);
+        SetFormErrorOrClearIt(da, m_py_output);
         throw;
       }
       finally
@@ -344,7 +418,7 @@ namespace GhPython.Component
         if (rhdoc != null && prevEnabled != rhdoc.Views.RedrawEnabled)
           rhdoc.Views.RedrawEnabled = true;
       }
-      SetFormErrorOrClearIt(DA, m_py_output);
+      SetFormErrorOrClearIt(da, m_py_output);
     }
 
     private bool AddLocalPath(out string location)
