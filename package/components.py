@@ -55,7 +55,7 @@ def __build_module():
             if param.Kind == GH.Kernel.GH_ParamKind.input:
                 s = "{0} (in) [{1}] - {2}"
                 if param.Optional:
-                    s = "{0} (in|optional) [{1}] - {2}"
+                    s = "{0} (in, optional) [{1}] - {2}"
                 rc.append(s.format(param.NickName, param.TypeName, param.Description))
             elif param.Kind == GH.Kernel.GH_ParamKind.output:
                 s = "{0} (out) [{1}] - {2}"
