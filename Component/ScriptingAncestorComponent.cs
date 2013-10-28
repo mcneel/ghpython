@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Linq;
 using GhPython.DocReplacement;
 using GhPython.Properties;
 using Grasshopper.Kernel;
@@ -347,30 +348,38 @@ namespace GhPython.Component
       SetFormErrorOrClearIt(DA, m_py_output);
     }
 
-    private bool AddLocalPath(out string location)
+    private bool AddLocalPath(out string path)
     {
-      location = m_document.Path;
-      if (string.IsNullOrWhiteSpace(location)) return false;
+      string probe_location = m_document.Path;
+      if (string.IsNullOrWhiteSpace(probe_location)) { path = null; return false; }
 
-      location = Path.GetDirectoryName(location);
-      if (!Directory.Exists(location)) return false;
+      probe_location = Path.GetDirectoryName(probe_location);
+      if (!Directory.Exists(probe_location)) { path = null; return false; }
 
-      var added = m_py.EvaluateExpression(
-@"import sys",
-string.Format("(sys.path.insert(0,r\"{0}\") or True) if r\"{0}\" not in sys.path else False",
-location)
-      );
-      m_py.RemoveVariable("sys");
+      var sys_path = GetSysPath();
+      var there_was = sys_path.OfType<string>().Any(s => 
+        string.Equals(s, probe_location, StringComparison.InvariantCultureIgnoreCase));
 
-      if (!(added is bool)) return false;
-      return (bool)added;
+      if (!there_was) sys_path.Insert(0, probe_location);
+      path = probe_location;
+      return !there_was;
     }
 
     private void RemoveLocalPath(string location)
     {
-      var added = m_py.EvaluateExpression(@"import sys
-if r""" + location + @""" in sys.path: sys.path.remove(""" + location + @""")
-del sys", "True");
+      var sys_path = GetSysPath();
+      if (sys_path.Count > 0 &&
+        string.Equals(sys_path[0] as string, location, StringComparison.InvariantCultureIgnoreCase))
+      {
+        sys_path.RemoveAt(0);
+      }
+    }
+
+    private System.Collections.IList GetSysPath()
+    {
+      var sys_path = (System.Collections.IList)m_py.EvaluateExpression("import sys", "sys.path");
+      m_py.RemoveVariable("sys");
+      return sys_path;
     }
 
     private void AddErrorNicely(StringList sw, Exception ex)
