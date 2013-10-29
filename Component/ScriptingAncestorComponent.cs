@@ -127,7 +127,7 @@ namespace GhPython.Component
       m_py = PythonScript.Create();
       if (m_py != null)
       {
-        UnpackScriptResources();
+        //UnpackScriptResources();
         SetScriptTransientGlobals();
         m_py.Output = m_py_output.Write;
         m_py.SetVariable("__name__", "__main__");
