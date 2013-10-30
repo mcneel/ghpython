@@ -46,11 +46,12 @@ class function_helper(object):
         self.return_type = None
 
     def create_output(self, params):
-        import collections
+        from collections import namedtuple
         output_values = []
         for output in params.Output:
             data = output.VolatileData.AllData(True)
-            v = [x.Value for x in data]
+            #We could call Value, but ScriptVariable seems to do a better job
+            v = [x.ScriptVariable() for x in data]
             if len(v)<1:
                 output_values.append(None)
             elif len(v)==1:
@@ -61,8 +62,7 @@ class function_helper(object):
         if self.return_type is None:
             names = [output.Name.lower() for output in params.Output]
             try:
-                t = collections.namedtuple('Output', names, rename=True)
-                self.return_type = t
+                self.return_type = namedtuple('Output', names, rename=True)
             except:
                 self.return_type = False
         if not self.return_type: return output_values
