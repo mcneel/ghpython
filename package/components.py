@@ -5,15 +5,14 @@ import Grasshopper as GH
 
 def __make_function__(helper):
     def component_function(*args, **kwargs):
-        obj = helper.proxy
-        comp = obj.CreateInstance()
+        comp = helper.comp
         comp.ClearData()
         if args:
             for i, arg in enumerate(args):
                 if arg is None: continue
                 param = comp.Params.Input[i]
                 param.PersistentData.Clear()
-                if hasattr(arg, '__iter__'): #TODO deal with polyline
+                if hasattr(arg, '__iter__'): #TODO deal with polyline, str
                     [param.AddPersistentData(a) for a in arg]
                 else:
                     param.AddPersistentData(arg)
@@ -23,7 +22,7 @@ def __make_function__(helper):
                 if name in kwargs:
                     param.PersistentData.Clear()
                     arg = kwargs[name]
-                    if hasattr(arg, '__iter__'): #TODO deal with polyline
+                    if hasattr(arg, '__iter__'): #TODO deal with polyline, str
                         [param.AddPersistentData(a) for a in arg]
                     else:
                         param.AddPersistentData(arg)
@@ -43,6 +42,7 @@ class namespace_object(object):
 class function_helper(object):
     def __init__(self, proxy):
         self.proxy = proxy
+        self.comp = proxy.CreateInstance()
         self.return_type = None
 
     def create_output(self, params):
@@ -87,9 +87,11 @@ def __build_module():
                 rc.append(s.format(out.Name.lower(), out.TypeName, out.Description))
         return '\n'.join(rc)
 
-    import sys, types, string
+    import sys, types, re
     core_module = sys.modules['ghpython.components']
-    translation = string.maketrans("'()*|+&", "_______")
+    translate_from = u"|+-*\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079"
+    translate_to = "X__x0123456789"
+    transl = dict(zip(translate_from, translate_to))
     for obj in GH.Instances.ComponentServer.ObjectProxies:
         if obj.Exposure == GH.Kernel.GH_Exposure.hidden or obj.Obsolete:
             continue
@@ -100,26 +102,23 @@ def __build_module():
         library_id = obj.LibraryGuid
         assembly = GH.Instances.ComponentServer.FindAssembly(library_id)
         if not assembly.IsCoreLibrary:
-            module_name = assembly.Assembly.GetName().Name
+            module_name = assembly.Assembly.GetName().Name.split('.', 1)[0]
+            if module_name.upper().startswith("GH_"): module_name = module_name[3:]
             if module_name in core_module.__dict__:
                 m = core_module.__dict__[module_name]
             else:
                 m = namespace_object()
                 setattr(core_module, module_name, m)
-        name = obj.Desc.Name.Replace(" ", "")
-        if "LEGACY" in name or "#" in name:
-            continue
-        name = name.translate(translation)
-        if not name[0].isalpha(): name = '_' + name
+        name = obj.Desc.Name
+        if "LEGACY" in name or "#" in name: continue
+        name = re.sub("[^a-zA-Z0-9]", lambda match: transl[match.group()] if (match.group() in transl) else '', name)
+        if not name[0].isalpha(): name = 'x' + name
         function = __make_function__(function_helper(obj))
-        if m == core_module:
-            setattr(m, name, function)
-            comp = obj.CreateInstance()
-            a = m.__dict__[name]
-            a.__name__ = name
-            a.__doc__ = function_description(obj.Desc.Description, comp.Params)
-        else:
-            setattr(m, name, types.MethodType(function, m, type(m)))
+        setattr(m, name, function)
+        comp = obj.CreateInstance()
+        a = m.__dict__[name]
+        a.__name__ = name
+        a.__doc__ = function_description(obj.Desc.Description, comp.Params)
 
 
 __build_module()
