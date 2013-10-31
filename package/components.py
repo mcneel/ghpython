@@ -5,7 +5,7 @@ import Grasshopper as GH
 
 def __make_function__(helper):
     def component_function(*args, **kwargs):
-        comp = helper.comp
+        comp = helper.proxy.CreateInstance()
         comp.ClearData()
         if args:
             for i, arg in enumerate(args):
@@ -42,7 +42,6 @@ class namespace_object(object):
 class function_helper(object):
     def __init__(self, proxy):
         self.proxy = proxy
-        self.comp = proxy.CreateInstance()
         self.return_type = None
 
     def create_output(self, params):
