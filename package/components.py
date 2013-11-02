@@ -30,7 +30,10 @@ def __make_function__(helper):
         doc.AddObject(comp, False, 0)
         comp.CollectData()
         comp.ComputeData()
-        return helper.create_output(comp.Params)
+        output = helper.create_output(comp.Params)
+        comp.ClearData()
+        doc.Dispose()
+        return output
     return component_function
 
 

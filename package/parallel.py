@@ -23,9 +23,3 @@ def run(function, data_list):
     pieces = pieces[1:]
     if pieces: tasks.Parallel.ForEach(pieces, helper)
     return results
-
-
-def chunk_list(l,n):
-    """Break a list into a list of lists"""
-    if n<2: return l
-    return [l[i:i+n] for i in range(0, len(l), n)]
