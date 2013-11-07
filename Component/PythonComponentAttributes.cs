@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace GhPython.Component
 {
-  class PythonComponentAttributes : GH_ComponentAttributes
+  public class PythonComponentAttributes : GH_ComponentAttributes
   {
     private PythonScriptForm m_form;
 
@@ -57,7 +57,7 @@ namespace GhPython.Component
       return true;
     }
 
-    public void DisableLinkedEditor(bool close)
+    internal void DisableLinkedEditor(bool close)
     {
       if (close && m_form != null && !m_form.IsDisposed)
         m_form.Disable();

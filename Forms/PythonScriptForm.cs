@@ -244,7 +244,7 @@ namespace GhPython.Forms
       {
         if (_component != null)
         {
-          var attributes = _component.Attributes as PythonComponentAttributes;
+          var attributes = _component.Attributes;
 
           if (attributes != null)
           {
