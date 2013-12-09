@@ -82,7 +82,7 @@ namespace GhPython.Component
         // if we get to here, we need to unpack the resources
         if (!Directory.Exists(settings_directory))
           Directory.CreateDirectory(settings_directory);
-        string ghpython_package_dir = Path.Combine(settings_directory, "lib", "gh_python");
+        string ghpython_package_dir = Path.Combine(settings_directory, "lib", PythonEnvironment.GHPYTHONLIB_NAME);
         if (Directory.Exists(ghpython_package_dir))
           Directory.Delete(ghpython_package_dir, true);
         Directory.CreateDirectory(ghpython_package_dir);

@@ -10,6 +10,8 @@ namespace GhPython.Component
 {
   public class PythonEnvironment
   {
+    internal const string GHPYTHONLIB_NAME = "ghpythonlib";
+
     internal PythonEnvironment(GH_Component component, PythonScript script)
     {
       Component = component;
@@ -105,9 +107,19 @@ namespace GhPython.Component
       IList list = GetIntellisenseList();
       if (list == null) return;
 
-      // add gh_python package
-      if (!list.Contains("gh_python"))
-        list.Add("gh_python");
+      bool contained = false;
+      for (int i = 0; i < list.Count; i++)
+      {
+        var itemString = list[i] as string;
+        if (itemString == null) continue;
+
+        if (itemString.Equals(GHPYTHONLIB_NAME, StringComparison.InvariantCulture))
+          contained = true;
+      }
+
+      // adds package
+      if (!contained)
+        list.Add(GHPYTHONLIB_NAME);
     }
 
     private IList GetIntellisenseList()

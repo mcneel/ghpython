@@ -90,7 +90,7 @@ def __build_module():
         return '\n'.join(rc)
 
     import sys, types, re
-    core_module = sys.modules['gh_python.components']
+    core_module = sys.modules['ghpythonlib.components']
     translate_from = u"|+-*\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079"
     translate_to = "X__x0123456789"
     transl = dict(zip(translate_from, translate_to))
