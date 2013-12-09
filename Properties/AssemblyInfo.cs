@@ -17,5 +17,5 @@ using System.Runtime.InteropServices;
 
 
 // [0.5.1.0] 6 August 2012 S. Baer - updated version numbers as minor update to be compatible with GH 0.9
-[assembly: AssemblyVersion("0.6.0.1")]
-[assembly: AssemblyFileVersion("0.6.0.1")]
+[assembly: AssemblyVersion("0.6.0.3")]
+[assembly: AssemblyFileVersion("0.6.0.3")]
