@@ -18,8 +18,10 @@ namespace GhPython.Component
   public abstract class ScriptingAncestorComponent : SafeComponent
   {
     static bool g_resources_unpacked = false;
+    internal static GrasshopperDocument g_document = new GrasshopperDocument();
+
     private readonly StringList m_py_output = new StringList(); // python output stream is piped here
-    internal static GrasshopperDocument m_document = new GrasshopperDocument();
+
     internal ComponentIOMarshal m_marshal;
     protected PythonScript m_py;
     private PythonCompiledCode m_compiled_py;
@@ -80,7 +82,7 @@ namespace GhPython.Component
         // if we get to here, we need to unpack the resources
         if (!Directory.Exists(settings_directory))
           Directory.CreateDirectory(settings_directory);
-        string ghpython_package_dir = Path.Combine(settings_directory, "lib", "ghpython");
+        string ghpython_package_dir = Path.Combine(settings_directory, "lib", "gh_python");
         if (Directory.Exists(ghpython_package_dir))
           Directory.Delete(ghpython_package_dir, true);
         Directory.CreateDirectory(ghpython_package_dir);
@@ -127,7 +129,6 @@ namespace GhPython.Component
       m_py = PythonScript.Create();
       if (m_py != null)
       {
-        //UnpackScriptResources();
         SetScriptTransientGlobals();
         m_py.Output = m_py_output.Write;
         m_py.SetVariable("__name__", "__main__");
@@ -139,6 +140,11 @@ namespace GhPython.Component
         m_py.ContextId = 2; // 2 is Grasshopper
 
         m_env.LoadAssembly(typeof(GH_Component).Assembly); //add Grasshopper.dll reference
+        m_env.LoadAssembly(typeof(ZuiPythonComponent).Assembly); //add GHPython.dll reference
+
+        UnpackScriptResources();
+
+        m_env.AddGhPythonPackage();
       }
     }
     #endregion
@@ -320,6 +326,8 @@ namespace GhPython.Component
 
     protected override void SafeSolveInstance(IGH_DataAccess da)
     {
+      m_env.DataAccessManager = da;
+
       if (m_py == null)
       {
         da.SetData(0, "No Python engine available. This component needs Rhino v5");
@@ -333,7 +341,7 @@ namespace GhPython.Component
 
       var rhdoc = RhinoDoc.ActiveDoc;
       var prevEnabled = (rhdoc != null) && rhdoc.Views.RedrawEnabled;
-
+      
       try
       {
         // set output variables to "None"
@@ -424,7 +432,7 @@ namespace GhPython.Component
 
     private bool AddLocalPath(out string path)
     {
-      string probe_location = m_document.Path;
+      string probe_location = g_document.Path;
       if (string.IsNullOrWhiteSpace(probe_location)) { path = null; return false; }
 
       probe_location = Path.GetDirectoryName(probe_location);
@@ -533,8 +541,24 @@ namespace GhPython.Component
 
     private void OnDocSolutionEnd(object sender, GH_SolutionEventArgs e)
     {
-      if (m_document != null)
-        m_document.Objects.Clear();
+      if (g_document != null)
+        g_document.Objects.Clear();
+    }
+
+    internal void RemoveAllVariables()
+    {
+      var variables = m_py.GetVariableNames().ToArray();
+
+      for (int i = 0; i < variables.Length; i++)
+      {
+        var variable = variables[i];
+
+        if (string.IsNullOrWhiteSpace(variable)) continue;
+        if (variable.StartsWith("_")) continue;
+        if (variable == DOCUMENT_NAME || variable == PARENT_ENVIRONMENT_NAME) continue;
+        
+        m_py.RemoveVariable(variables[i]);
+      }
     }
 
     #endregion
@@ -814,6 +838,10 @@ namespace GhPython.Component
           attr.DisableLinkedEditor(true);
       }
     }
+    #endregion
+
+    #region Properties Access
+    internal PythonScript PythonScript { get { return m_py; } }
     #endregion
   }
 }

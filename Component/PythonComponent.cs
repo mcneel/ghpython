@@ -43,10 +43,10 @@ namespace GhPython.Component
         case DocStorage.InGrasshopperMemory:
         case DocStorage.AutomaticMarshal:
           {
-            m_py.ScriptContextDoc = m_document;
-            m_marshal = new OldComponentIOMarshal(m_document, this);
-            m_py.SetVariable(DOCUMENT_NAME, m_document);
-            m_py.SetIntellisenseVariable(DOCUMENT_NAME, m_document);
+            m_py.ScriptContextDoc = g_document;
+            m_marshal = new OldComponentIOMarshal(g_document, this);
+            m_py.SetVariable(DOCUMENT_NAME, g_document);
+            m_py.SetIntellisenseVariable(DOCUMENT_NAME, g_document);
             break;
           }
         case DocStorage.InRhinoDoc:

@@ -144,10 +144,10 @@ namespace GhPython.Component
     {
       base.SetScriptTransientGlobals();
 
-      m_py.ScriptContextDoc = m_document;
-      m_marshal = new NewComponentIOMarshal(m_document, this);
-      m_py.SetVariable(DOCUMENT_NAME, m_document);
-      m_py.SetIntellisenseVariable(DOCUMENT_NAME, m_document);
+      m_py.ScriptContextDoc = g_document;
+      m_marshal = new NewComponentIOMarshal(g_document, this);
+      m_py.SetVariable(DOCUMENT_NAME, g_document);
+      m_py.SetIntellisenseVariable(DOCUMENT_NAME, g_document);
     }
 
     public override Guid ComponentGuid
