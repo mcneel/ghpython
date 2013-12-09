@@ -32,7 +32,7 @@ You are going to need:
 
 * The latest Rhino5 WIP (http://www.rhino3d.com/nr.htm)
 * Grasshopper (http://www.grasshopper3d.com)
-* Visual C# 2010
+* Visual C# 2012
 
 Steps:
 
