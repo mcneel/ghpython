@@ -39,7 +39,7 @@ namespace GhPython.Component
         }
 
         var baseType = scriptType.BaseType;
-        if (baseType != null && baseType != typeof (object))
+        if (baseType != null && baseType != typeof(object))
         {
           var hostType = baseType.Assembly.GetType("RhinoPython.Host");
           if (hostType != null)
@@ -84,12 +84,38 @@ namespace GhPython.Component
 
     public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
+    public IGH_DataAccess DataAccessManager { get; internal set; }
+
     public void LoadAssembly(Assembly assembly)
     {
       FunctionalityLoad(assembly);
 
+      IList list = GetIntellisenseList();
+      if (list == null) return;
+
+      foreach (var namesp in GetToplevelNamespacesForAssembly(assembly))
+      {
+        if (!list.Contains(namesp))
+          list.Add(namesp);
+      }
+    }
+
+    public void AddGhPythonPackage()
+    {
+      IList list = GetIntellisenseList();
+      if (list == null) return;
+
+      // add gh_python package
+      if (!list.Contains("gh_python"))
+        list.Add("gh_python");
+    }
+
+    private IList GetIntellisenseList()
+    {
+      IList list = null;
+
       // now intellisense
-      if (IntellisenseScope == null) return; 
+      if (IntellisenseScope == null) return list;
 
       // we really want to get intellisense right away. No matter what
       // so, we first make it cache, then add to it
@@ -101,21 +127,8 @@ namespace GhPython.Component
       var ex_m_autocomplete_modules = intellisense_type.GetField("m_autocomplete_modules",
         BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
 
-      if (ex_m_autocomplete_modules == null) return;
-      var list = ex_m_autocomplete_modules.GetValue(Intellisense) as IList;
-
-      if (list == null) return;
-      
-      // add ghpython package
-      if (!list.Contains("ghpython"))
-        list.Add("ghpython");
-
-
-      foreach (var namesp in GetToplevelNamespacesForAssembly(assembly))
-      {
-        if (!list.Contains(namesp))
-          list.Add(namesp);
-      }
+      if (ex_m_autocomplete_modules == null) return list;
+      return ex_m_autocomplete_modules.GetValue(Intellisense) as IList;
     }
 
     private void FunctionalityLoad(Assembly assembly)
@@ -134,9 +147,9 @@ namespace GhPython.Component
     // http://stackoverflow.com/questions/1549198/finding-all-namespaces-in-an-assembly-using-reflection-dotnet
     static string GetTopLevelNamespace(Type t)
     {
-        string ns = t.Namespace ?? "";
-        int firstDot = ns.IndexOf('.');
-        return firstDot == -1 ? ns : ns.Substring(0, firstDot);
+      string ns = t.Namespace ?? "";
+      int firstDot = ns.IndexOf('.');
+      return firstDot == -1 ? ns : ns.Substring(0, firstDot);
     }
   }
 }
