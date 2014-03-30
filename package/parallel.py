@@ -1,6 +1,8 @@
 import System.Threading.Tasks as tasks
 from System import Exception, AggregateException
 
+__run_native = None
+
 def run(function, data_list, flatten_results = False):
     """for each item in data_list execute the input function. Execution is
     done on as many threads as there are CPUs on the computer.
@@ -13,6 +15,8 @@ def run(function, data_list, flatten_results = False):
     Returns:
         list of results containing the return from each call to the input function
     """
+    if __run_native!=None:
+        return __run_native(function, data_list, flatten_results)
     pieces = [(i,data) for i,data in enumerate(data_list)]
     results = range(len(pieces))
 
@@ -34,3 +38,17 @@ def run(function, data_list, flatten_results = False):
                 temp.append(result)
         results = temp
     return results
+
+
+def __build_module():
+    global __run_native
+    try:
+        import GhPython
+        global __run_native
+        __run_native = GhPython.ScriptHelpers.Parallel.Run
+    except:
+        global __run_native
+        __run_native = None
+
+
+__build_module()

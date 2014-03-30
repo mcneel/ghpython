@@ -118,6 +118,9 @@
     <Compile Include="Component\SafeComponent.cs" />
     <Compile Include="Component\StringList.cs" />
     <Compile Include="Component\PyUpgrader.cs" />
+    <Compile Include="ScriptHelpers\FastComponent.cs" />
+    <Compile Include="ScriptHelpers\GhPyDataAccess.cs" />
+    <Compile Include="ScriptHelpers\Parallel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\checked.png" />

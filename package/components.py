@@ -2,9 +2,14 @@ import clr
 clr.AddReference("Grasshopper")
 import Grasshopper as GH
 
+experimental_mode = False
 
 def __make_function__(helper):
     def component_function(*args, **kwargs):
+        if experimental_mode:
+            success, fastdata = helper.runfast(args)
+            if success: return fastdata
+
         comp = helper.proxy.CreateInstance()
         comp.ClearData()
         if args:
@@ -43,23 +48,29 @@ class namespace_object(object):
 
 
 class function_helper(object):
-    def __init__(self, proxy):
+    def __init__(self, proxy, name):
         self.proxy = proxy
+        # obviosly hand picking components won't work for the long run, but this
+        # lets me experiment with a small set to figure out the issues involved
+        fast_components = ("MeshXRay", "Vector2Pt", "Line", "CurveClosestPoint")
+        self.supports_fast = name in fast_components
+        self.fast_component = None
         self.return_type = None
 
-    def create_output(self, params):
+    def create_output(self, params, output_values=None):
         from collections import namedtuple
-        output_values = []
-        for output in params.Output:
-            data = output.VolatileData.AllData(True)
-            #We could call Value, but ScriptVariable seems to do a better job
-            v = [x.ScriptVariable() for x in data]
-            if len(v)<1:
-                output_values.append(None)
-            elif len(v)==1:
-                output_values.append(v[0])
-            else:
-                output_values.append(v)
+        if not output_values:
+            output_values = []
+            for output in params.Output:
+                data = output.VolatileData.AllData(True)
+                #We could call Value, but ScriptVariable seems to do a better job
+                v = [x.ScriptVariable() for x in data]
+                if len(v)<1:
+                    output_values.append(None)
+                elif len(v)==1:
+                    output_values.append(v[0])
+                else:
+                    output_values.append(v)
         if len(output_values)==1: return output_values[0]
         if self.return_type is None:
             names = [output.Name.lower() for output in params.Output]
@@ -69,6 +80,18 @@ class function_helper(object):
                 self.return_type = False
         if not self.return_type: return output_values
         return self.return_type(*output_values)
+
+    def runfast(self, args):
+        if not self.supports_fast: return False, None
+        if self.fast_component == None:
+            self.fast_component = self.proxy.CreateInstance()
+        import GhPython
+        output = GhPython.ScriptHelpers.FastComponent.Run(self.fast_component, args)
+        if output:
+            if len(output[0])==1:
+                output = [a[0] for a in output]
+            output = self.create_output(self.fast_component.Params, output)
+        return True, output
 
 
 def __build_module():
@@ -103,6 +126,7 @@ def __build_module():
         m = core_module
         library_id = obj.LibraryGuid
         assembly = GH.Instances.ComponentServer.FindAssembly(library_id)
+        if assembly is None: continue
         if not assembly.IsCoreLibrary:
             module_name = assembly.Assembly.GetName().Name.split('.', 1)[0]
             if module_name.upper().startswith("GH_"): module_name = module_name[3:]
@@ -115,7 +139,7 @@ def __build_module():
         if "LEGACY" in name or "#" in name: continue
         name = re.sub("[^a-zA-Z0-9]", lambda match: transl[match.group()] if (match.group() in transl) else '', name)
         if not name[0].isalpha(): name = 'x' + name
-        function = __make_function__(function_helper(obj))
+        function = __make_function__(function_helper(obj, name))
         setattr(m, name, function)
         comp = obj.CreateInstance()
         a = m.__dict__[name]
