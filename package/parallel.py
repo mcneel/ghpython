@@ -42,12 +42,11 @@ def run(function, data_list, flatten_results = False):
 
 def __build_module():
     global __run_native
+    __run_native = None
     try:
         import GhPython
-        global __run_native
         __run_native = GhPython.ScriptHelpers.Parallel.Run
     except:
-        global __run_native
         __run_native = None
 
 

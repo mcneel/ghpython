@@ -8,24 +8,22 @@ namespace GhPython.ScriptHelpers
   class GhPyDataAccess : IGH_DataAccess
   {
     readonly GH_Component m_component;
-    int m_iteration;
-    IList<object> m_data;
-    readonly List<object>[] m_output;
+    readonly object[] m_output;
+    readonly IList<object> m_data;
 
-    public GhPyDataAccess(GH_Component parent)
+    public GhPyDataAccess(GH_Component parent, IList<object> inputData)
     {
       m_component = parent;
-      m_iteration = -1;
+      m_data = inputData;
       int output_count = parent.Params.Output.Count;
-      m_output = new List<object>[output_count];
-      for (int i = 0; i < output_count; i++)
-        m_output[i] = new List<object>();
+      m_output = new object[output_count];
     }
 
-    public List<object>[] Output
+    public object[] Output
     {
       get { return m_output; }
     }
+
 
     public void AbortComponentSolution()
     {
@@ -93,20 +91,20 @@ namespace GhPython.ScriptHelpers
 
     public void IncrementIteration(IList<object> data)
     {
-      IncrementIteration();
-      for (int i = 0; i < m_output.Length; i++)
-        m_output[i].Add(null);
-      m_data = data;
+      throw new NotImplementedException();
     }
 
     public void IncrementIteration()
     {
-      m_iteration++;
+      throw new NotImplementedException();
     }
 
     public int Iteration
     {
-      get { return m_iteration; }
+      get
+      {
+        throw new NotImplementedException();
+      }
     }
 
     public int ParameterTargetIndex(int paramIndex)
@@ -134,8 +132,7 @@ namespace GhPython.ScriptHelpers
     {
       if (paramIndex < 0 || paramIndex >= m_output.Length)
         return false;
-      int output_length = m_output[paramIndex].Count;
-      m_output[paramIndex][output_length - 1] = data;
+      m_output[paramIndex] = data;
       return true;
     }
 

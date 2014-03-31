@@ -7,7 +7,7 @@ experimental_mode = False
 def __make_function__(helper):
     def component_function(*args, **kwargs):
         if experimental_mode:
-            success, fastdata = helper.runfast(args)
+            success, fastdata = helper.runfast(args, kwargs)
             if success: return fastdata
 
         comp = helper.proxy.CreateInstance()
@@ -81,12 +81,12 @@ class function_helper(object):
         if not self.return_type: return output_values
         return self.return_type(*output_values)
 
-    def runfast(self, args):
+    def runfast(self, args, kwargs):
         if not self.supports_fast: return False, None
         if self.fast_component == None:
             self.fast_component = self.proxy.CreateInstance()
         import GhPython
-        output = GhPython.ScriptHelpers.FastComponent.Run(self.fast_component, args)
+        output = GhPython.ScriptHelpers.FastComponent.Run(self.fast_component, args, kwargs)
         if output:
             if len(output[0])==1:
                 output = [a[0] for a in output]
